@@ -182,5 +182,54 @@ Booking flow should be resilient to API failure and include UI feedback (loading
 
 ---
 
-This PRD is now a single reference document for everyone on the SoulAsia project: client, developer, designer, and QA.
+UI guidelines 
 
+1. Design System Foundation
+	•	Frameworks: Utilize Tailwind CSS for utility-first styling and ShadCN for component consistency.
+	•	Design Tokens: Define and maintain tokens for colors, typography, spacing, and other design elements to ensure uniformity across the application. ￼
+	•	Component Library: Develop a reusable component library (e.g., buttons, inputs, modals) to promote consistency and efficiency.
+
+2. Layout and Spacing
+	•	Grid System: Implement a 12-column responsive grid to accommodate various screen sizes.
+	•	Spacing Scale: Adopt a consistent spacing scale (e.g., 4px increments) to maintain visual harmony.
+	•	Section Padding: Apply generous padding to sections to enhance readability and focus.
+
+3. Typography
+	•	Font Selection: Choose modern, legible fonts (e.g., Inter, Roboto) for clarity.
+	•	Hierarchy: Establish a clear typographic hierarchy using varying font sizes and weights.
+	•	Line Spacing: Ensure adequate line spacing (1.5x font size) for improved readability.
+
+4. Color Palette
+	•	Primary Colors: Select a neutral base (e.g., white, light gray) complemented by an accent color (e.g., teal, coral) for interactive elements.
+	•	Contrast: Maintain sufficient contrast between text and background to meet accessibility standards.
+	•	State Indicators: Use color variations to indicate different states (e.g., hover, active, disabled).
+
+5. Interactive Elements
+	•	Buttons: Design buttons with clear labels, appropriate sizing, and distinct states (default, hover, active, disabled).
+	•	Forms: Ensure form fields are accessible, with labels, placeholders, and validation messages.
+	•	Feedback: Provide immediate visual feedback for user interactions (e.g., loading indicators, success messages).
+
+6. Navigation
+	•	Header: Include a sticky header with primary navigation links and a prominent call-to-action (e.g., “Book Now”).
+	•	Footer: Design a footer with secondary navigation, contact information, and social media links. ￼
+	•	Breadcrumbs: Implement breadcrumbs on multi-step processes to indicate progress.
+
+7. Responsive Design
+	•	Mobile Optimization: Ensure all components are responsive and touch-friendly.
+	•	Breakpoint Strategy: Define breakpoints for common device widths (e.g., 640px, 768px, 1024px, 1280px).
+	•	Content Adaptation: Adjust content layout and font sizes for optimal readability on smaller screens.
+
+8. Accessibility
+	•	Semantic HTML: Use semantic elements (e.g., <header>, <nav>, <main>, <footer>) for better accessibility and SEO.
+	•	Keyboard Navigation: Ensure all interactive elements are reachable and operable via keyboard.
+	•	ARIA Attributes: Implement ARIA roles and attributes where necessary to enhance screen reader support.
+
+9. Performance Optimization
+	•	Asset Management: Optimize images and assets for faster load times.
+	•	Lazy Loading: Implement lazy loading for images and components not immediately visible.
+	•	Code Splitting: Utilize code splitting to reduce initial load times.
+
+10. Consistency and Reusability
+	•	Component Reuse: Leverage reusable components to maintain consistency and reduce development time.
+	•	Style Guide: Maintain a comprehensive style guide documenting design patterns and component usage.
+	•	Version Control: Use version control for design assets to track changes and facilitate collaboration.

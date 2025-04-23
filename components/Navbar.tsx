@@ -1,94 +1,59 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Menu, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const router = useRouter();
-  const supabase = createClientComponentClient();
+  const [isScrolled, setIsScrolled] = useState(false);
 
+  // Handle scroll events for header styling
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-      setUserEmail(session?.user?.email || null);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
     };
 
-    checkAuth();
-
-    // Subscribe to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      setUserEmail(session?.user?.email || null);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-    router.refresh();
-  };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-bold">
-              SoulAsia
-            </Link>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <Button 
-                  variant="ghost"
-                  asChild
-                >
-                  <Link href="/dashboard">
-                    Dashboard
-                  </Link>
-                </Button>
-                <span className="text-sm text-gray-600">{userEmail}</span>
-                <Button 
-                  variant="outline"
-                  onClick={handleSignOut}
-                >
-                  Log out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost"
-                  asChild
-                >
-                  <Link href="/auth/sign-in">
-                    Log in
-                  </Link>
-                </Button>
-                <Button 
-                  asChild
-                >
-                  <Link href="/auth/sign-up">
-                    Sign up
-                  </Link>
-                </Button>
-              </>
-            )}
-          </div>
+    <header
+      className={cn(
+        'fixed top-0 z-50 w-full transition-all duration-300 ease-in-out',
+        isScrolled ? 'bg-white shadow-sm py-4' : 'bg-transparent py-6'
+      )}
+    >
+      <div className="container flex items-center justify-between px-4 mx-auto">
+        <Link href="/" className="flex items-center">
+          <span className="text-2xl font-bold text-blue-600">soulasia</span>
+        </Link>
+        <div className="hidden md:flex items-center space-x-1 bg-white rounded-full shadow-sm border border-gray-100 p-1 px-2">
+          <Button variant="ghost" className="text-sm font-medium rounded-full">
+            Places to stay
+          </Button>
+          <Button variant="ghost" className="text-sm font-medium rounded-full">
+            Experiences
+          </Button>
+          <Button variant="ghost" className="text-sm font-medium rounded-full">
+            Online Experiences
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="rounded-full hidden md:flex">
+            Become a host
+          </Button>
+          <Button variant="outline" size="icon" className="rounded-full">
+            <User className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" className="rounded-full flex items-center gap-2 shadow-sm">
+            <Menu className="w-4 h-4" />
+            <span className="sr-only md:not-sr-only">Menu</span>
+          </Button>
         </div>
       </div>
-    </nav>
+    </header>
   );
 } 
