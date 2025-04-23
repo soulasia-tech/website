@@ -5,10 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from 'next/link';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const supabase = createClientComponentClient();
   const [bookingDetails, setBookingDetails] = useState({
     bookingId: searchParams.get('bookingId'),
     status: '',
@@ -17,6 +20,15 @@ function ConfirmationContent() {
     roomType: '',
     totalPrice: 0
   });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+  }, [supabase.auth]);
 
   useEffect(() => {
     // Simulate API call delay
@@ -72,9 +84,31 @@ function ConfirmationContent() {
           </div>
         </div>
 
-        <div className="text-center">
+        {!isAuthenticated && (
+          <div className="border-t pt-6 mt-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-lg font-semibold">Create an Account</h2>
+              <p className="text-gray-600">
+                Sign up to track your bookings, get exclusive deals, and manage your reservations easily!
+              </p>
+              <Button asChild className="w-full sm:w-auto">
+                <Link href={`/auth/sign-up?redirect=${encodeURIComponent('/dashboard')}`}>
+                  Create Account
+                </Link>
+              </Button>
+              <p className="text-sm text-gray-500">
+                Already have an account?{' '}
+                <Link href="/auth/sign-in" className="text-blue-600 hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="text-center mt-6">
           <Link href="/">
-            <Button>Return to Home</Button>
+            <Button variant="outline">Return to Home</Button>
           </Link>
         </div>
       </Card>
