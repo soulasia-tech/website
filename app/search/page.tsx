@@ -1,49 +1,62 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export default function SearchPage() {
+interface RoomResult {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  maxGuests: number;
+  available: boolean;
+}
+
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [rooms, setRooms] = useState<any[]>([]);
+  const [results, setResults] = useState<RoomResult[]>([]);
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            startDate: searchParams.get('startDate'),
-            endDate: searchParams.get('endDate'),
-            guests: parseInt(searchParams.get('guests') || '1')
-          })
-        });
-        const data = await response.json();
-        if (data.success) {
-          setRooms(data.data);
+    // Simulate API call
+    setTimeout(() => {
+      setResults([
+        {
+          id: 'room1',
+          name: 'Deluxe Room',
+          description: 'Spacious room with garden view',
+          price: 150,
+          maxGuests: 2,
+          available: true
+        },
+        {
+          id: 'room2',
+          name: 'Suite',
+          description: 'Luxury suite with ocean view',
+          price: 250,
+          maxGuests: 4,
+          available: true
         }
-      } catch (error) {
-        console.error('Search failed:', error);
-      }
+      ]);
       setLoading(false);
-    };
+    }, 1000);
+  }, []);
 
-    fetchRooms();
-  }, [searchParams]);
-
-  const handleBook = (roomId: string) => {
-    router.push(`/booking?roomId=${roomId}&startDate=${searchParams.get('startDate')}&endDate=${searchParams.get('endDate')}&guests=${searchParams.get('guests')}`);
+  const handleBookNow = (roomId: string) => {
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const guests = searchParams.get('guests');
+    
+    router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&guests=${guests}`);
   };
 
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Searching...</h1>
+        <h1 className="text-2xl font-bold mb-4">Searching available rooms...</h1>
       </div>
     );
   }
@@ -53,33 +66,33 @@ export default function SearchPage() {
       <h1 className="text-2xl font-bold mb-4">Available Rooms</h1>
       
       <div className="grid gap-4">
-        {rooms.length === 0 ? (
-          <Card className="p-6 text-center">
-            <p className="text-gray-600">No rooms available for the selected dates.</p>
-            <Button 
-              onClick={() => router.push('/')}
-              className="mt-4"
-            >
-              Try Different Dates
-            </Button>
-          </Card>
-        ) : (
-          rooms.map((room) => (
-            <Card key={room.id} className="p-4">
-              <h2 className="text-xl font-semibold">{room.name}</h2>
-              <p className="text-gray-600">{room.description}</p>
-              <p className="font-bold">${room.price} per night</p>
+        {results.map(room => (
+          <Card key={room.id} className="p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold">{room.name}</h2>
+                <p className="text-gray-600">{room.description}</p>
+                <p className="mt-2">Max Guests: {room.maxGuests}</p>
+                <p className="font-semibold mt-2">${room.price} per night</p>
+              </div>
               <Button 
-                onClick={() => handleBook(room.id)}
-                disabled={!room.isAvailable}
-                className="mt-2"
+                onClick={() => handleBookNow(room.id)}
+                disabled={!room.available}
               >
-                {room.isAvailable ? 'Book Now' : 'Not Available'}
+                Book Now
               </Button>
-            </Card>
-          ))
-        )}
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 } 

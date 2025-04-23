@@ -1,45 +1,50 @@
 import { NextResponse } from 'next/server';
-import { rooms, generateAvailability } from '@/data/mock-rooms';
+import type { ApiResponse, SearchRequest, RoomAvailability } from '@/types/api';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { startDate, endDate, guests } = body;
+    const body: SearchRequest = await request.json();
 
-    if (!startDate || !endDate) {
-      return NextResponse.json(
-        { error: 'Start date and end date are required' },
-        { status: 400 }
-      );
+    // Validate request
+    if (!body.startDate || !body.endDate || !body.guests) {
+      return NextResponse.json<ApiResponse<never>>({
+        success: false,
+        error: 'Missing required fields'
+      }, { status: 400 });
     }
 
-    // Generate availability for the date range
-    const availability = generateAvailability(startDate, endDate);
+    // Mock API call to check room availability
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Filter rooms based on guest count
-    const availableRooms = rooms.filter(room => room.capacity >= (guests || 1));
+    // Mock response data
+    const availableRooms: RoomAvailability[] = [
+      {
+        id: 'room1',
+        name: 'Deluxe Room',
+        description: 'Spacious room with garden view',
+        price: 150,
+        maxGuests: 2,
+        isAvailable: true
+      },
+      {
+        id: 'room2',
+        name: 'Suite',
+        description: 'Luxury suite with ocean view',
+        price: 250,
+        maxGuests: 4,
+        isAvailable: true
+      }
+    ];
 
-    // Combine room data with availability
-    const results = availableRooms.map(room => {
-      const roomAvailability = availability.filter(a => a.roomId === room.id);
-      const isAvailable = roomAvailability.every(a => a.isAvailable);
-      
-      return {
-        ...room,
-        availability: roomAvailability,
-        isAvailable
-      };
-    });
-
-    return NextResponse.json({
+    return NextResponse.json<ApiResponse<RoomAvailability[]>>({
       success: true,
-      data: results
+      data: availableRooms
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Search error:', error);
-    return NextResponse.json(
-      { error: 'Failed to search rooms' },
-      { status: 500 }
-    );
+    return NextResponse.json<ApiResponse<never>>({
+      success: false,
+      error: 'Failed to search rooms'
+    }, { status: 500 });
   }
 } 

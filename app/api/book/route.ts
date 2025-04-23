@@ -1,69 +1,41 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import type { ApiResponse, BookingRequest, BookingDetails } from '@/types/api';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      checkIn,
-      checkOut,
-      roomId,
-      numberOfGuests,
-      totalPrice
-    } = body;
+    const body: BookingRequest = await request.json();
 
-    // Validate required fields
-    if (!firstName || !lastName || !email || !checkIn || !checkOut || !roomId || !numberOfGuests || !totalPrice) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    // Validate request
+    if (!body.firstName || !body.lastName || !body.email || !body.checkIn || !body.checkOut || !body.roomId) {
+      return NextResponse.json<ApiResponse<never>>({
+        success: false,
+        error: 'Missing required fields'
+      }, { status: 400 });
     }
 
-    // Create booking in Supabase
-    const { data, error } = await supabase
-      .from('guest_bookings')
-      .insert({
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone,
-        check_in: checkIn,
-        check_out: checkOut,
-        room_type: roomId,
-        number_of_guests: numberOfGuests,
-        total_price: totalPrice,
-        status: 'pending',
-        payment_status: 'pending'
-      })
-      .select()
-      .single();
+    // Mock API call to create booking
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    if (error) {
-      console.error('Booking error:', error);
-      return NextResponse.json(
-        { error: 'Failed to create booking' },
-        { status: 500 }
-      );
-    }
+    // Mock booking response
+    const booking: BookingDetails = {
+      id: `booking_${Date.now()}`,
+      status: 'pending',
+      checkIn: body.checkIn,
+      checkOut: body.checkOut,
+      roomType: 'Deluxe Room',
+      totalPrice: 150,
+      paymentStatus: 'pending'
+    };
 
-    return NextResponse.json({
+    return NextResponse.json<ApiResponse<BookingDetails>>({
       success: true,
-      data: {
-        bookingId: data.id,
-        status: 'pending',
-        message: 'Booking created successfully. Proceed to payment.'
-      }
+      data: booking
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Booking error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create booking' },
-      { status: 500 }
-    );
+    return NextResponse.json<ApiResponse<never>>({
+      success: false,
+      error: 'Failed to create booking'
+    }, { status: 500 });
   }
 } 

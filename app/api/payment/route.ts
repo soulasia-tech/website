@@ -1,59 +1,39 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import type { ApiResponse, PaymentRequest, PaymentDetails } from '@/types/api';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { bookingId, paymentMethod } = body;
+    const body: PaymentRequest = await request.json();
 
-    if (!bookingId || !paymentMethod) {
-      return NextResponse.json(
-        { error: 'Booking ID and payment method are required' },
-        { status: 400 }
-      );
+    // Validate request
+    if (!body.bookingId || !body.paymentMethod || !body.amount) {
+      return NextResponse.json<ApiResponse<never>>({
+        success: false,
+        error: 'Missing required fields'
+      }, { status: 400 });
     }
 
     // Mock payment processing
-    const paymentSuccess = Math.random() > 0.1; // 90% success rate
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    if (!paymentSuccess) {
-      return NextResponse.json(
-        { error: 'Payment failed. Please try again.' },
-        { status: 400 }
-      );
-    }
+    // Mock payment response
+    const payment: PaymentDetails = {
+      id: `payment_${Date.now()}`,
+      status: 'succeeded',
+      amount: body.amount,
+      currency: 'USD',
+      createdAt: new Date().toISOString()
+    };
 
-    // Update booking status in Supabase
-    const { error } = await supabase
-      .from('guest_bookings')
-      .update({
-        payment_status: 'completed',
-        status: 'confirmed',
-        stripe_payment_id: `mock_payment_${Date.now()}`
-      })
-      .eq('id', bookingId);
-
-    if (error) {
-      console.error('Payment update error:', error);
-      return NextResponse.json(
-        { error: 'Failed to update booking status' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({
+    return NextResponse.json<ApiResponse<PaymentDetails>>({
       success: true,
-      data: {
-        bookingId,
-        status: 'confirmed',
-        message: 'Payment successful. Booking confirmed.'
-      }
+      data: payment
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Payment error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process payment' },
-      { status: 500 }
-    );
+    return NextResponse.json<ApiResponse<never>>({
+      success: false,
+      error: 'Failed to process payment'
+    }, { status: 500 });
   }
 } 

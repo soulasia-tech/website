@@ -1,16 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
-export default function BookingPage() {
+interface BookingData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  checkIn: string;
+  checkOut: string;
+  roomId: string;
+  numberOfGuests: number;
+  totalPrice: number;
+}
+
+function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
-  const [bookingData, setBookingData] = useState({
+  const [loading, setLoading] = useState(true);
+  const [bookingData, setBookingData] = useState<BookingData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -21,6 +33,17 @@ export default function BookingPage() {
     numberOfGuests: parseInt(searchParams.get('guests') || '1'),
     totalPrice: 0
   });
+
+  useEffect(() => {
+    // Simulate loading booking details
+    setTimeout(() => {
+      setBookingData(prev => ({
+        ...prev,
+        totalPrice: 150 * prev.numberOfGuests
+      }));
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +66,14 @@ export default function BookingPage() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Loading booking details...</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -126,5 +157,13 @@ export default function BookingPage() {
         </form>
       </Card>
     </div>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div>Loading booking details...</div>}>
+      <BookingContent />
+    </Suspense>
   );
 } 
