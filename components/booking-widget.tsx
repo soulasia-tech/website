@@ -1,82 +1,109 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
-import { DatePicker } from "./date-picker"
-import { LocationSearch } from "./location-search"
-import { addDays } from "date-fns"
-import { motion } from "framer-motion"
+import { Input } from "@/components/ui/input"
+import { MapPin, Calendar, Users } from "lucide-react"
 
 export function BookingWidget() {
-  const [location, setLocation] = useState("")
-  const [checkInDate, setCheckInDate] = useState<Date | undefined>(undefined)
-  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(undefined)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+  const [searchParams, setSearchParams] = useState({
+    location: 'kuala-lumpur',
+    startDate: '',
+    endDate: '',
+    guests: '1'
+  })
 
-  const handleSearch = () => {
-    // Show loading state
-    setIsSubmitting(true)
+  const locations = [
+    { value: 'kuala-lumpur', label: 'Kuala Lumpur' },
+    { value: 'penang', label: 'Penang' },
+    { value: 'langkawi', label: 'Langkawi' },
+    { value: 'malacca', label: 'Malacca' }
+  ]
 
-    // Log search data
-    console.log("Search submitted:", {
-      location,
-      checkInDate,
-      checkOutDate,
-    })
-
-    // Short timeout to show loading state before redirecting
-    setTimeout(() => {
-      // Redirect to Calendly in the same tab
-      window.location.href = "https://calendly.com/glebgordeev/30min"
-    }, 1000)
-  }
-
-  // Set checkout date to be one day after check-in when check-in is selected
-  const handleCheckInChange = (date: Date | undefined) => {
-    setCheckInDate(date)
-    if (date && (!checkOutDate || checkOutDate <= date)) {
-      setCheckOutDate(addDays(date, 1))
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchParams.location || !searchParams.startDate || !searchParams.endDate) {
+      return
     }
+    const queryString = new URLSearchParams(searchParams).toString()
+    router.push(`/search?${queryString}`)
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.6 }}
-      className="w-full max-w-4xl"
-    >
-      <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/10">
-        <div className="grid grid-cols-1 md:grid-cols-12">
-          <div className="p-4 md:col-span-4 border-b md:border-b-0 md:border-r border-gray-100">
-            <LocationSearch value={location} onChange={setLocation} />
-          </div>
-
-          <div className="p-4 md:col-span-3 border-b md:border-b-0 md:border-r border-gray-100">
-            <DatePicker date={checkInDate} setDate={handleCheckInChange} label="Check in" placeholder="Add dates" />
-          </div>
-
-          <div className="p-4 md:col-span-3 border-b md:border-b-0 md:border-r border-gray-100">
-            <DatePicker date={checkOutDate} setDate={setCheckOutDate} label="Check out" placeholder="Add dates" />
-          </div>
-
-          <div className="p-4 md:col-span-2 flex items-center">
-            <Button
-              onClick={handleSearch}
-              disabled={isSubmitting}
-              className="w-full h-12 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white"
+    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+      <form onSubmit={handleSearch} className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+              <MapPin className="w-4 h-4" />
+              <span>Location</span>
+            </div>
+            <select
+              value={searchParams.location}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, location: e.target.value }))}
+              className="w-full h-12 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              {isSubmitting ? (
-                <div className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin mr-2" />
-              ) : (
-                <Search className="w-5 h-5 mr-2" />
-              )}
-              Search
-            </Button>
+              {locations.map(location => (
+                <option key={location.value} value={location.value}>
+                  {location.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span>Check-in</span>
+            </div>
+            <Input
+              type="date"
+              required
+              value={searchParams.startDate}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, startDate: e.target.value }))}
+              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+              <Calendar className="w-4 h-4" />
+              <span>Check-out</span>
+            </div>
+            <Input
+              type="date"
+              required
+              value={searchParams.endDate}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, endDate: e.target.value }))}
+              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+              <Users className="w-4 h-4" />
+              <span>Guests</span>
+            </div>
+            <Input
+              type="number"
+              min="1"
+              required
+              value={searchParams.guests}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, guests: e.target.value }))}
+              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
+            />
           </div>
         </div>
-      </div>
-    </motion.div>
+
+        <Button 
+          type="submit" 
+          className="w-full h-12 text-base font-medium rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
+        >
+          Search Availability
+        </Button>
+      </form>
+    </div>
   )
 } 

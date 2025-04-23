@@ -146,12 +146,19 @@ export default function Home() {
                 initial={{ width: 0 }}
                 animate={{ width: "120px" }}
                 transition={{ duration: 1, delay: 0.8 }}
-                className="h-1 bg-white/70 mx-auto mb-10 rounded-full"
+                className="h-1 bg-white/70 mx-auto mb-16 rounded-full"
               />
             </motion.div>
 
-            {/* Booking Widget */}
-            <BookingWidget />
+            {/* Booking Widget Container */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="w-full max-w-5xl mx-auto px-4 mb-24"
+            >
+              <BookingWidget />
+            </motion.div>
 
             {/* Floating Features */}
             <div className="absolute bottom-12 left-0 right-0">
