@@ -45,7 +45,7 @@ Booking flow should be resilient to API failure and include UI feedback (loading
 **Goal:** Scaffold the tech stack and simulate API behavior.
 - Connect GitHub and Vercel - done 
 - Setup Next.js + TailwindCSS + ShadCN - done 
-- Supabase DB with `guest_bookings` table - 
+- Supabase DB with `guest_bookings` table  - done
 - Create mock endpoints in `/api`
 - Create local JSON file for fake rooms & availability
 - Confirm mock booking flow works end-to-end
