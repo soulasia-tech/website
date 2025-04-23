@@ -33,7 +33,7 @@ export default async function DashboardPage() {
           )}
 
           {bookings && bookings.length === 0 && (
-            <p className="text-gray-600">You don't have any bookings yet.</p>
+            <p className="text-gray-600">You don&apos;t have any bookings yet.</p>
           )}
 
           {bookings && bookings.length > 0 && (
