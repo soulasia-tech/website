@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -141,7 +141,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<BookingError | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
@@ -161,27 +161,11 @@ export default function DashboardPage() {
     } catch (error) {
       setError({ message: 'Failed to fetch bookings' });
     }
-  };
+  }, [supabase]);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
-
-  const handleCancelBooking = async (bookingId: string) => {
-    try {
-      const { error: cancelError } = await supabase
-        .from('bookings')
-        .update({ status: 'cancelled' })
-        .eq('id', bookingId);
-
-      if (cancelError) throw cancelError;
-
-      // Refresh bookings after cancellation
-      await fetchBookings();
-    } catch (error) {
-      setError({ message: 'Failed to cancel booking' });
-    }
-  };
+  }, [fetchBookings]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -192,7 +176,7 @@ export default function DashboardPage() {
           <h2 className="text-lg font-medium mb-4">Your Bookings</h2>
           
           {error && (
-            <div className="text-red-600 mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
               {error.message}
             </div>
           )}

@@ -24,14 +24,8 @@ interface BookingFormData {
   roomId: string;
 }
 
-interface CloudbedsResponse {
-  success: boolean;
-  message?: string;
-  data?: {
-    reservationId?: string;
-    status?: string;
-    [key: string]: unknown;
-  };
+interface BookingError {
+  message: string;
 }
 
 // Mock room data (matching search page)
@@ -180,16 +174,15 @@ function BookingForm() {
         }
       } else {
         // For guest bookings, we'll keep the existing mock functionality
-        // In a real application, you would implement guest booking logic here
         await new Promise(resolve => setTimeout(resolve, 1500));
         bookingId = `guest_booking_${Date.now()}`;
       }
       
       // Redirect to confirmation page
       router.push(`/confirmation?bookingId=${bookingId}`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Booking failed:', error);
-      setError(error.message || 'Failed to process your booking. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to process your booking. Please try again.');
       setSubmitting(false);
     }
   };

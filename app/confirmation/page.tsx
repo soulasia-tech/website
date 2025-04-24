@@ -74,7 +74,7 @@ export default function ConfirmationPage() {
         }
 
         // Get user session
-        const { data: { session } } = await supabase.auth.getSession();
+        await supabase.auth.getSession();
 
         // Fetch booking data
         const { data: bookingData, error: bookingError } = await supabase
