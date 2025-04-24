@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from "lucide-react";
 
 // Mock room data (matching booking page)
 const mockRooms = {
@@ -36,12 +38,12 @@ const mockRooms = {
 };
 
 interface BookingDetailsModalProps {
-  booking: any;
+  booking: Booking | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-function formatDate(dateString: string | null) {
+function formatDate(dateString: string | undefined | null): string {
   if (!dateString) return '';
   try {
     return format(new Date(dateString), 'MMM d, yyyy');
@@ -112,34 +114,74 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
   );
 }
 
+interface Booking {
+  id: string;
+  created_at: string;
+  user_id: string;
+  room_id: string;
+  check_in: string;
+  check_out: string;
+  number_of_guests: number;
+  total_price: number;
+  status: string;
+  room?: {
+    name: string;
+    description: string;
+    price_per_night: number;
+  };
+}
+
+interface BookingError {
+  message: string;
+}
+
 export default function DashboardPage() {
   const supabase = createClientComponentClient();
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
-  
-  // Fetch bookings on component mount
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [error, setError] = useState<BookingError | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  const fetchBookings = async () => {
+    try {
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          room:room_id (
+            name,
+            description,
+            price_per_night
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (bookingsError) throw bookingsError;
+
+      setBookings(bookingsData || []);
+    } catch (error) {
+      setError({ message: 'Failed to fetch bookings' });
+    }
+  };
+
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('*')
-          .eq('user_id', session?.user?.id)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setBookings(data || []);
-      } catch (error: any) {
-        console.error('Error fetching bookings:', error);
-        setError(error.message);
-      }
-    };
-
     fetchBookings();
-  }, [supabase]);
+  }, []);
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      const { error: cancelError } = await supabase
+        .from('bookings')
+        .update({ status: 'cancelled' })
+        .eq('id', bookingId);
+
+      if (cancelError) throw cancelError;
+
+      // Refresh bookings after cancellation
+      await fetchBookings();
+    } catch (error) {
+      setError({ message: 'Failed to cancel booking' });
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -151,7 +193,7 @@ export default function DashboardPage() {
           
           {error && (
             <div className="text-red-600 mb-4">
-              Failed to load bookings. Please try again later.
+              {error.message}
             </div>
           )}
 

@@ -7,22 +7,39 @@ import { Card } from "@/components/ui/card";
 import Link from 'next/link';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+interface BookingDetails {
+  id: string;
+  created_at: string;
+  user_id: string;
+  room_id: string;
+  check_in: string;
+  check_out: string;
+  number_of_guests: number;
+  total_price: number;
+  status: string;
+  room?: {
+    name: string;
+    description: string;
+    price_per_night: number;
+  };
+}
+
+interface UserInfo {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 export default function ConfirmationPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClientComponentClient();
-  const [bookingDetails, setBookingDetails] = useState({
-    bookingId: searchParams.get('bookingId'),
-    status: '',
-    checkIn: '',
-    checkOut: '',
-    roomType: '',
-    totalPrice: 0,
-    firstName: '',
-    lastName: '',
+  const [booking, setBooking] = useState<BookingDetails | null>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo>({
     email: '',
-    phone: ''
+    firstName: '',
+    lastName: ''
   });
 
   useEffect(() => {
@@ -36,18 +53,22 @@ export default function ConfirmationPage() {
 
         // Check if it's a guest booking
         if (bookingId.startsWith('guest_')) {
-          setBookingDetails(prev => ({
-            ...prev,
+          setBooking({
+            id: bookingId,
+            created_at: '',
+            user_id: '',
+            room_id: '',
+            check_in: searchParams.get('checkIn') || '',
+            check_out: searchParams.get('checkOut') || '',
+            number_of_guests: 0,
+            total_price: Number(searchParams.get('totalPrice')) || 0,
             status: 'confirmed',
-            checkIn: searchParams.get('checkIn') || '',
-            checkOut: searchParams.get('checkOut') || '',
-            roomType: searchParams.get('roomType') || '',
-            totalPrice: Number(searchParams.get('totalPrice')) || 0,
-            firstName: searchParams.get('firstName') || '',
-            lastName: searchParams.get('lastName') || '',
-            email: searchParams.get('email') || '',
-            phone: searchParams.get('phone') || ''
-          }));
+            room: {
+              name: searchParams.get('roomType') || '',
+              description: '',
+              price_per_night: 0
+            }
+          });
           setLoading(false);
           return;
         }
@@ -56,7 +77,7 @@ export default function ConfirmationPage() {
         const { data: { session } } = await supabase.auth.getSession();
 
         // Fetch booking data
-        const { data: booking, error: bookingError } = await supabase
+        const { data: bookingData, error: bookingError } = await supabase
           .from('bookings')
           .select(`
             id,
@@ -79,31 +100,38 @@ export default function ConfirmationPage() {
           throw bookingError;
         }
 
-        if (!booking) {
+        if (!bookingData) {
           throw new Error('Booking not found');
         }
 
         // Extract user data safely
-        const userData = Array.isArray(booking.user) ? booking.user[0] : booking.user;
-        const userEmail = userData?.email || '';
-        const userFirstName = userData?.first_name || '';
-        const userLastName = userData?.last_name || '';
-
-        setBookingDetails({
-          bookingId: booking.id,
-          status: booking.status || 'pending',
-          checkIn: booking.check_in || '',
-          checkOut: booking.check_out || '',
-          roomType: booking.room_id || '',
-          totalPrice: booking.total_price || 0,
-          firstName: userFirstName,
-          lastName: userLastName,
-          email: userEmail || session?.user?.email || '',
-          phone: ''
+        const userData = Array.isArray(bookingData.user) ? bookingData.user[0] : bookingData.user;
+        
+        setUserInfo({
+          email: userData?.email || '',
+          firstName: userData?.first_name || '',
+          lastName: userData?.last_name || ''
         });
-      } catch (error: any) {
+
+        setBooking({
+          id: bookingData.id,
+          created_at: '',
+          user_id: '',
+          room_id: bookingData.room_id || '',
+          check_in: bookingData.check_in || '',
+          check_out: bookingData.check_out || '',
+          number_of_guests: 0,
+          total_price: bookingData.total_price || 0,
+          status: bookingData.status || 'pending',
+          room: {
+            name: bookingData.room_id || '',
+            description: '',
+            price_per_night: 0
+          }
+        });
+      } catch (error) {
         console.error('Error fetching booking details:', error);
-        setError(error.message || 'Failed to load booking details');
+        setError(error instanceof Error ? error.message : 'Failed to load booking details');
       } finally {
         setLoading(false);
       }
@@ -143,7 +171,7 @@ export default function ConfirmationPage() {
       <Card className="p-6 max-w-2xl mx-auto">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold mb-2">Booking Confirmation</h1>
-          <p className="text-green-600">Your booking has been {bookingDetails.status}</p>
+          <p className="text-green-600">Your booking has been {booking?.status}</p>
         </div>
 
         <div className="space-y-4">
@@ -151,15 +179,15 @@ export default function ConfirmationPage() {
             <h2 className="text-lg font-semibold mb-2">Booking Details</h2>
             <div className="grid grid-cols-2 gap-2">
               <p className="text-gray-600">Booking ID:</p>
-              <p>{bookingDetails.bookingId}</p>
+              <p>{booking?.id}</p>
               <p className="text-gray-600">Check-in:</p>
-              <p>{bookingDetails.checkIn}</p>
+              <p>{booking?.check_in}</p>
               <p className="text-gray-600">Check-out:</p>
-              <p>{bookingDetails.checkOut}</p>
+              <p>{booking?.check_out}</p>
               <p className="text-gray-600">Room Type:</p>
-              <p>{bookingDetails.roomType}</p>
+              <p>{booking?.room?.name}</p>
               <p className="text-gray-600">Total Price:</p>
-              <p>${bookingDetails.totalPrice}</p>
+              <p>${booking?.total_price}</p>
             </div>
           </div>
 
@@ -167,15 +195,9 @@ export default function ConfirmationPage() {
             <h2 className="text-lg font-semibold mb-2">Guest Information</h2>
             <div className="grid grid-cols-2 gap-2">
               <p className="text-gray-600">Name:</p>
-              <p>{bookingDetails.firstName} {bookingDetails.lastName}</p>
+              <p>{userInfo.firstName} {userInfo.lastName}</p>
               <p className="text-gray-600">Email:</p>
-              <p>{bookingDetails.email}</p>
-              {bookingDetails.phone && (
-                <>
-                  <p className="text-gray-600">Phone:</p>
-                  <p>{bookingDetails.phone}</p>
-                </>
-              )}
+              <p>{userInfo.email}</p>
             </div>
           </div>
         </div>

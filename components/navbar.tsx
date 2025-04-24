@@ -15,10 +15,11 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, usePathname } from 'next/navigation';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const supabase = createClientComponentClient();
   const router = useRouter();
   const pathname = usePathname();

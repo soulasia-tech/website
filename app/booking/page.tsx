@@ -10,16 +10,28 @@ import { format, parseISO, differenceInDays } from "date-fns";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
-interface BookingData {
+interface BookingFormData {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
   checkIn: string;
   checkOut: string;
+  adults: number;
+  children: number;
+  specialRequests?: string;
   roomId: string;
-  numberOfGuests: number;
+}
+
+interface CloudbedsResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    reservationId?: string;
+    status?: string;
+    [key: string]: unknown;
+  };
 }
 
 // Mock room data (matching search page)
@@ -56,17 +68,18 @@ function BookingForm() {
   const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [bookingData, setBookingData] = useState<BookingData>({
+  const [bookingData, setBookingData] = useState<BookingFormData>({
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
     checkIn: searchParams.get('startDate') || '',
     checkOut: searchParams.get('endDate') || '',
-    roomId: searchParams.get('roomId') || '',
-    numberOfGuests: 2
+    adults: 2,
+    children: 0,
+    specialRequests: '',
+    roomId: searchParams.get('roomId') || ''
   });
 
   // Get room details
@@ -93,7 +106,6 @@ function BookingForm() {
           firstName: userData?.first_name || '',
           lastName: userData?.last_name || '',
           email: userData?.email || user.email || '',  // Fallback to auth email
-          phone: ''  // Remove phone as it's not in users table
         }));
       }
     };
@@ -110,8 +122,7 @@ function BookingForm() {
     setLoading(false);
   }, [bookingData.roomId, bookingData.checkIn, bookingData.checkOut, room, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: BookingFormData) => {
     setSubmitting(true);
     setError(null);
 
@@ -124,7 +135,7 @@ function BookingForm() {
         throw new Error('Invalid date selection');
       }
 
-      if (bookingData.numberOfGuests > room.maxGuests) {
+      if (data.adults > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
 
@@ -140,7 +151,7 @@ function BookingForm() {
               room_id: bookingData.roomId,
               check_in: bookingData.checkIn,
               check_out: bookingData.checkOut,
-              number_of_guests: bookingData.numberOfGuests,
+              number_of_guests: data.adults + data.children,
               total_price: totalPrice,
               status: 'confirmed'
             }
@@ -162,8 +173,8 @@ function BookingForm() {
           await supabase
             .from('users')
             .update({
-              first_name: bookingData.firstName,
-              last_name: bookingData.lastName
+              first_name: data.firstName,
+              last_name: data.lastName
             })
             .eq('id', user.id);
         }
@@ -181,6 +192,11 @@ function BookingForm() {
       setError(error.message || 'Failed to process your booking. Please try again.');
       setSubmitting(false);
     }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleSubmit(bookingData);
   };
 
   if (loading) {
@@ -233,7 +249,7 @@ function BookingForm() {
                   </Alert>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">First Name</label>
@@ -264,11 +280,49 @@ function BookingForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Phone</label>
+                    <label className="block text-sm font-medium mb-1">Check-in</label>
                     <Input
-                      type="tel"
-                      value={bookingData.phone}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, phone: e.target.value }))}
+                      type="date"
+                      required
+                      value={bookingData.checkIn}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, checkIn: e.target.value }))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Check-out</label>
+                    <Input
+                      type="date"
+                      required
+                      value={bookingData.checkOut}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, checkOut: e.target.value }))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Adults</label>
+                    <Input
+                      type="number"
+                      required
+                      value={bookingData.adults}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, adults: Number(e.target.value) }))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Children</label>
+                    <Input
+                      type="number"
+                      value={bookingData.children}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, children: Number(e.target.value) }))}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Special Requests</label>
+                    <Input
+                      value={bookingData.specialRequests}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, specialRequests: e.target.value }))}
                     />
                   </div>
 
