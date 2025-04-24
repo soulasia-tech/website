@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,25 @@ interface UserInfo {
   lastName: string;
 }
 
-export default function ConfirmationPage() {
+// Loading component for Suspense fallback
+function LoadingState() {
+  return (
+    <div className="container mx-auto p-4">
+      <Card className="p-6 max-w-2xl mx-auto">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-2/3 mx-auto"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// Content component that uses useSearchParams
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -209,5 +228,14 @@ export default function ConfirmationPage() {
         </div>
       </Card>
     </div>
+  );
+}
+
+// Main page component
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <ConfirmationContent />
+    </Suspense>
   );
 } 
