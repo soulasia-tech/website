@@ -404,7 +404,7 @@ export default function Home() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative h-[400px] lg:h-auto">
-                  <Image
+        <Image
                     src="https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?q=80&w=1374&auto=format&fit=crop"
                     alt="KLCC Skyline Suite"
                     fill
@@ -562,7 +562,7 @@ export default function Home() {
                 Book Your Stay Now
               </Button>
             </motion.div>
-          </div>
+        </div>
         </section>
 
         {/* Gallery Section */}
@@ -602,7 +602,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-2 row-span-1 relative rounded-2xl overflow-hidden">
-                <Image
+          <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KL Tower"
                   fill
@@ -615,7 +615,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-                <Image
+          <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="Batu Caves"
                   fill
@@ -628,7 +628,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-                <Image
+          <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KLCC Park"
                   fill

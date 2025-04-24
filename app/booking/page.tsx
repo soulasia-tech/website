@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { format, parseISO, differenceInDays } from "date-fns";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from 'next/link';
 
 interface BookingData {
   firstName: string;
@@ -50,8 +53,11 @@ const mockRooms = {
 function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [bookingData, setBookingData] = useState<BookingData>({
     firstName: '',
     lastName: '',
@@ -70,6 +76,32 @@ function BookingForm() {
   const totalPrice = room ? room.price * numberOfNights : 0;
 
   useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (user) {
+        // Pre-fill form with user data from users table
+        const { data: userData } = await supabase
+          .from('users')
+          .select('first_name, last_name, email')
+          .eq('id', user.id)
+          .single();
+
+        setBookingData(prev => ({
+          ...prev,
+          firstName: userData?.first_name || '',
+          lastName: userData?.last_name || '',
+          email: userData?.email || user.email || '',  // Fallback to auth email
+          phone: ''  // Remove phone as it's not in users table
+        }));
+      }
+    };
+
+    getUser();
+  }, [supabase]);
+
+  useEffect(() => {
     // Validate required parameters
     if (!bookingData.roomId || !bookingData.checkIn || !bookingData.checkOut || !room) {
       router.push('/');
@@ -81,18 +113,72 @@ function BookingForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError(null);
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (!room) {
+        throw new Error('Invalid room selection');
+      }
 
-      // Mock successful booking
-      const mockBookingId = `booking_${Date.now()}`;
+      if (numberOfNights <= 0) {
+        throw new Error('Invalid date selection');
+      }
+
+      if (bookingData.numberOfGuests > room.maxGuests) {
+        throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
+      }
+
+      let bookingId;
+
+      if (user) {
+        // Save booking to Supabase for authenticated users
+        const { data: booking, error: bookingError } = await supabase
+          .from('bookings')
+          .insert([
+            {
+              user_id: user.id,
+              room_id: bookingData.roomId,
+              check_in: bookingData.checkIn,
+              check_out: bookingData.checkOut,
+              number_of_guests: bookingData.numberOfGuests,
+              total_price: totalPrice,
+              status: 'confirmed'
+            }
+          ])
+          .select()
+          .single();
+
+        if (bookingError) throw bookingError;
+        bookingId = booking.id;
+
+        // Update user data if needed
+        const { data: userData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+
+        if (!userData?.first_name || !userData?.last_name) {
+          await supabase
+            .from('users')
+            .update({
+              first_name: bookingData.firstName,
+              last_name: bookingData.lastName
+            })
+            .eq('id', user.id);
+        }
+      } else {
+        // For guest bookings, we'll keep the existing mock functionality
+        // In a real application, you would implement guest booking logic here
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        bookingId = `guest_booking_${Date.now()}`;
+      }
       
       // Redirect to confirmation page
-      router.push(`/confirmation?bookingId=${mockBookingId}`);
-    } catch (error) {
+      router.push(`/confirmation?bookingId=${bookingId}`);
+    } catch (error: any) {
       console.error('Booking failed:', error);
+      setError(error.message || 'Failed to process your booking. Please try again.');
       setSubmitting(false);
     }
   };
@@ -117,12 +203,36 @@ function BookingForm() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Complete Your Booking</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold">Complete Your Booking</h1>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                const params = new URLSearchParams();
+                params.set('location', 'kuala-lumpur');  // Default location
+                params.set('startDate', bookingData.checkIn);
+                params.set('endDate', bookingData.checkOut);
+                router.push(`/search?${params.toString()}`);
+              }}
+              className="flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              Back to Search
+            </Button>
+          </div>
           
           <div className="grid gap-8 md:grid-cols-3">
             {/* Booking Form */}
             <div className="md:col-span-2">
               <Card className="p-6">
+                {error && (
+                  <Alert variant="destructive" className="mb-6">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -176,6 +286,19 @@ function BookingForm() {
                       'Confirm Booking'
                     )}
                   </Button>
+
+                  {!user && (
+                    <p className="text-sm text-gray-500 text-center mt-4">
+                      Want to save your booking details?{' '}
+                      <Link href={`/auth/sign-in?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
+                        Sign in
+                      </Link>
+                      {' '}or{' '}
+                      <Link href={`/auth/sign-up?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
+                        create an account
+                      </Link>
+                    </p>
+                  )}
                 </form>
               </Card>
             </div>
@@ -198,7 +321,7 @@ function BookingForm() {
                 <h3 className="font-medium mb-2">{room.name}</h3>
                 <p className="text-sm text-gray-600 mb-4">{room.description}</p>
 
-                <div className="space-y-2 text-sm mb-4">
+                <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Check-in</span>
                     <span className="font-medium">{format(parseISO(bookingData.checkIn), 'MMM d, yyyy')}</span>
@@ -208,19 +331,16 @@ function BookingForm() {
                     <span className="font-medium">{format(parseISO(bookingData.checkOut), 'MMM d, yyyy')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Nights</span>
+                    <span>Number of nights</span>
                     <span className="font-medium">{numberOfNights}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Rate per night</span>
+                    <span>Price per night</span>
                     <span className="font-medium">${room.price}</span>
                   </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <div className="flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>${totalPrice}</span>
+                  <div className="pt-2 mt-2 border-t flex justify-between">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-semibold">${totalPrice}</span>
                   </div>
                 </div>
               </Card>
