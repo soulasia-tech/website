@@ -4,10 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { format } from 'date-fns';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from "lucide-react";
 
 // Mock room data (matching booking page)
 const mockRooms = {
