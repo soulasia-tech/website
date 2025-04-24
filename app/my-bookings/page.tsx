@@ -158,7 +158,9 @@ export default function DashboardPage() {
       if (bookingsError) throw bookingsError;
 
       setBookings(bookingsData || []);
+      setError(null); // Clear any previous errors on success
     } catch (error) {
+      console.error('Error fetching bookings:', error);
       setError({ message: 'Failed to fetch bookings' });
     }
   }, [supabase]);
@@ -181,11 +183,11 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {bookings && bookings.length === 0 && (
+          {!error && bookings.length === 0 && (
             <p className="text-gray-600">You don&apos;t have any bookings yet.</p>
           )}
 
-          {bookings && bookings.length > 0 && (
+          {!error && bookings.length > 0 && (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>

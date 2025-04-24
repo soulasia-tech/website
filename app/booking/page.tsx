@@ -24,10 +24,6 @@ interface BookingFormData {
   roomId: string;
 }
 
-interface BookingError {
-  message: string;
-}
-
 // Mock room data (matching search page)
 const mockRooms = {
   room1: {
