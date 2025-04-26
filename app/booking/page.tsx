@@ -20,8 +20,9 @@ interface BookingFormData {
   checkOut: string;
   adults: number;
   children: number;
-  specialRequests?: string;
   roomId: string;
+  createAccount: boolean;
+  password: string;
 }
 
 // Mock room data (matching search page)
@@ -68,9 +69,12 @@ function BookingForm() {
     checkOut: searchParams.get('endDate') || '',
     adults: 2,
     children: 0,
-    specialRequests: '',
-    roomId: searchParams.get('roomId') || ''
+    roomId: searchParams.get('roomId') || '',
+    createAccount: false,
+    password: ''
   });
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
 
   // Get room details
   const room = mockRooms[bookingData.roomId as keyof typeof mockRooms];
@@ -112,9 +116,12 @@ function BookingForm() {
     setLoading(false);
   }, [bookingData.roomId, bookingData.checkIn, bookingData.checkOut, room, router]);
 
-  const handleSubmit = async (data: BookingFormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setSubmitting(true);
     setError(null);
+    setSuccessMessage('');
+    setLoadingMessage('Processing your booking...');
 
     try {
       if (!room) {
@@ -125,67 +132,133 @@ function BookingForm() {
         throw new Error('Invalid date selection');
       }
 
-      if (data.adults > room.maxGuests) {
+      if (bookingData.adults > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
 
-      let bookingId;
+      // Prepare base booking data
+      const baseBookingData = {
+        room_id: bookingData.roomId,
+        check_in: bookingData.checkIn,
+        check_out: bookingData.checkOut,
+        number_of_guests: bookingData.adults + bookingData.children,
+        total_price: totalPrice,
+        status: 'confirmed',
+        guest_first_name: bookingData.firstName,
+        guest_last_name: bookingData.lastName,
+        guest_email: bookingData.email
+      };
 
-      if (user) {
-        // Save booking to Supabase for authenticated users
+      // Handle guest booking (no account)
+      if (!user && !bookingData.createAccount) {
+        setLoadingMessage('Creating your guest booking...');
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
-          .insert([
-            {
-              user_id: user.id,
-              room_id: bookingData.roomId,
-              check_in: bookingData.checkIn,
-              check_out: bookingData.checkOut,
-              number_of_guests: data.adults + data.children,
-              total_price: totalPrice,
-              status: 'confirmed'
-            }
-          ])
+          .insert([baseBookingData])
           .select()
           .single();
 
-        if (bookingError) throw bookingError;
-        bookingId = booking.id;
+        if (bookingError) {
+          console.error('Guest booking error:', bookingError);
+          throw new Error(bookingError.message);
+        }
 
-        // Update user data if needed
-        const { data: userData } = await supabase
-          .from('users')
-          .select('first_name, last_name')
-          .eq('id', user.id)
+        setSuccessMessage('Booking successful! Redirecting to confirmation...');
+        setTimeout(() => {
+          router.push(`/confirmation?bookingId=${booking.id}`);
+        }, 1500);
+        return;
+      }
+
+      // Handle booking with account creation
+      if (!user && bookingData.createAccount) {
+        setLoadingMessage('Creating your account...');
+        
+        // Validate password
+        if (bookingData.password.length < 6) {
+          throw new Error('Password must be at least 6 characters long');
+        }
+
+        // Create new user
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: bookingData.email,
+          password: bookingData.password,
+          options: {
+            data: {
+              first_name: bookingData.firstName,
+              last_name: bookingData.lastName,
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+
+        if (signUpError) {
+          console.error('Signup error:', signUpError);
+          throw new Error(signUpError.message);
+        }
+        
+        if (!authData.user) {
+          throw new Error('Failed to create account');
+        }
+
+        console.log('Account created with ID:', authData.user.id);
+
+        setLoadingMessage('Creating your booking...');
+        const { data: booking, error: bookingError } = await supabase
+          .from('bookings')
+          .insert([{
+            ...baseBookingData,
+            user_id: authData.user.id
+          }])
+          .select()
           .single();
 
-        if (!userData?.first_name || !userData?.last_name) {
-          await supabase
-            .from('users')
-            .update({
-              first_name: data.firstName,
-              last_name: data.lastName
-            })
-            .eq('id', user.id);
+        if (bookingError) {
+          console.error('New user booking error:', bookingError);
+          throw new Error(bookingError.message);
         }
-      } else {
-        // For guest bookings, we'll keep the existing mock functionality
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        bookingId = `guest_booking_${Date.now()}`;
+
+        setSuccessMessage('Account and booking created successfully! Redirecting to confirmation...');
+        setTimeout(() => {
+          router.push(`/confirmation?bookingId=${booking.id}`);
+        }, 1500);
+        return;
       }
-      
-      // Redirect to confirmation page
-      router.push(`/confirmation?bookingId=${bookingId}`);
-    } catch (error) {
+
+      // Handle booking for existing user
+      if (user) {
+        setLoadingMessage('Creating your booking...');
+        const { data: booking, error: bookingError } = await supabase
+          .from('bookings')
+          .insert([{
+            ...baseBookingData,
+            user_id: user.id
+          }])
+          .select()
+          .single();
+
+        if (bookingError) {
+          console.error('Existing user booking error:', bookingError);
+          throw new Error(bookingError.message);
+        }
+
+        setSuccessMessage('Booking successful! Redirecting to confirmation...');
+        setTimeout(() => {
+          router.push(`/confirmation?bookingId=${booking.id}`);
+        }, 1500);
+      }
+    } catch (error: any) {
       console.error('Booking failed:', error);
       setError(error instanceof Error ? error.message : 'Failed to process your booking. Please try again.');
+      setLoadingMessage('');
+      setSuccessMessage('');
       setSubmitting(false);
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    handleSubmit(bookingData);
+    handleSubmit(e);
   };
 
   if (loading) {
@@ -232,10 +305,23 @@ function BookingForm() {
             {/* Booking Form */}
             <div className="md:col-span-2">
               <Card className="p-6">
+                {successMessage && (
+                  <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
+                    <p>{successMessage}</p>
+                  </div>
+                )}
+
                 {error && (
-                  <Alert variant="destructive" className="mb-6">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+                  <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
+                    <p>{error}</p>
+                  </div>
+                )}
+
+                {loadingMessage && (
+                  <div className="text-center p-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-gray-600">{loadingMessage}</p>
+                  </div>
                 )}
 
                 <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -307,13 +393,44 @@ function BookingForm() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Special Requests</label>
-                    <Input
-                      value={bookingData.specialRequests}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, specialRequests: e.target.value }))}
-                    />
-                  </div>
+                  {/* Add account creation section for non-authenticated users */}
+                  {!user && (
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-4">
+                        <input
+                          type="checkbox"
+                          id="createAccount"
+                          checked={bookingData.createAccount}
+                          onChange={(e) => setBookingData(prev => ({ 
+                            ...prev, 
+                            createAccount: e.target.checked,
+                            password: e.target.checked ? prev.password : '' 
+                          }))}
+                          className="h-4 w-4"
+                        />
+                        <label htmlFor="createAccount" className="text-sm font-medium">
+                          Create an account to manage your bookings
+                        </label>
+                      </div>
+
+                      {bookingData.createAccount && (
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium">Password</label>
+                          <Input
+                            type="password"
+                            value={bookingData.password}
+                            onChange={(e) => setBookingData(prev => ({ ...prev, password: e.target.value }))}
+                            required={bookingData.createAccount}
+                            placeholder="••••••••"
+                            minLength={6}
+                          />
+                          <p className="text-xs text-gray-500">
+                            Must be at least 6 characters long
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <Button 
                     type="submit" 

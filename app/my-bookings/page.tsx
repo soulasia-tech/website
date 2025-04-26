@@ -121,43 +121,34 @@ interface Booking {
   number_of_guests: number;
   total_price: number;
   status: string;
-  room?: {
-    name: string;
-    description: string;
-    price_per_night: number;
-  };
 }
 
 interface BookingError {
   message: string;
 }
 
-export default function DashboardPage() {
+export default function MyBookingsPage() {
   const supabase = createClientComponentClient();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState<BookingError | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-
+  
   const fetchBookings = useCallback(async () => {
-    try {
+      try {
       const { data: bookingsData, error: bookingsError } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          room:room_id (
-            name,
-            description,
-            price_per_night
-          )
-        `)
-        .order('created_at', { ascending: false });
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (bookingsError) throw bookingsError;
+      if (bookingsError) {
+        console.error('Supabase error:', bookingsError);
+        throw bookingsError;
+      }
 
       setBookings(bookingsData || []);
-      setError(null); // Clear any previous errors on success
+      setError(null);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+        console.error('Error fetching bookings:', error);
       setError({ message: 'Failed to fetch bookings' });
     }
   }, [supabase]);
