@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
+import { User } from '@supabase/supabase-js';
 
 interface Booking {
   id: string;
@@ -19,13 +20,16 @@ interface Booking {
   guest_first_name?: string;
   guest_last_name?: string;
   guest_email?: string;
+  number_of_guests: number;
+  room_id: string;
+  status: string;
 }
 
-export default function ConfirmationPage() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,19 +42,35 @@ export default function ConfirmationPage() {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
 
-        // Get booking from database
-        const { data: bookingData, error } = await supabase
-          .from('bookings')
-          .select('*')
-          .eq('id', bookingId)
-          .single();
+        // If it's a guest booking (starts with 'guest_'), use URL params
+        if (bookingId.startsWith('guest_')) {
+          setBooking({
+            id: bookingId,
+            check_in: searchParams.get('checkIn') || '',
+            check_out: searchParams.get('checkOut') || '',
+            total_price: parseFloat(searchParams.get('totalPrice') || '0'),
+            guest_first_name: searchParams.get('firstName') || '',
+            guest_last_name: searchParams.get('lastName') || '',
+            guest_email: searchParams.get('email') || '',
+            number_of_guests: parseInt(searchParams.get('guests') || '0'),
+            room_id: searchParams.get('roomId') || '',
+            status: 'confirmed'
+          });
+        } else {
+          // Get booking from database for registered users
+          const { data: bookingData, error } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('id', bookingId)
+            .single();
 
-        if (error) {
-          console.error('Error fetching booking:', error);
-          return;
+          if (error) {
+            console.error('Error fetching booking:', error);
+            return;
+          }
+
+          setBooking(bookingData);
         }
-
-        setBooking(bookingData);
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -83,7 +103,7 @@ export default function ConfirmationPage() {
         <div className="container mx-auto px-4">
           <Card className="bg-white rounded-xl p-6 shadow-sm">
             <h1 className="text-2xl font-bold text-red-600 mb-4">Booking Not Found</h1>
-            <p className="mb-6">Sorry, we couldn't find your booking. Please contact support if you think this is an error.</p>
+            <p className="mb-6">Sorry, we couldn&apos;t find your booking. Please contact support if you think this is an error.</p>
             <Link href="/">
               <Button variant="outline">Return to Home</Button>
             </Link>
@@ -131,5 +151,28 @@ export default function ConfirmationPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+// Wrap the main component with Suspense
+export default function ConfirmationPage() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen bg-gray-50 py-12">
+          <div className="container mx-auto px-4">
+            <Card className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="animate-pulse space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      }
+    >
+      <ConfirmationContent />
+    </Suspense>
   );
 } 

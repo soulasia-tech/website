@@ -135,9 +135,16 @@ export default function MyBookingsPage() {
   
   const fetchBookings = useCallback(async () => {
       try {
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Not authenticated');
+      }
+        
       const { data: bookingsData, error: bookingsError } = await supabase
           .from('bookings')
           .select('*')
+        .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
       if (bookingsError) {
@@ -149,7 +156,7 @@ export default function MyBookingsPage() {
       setError(null);
     } catch (error) {
         console.error('Error fetching bookings:', error);
-      setError({ message: 'Failed to fetch bookings' });
+      setError({ message: error instanceof Error ? error.message : 'Failed to fetch bookings' });
     }
   }, [supabase]);
 

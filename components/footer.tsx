@@ -43,28 +43,33 @@ export function Footer() {
             <h3 className="font-bold mb-4">Help Center</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#" className="text-sm text-gray-400 hover:text-white">
+                <Link href="/support" className="text-sm text-gray-400 hover:text-white">
                   Support
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-gray-400 hover:text-white">
+                <Link href="/faq" className="text-sm text-gray-400 hover:text-white">
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-gray-400 hover:text-white">
-                  Send Feedback
+                <Link href="/refund-policy" className="text-sm text-gray-400 hover:text-white">
+                  Refund Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-gray-400 hover:text-white">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-sm text-gray-400 hover:text-white">
+                <Link href="/privacy-policy" className="text-sm text-gray-400 hover:text-white">
                   Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-gray-400 hover:text-white">
+                  Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-gray-400 hover:text-white">
+                  Contact Us
                 </Link>
               </li>
             </ul>
@@ -97,6 +102,10 @@ export function Footer() {
         </div>
         <div className="border-t border-gray-800 pt-8 text-center">
           <p className="text-sm text-gray-500">© {new Date().getFullYear()} Soulasia. All rights reserved.</p>
+          <div className="mt-2 text-xs text-gray-600">
+            <p>Soulasia Management Sdn. Bhd.</p>
+            <p>Registration Number - 202301007902 (1501823-H)</p>
+          </div>
         </div>
       </div>
     </footer>

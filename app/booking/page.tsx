@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -151,21 +150,26 @@ function BookingForm() {
 
       // Handle guest booking (no account)
       if (!user && !bookingData.createAccount) {
-        setLoadingMessage('Creating your guest booking...');
-        const { data: booking, error: bookingError } = await supabase
-          .from('bookings')
-          .insert([baseBookingData])
-          .select()
-          .single();
-
-        if (bookingError) {
-          console.error('Guest booking error:', bookingError);
-          throw new Error(bookingError.message);
-        }
+        setLoadingMessage('Processing guest booking...');
+        
+        // For guest bookings, we don't store in database
+        // Instead, we just redirect to confirmation with the booking details
+        const bookingId = `guest_${Date.now()}`;
+        const searchParams = new URLSearchParams({
+          bookingId,
+          checkIn: bookingData.checkIn,
+          checkOut: bookingData.checkOut,
+          firstName: bookingData.firstName,
+          lastName: bookingData.lastName,
+          email: bookingData.email,
+          totalPrice: totalPrice.toString(),
+          roomId: bookingData.roomId,
+          guests: (bookingData.adults + bookingData.children).toString()
+        });
 
         setSuccessMessage('Booking successful! Redirecting to confirmation...');
         setTimeout(() => {
-          router.push(`/confirmation?bookingId=${booking.id}`);
+          router.push(`/confirmation?${searchParams.toString()}`);
         }, 1500);
         return;
       }
@@ -247,18 +251,19 @@ function BookingForm() {
           router.push(`/confirmation?bookingId=${booking.id}`);
         }, 1500);
       }
-    } catch (error: any) {
-      console.error('Booking failed:', error);
-      setError(error instanceof Error ? error.message : 'Failed to process your booking. Please try again.');
-      setLoadingMessage('');
-      setSuccessMessage('');
-      setSubmitting(false);
+    } catch (error: Error | unknown) {
+      handleError(error);
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     handleSubmit(e);
+  };
+
+  const handleError = (error: Error | unknown) => {
+    console.error('Error:', error);
+    setError(error instanceof Error ? error.message : 'An unexpected error occurred');
   };
 
   if (loading) {

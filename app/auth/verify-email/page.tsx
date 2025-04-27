@@ -12,16 +12,16 @@ export default function VerifyEmailPage() {
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
           
           <p className="text-gray-600 mb-6">
-            We've sent you an email with a link to verify your account. Please check your inbox and click the link to complete your registration.
+            We&apos;ve sent you an email with a link to verify your account. Please check your inbox and click the link to complete your registration.
           </p>
 
           <div className="space-y-4">
             <p className="text-sm text-gray-500">
-              Didn't receive the email? Check your spam folder or try signing in again to resend the verification email.
+              Didn&apos;t receive the email? Check your spam folder or try signing in again to resend the verification email.
             </p>
 
             <div className="flex justify-between">
-              <Link href="/auth/signin">
+              <Link href="/auth/sign-in">
                 <Button variant="outline">Sign In</Button>
               </Link>
               
