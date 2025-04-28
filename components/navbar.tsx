@@ -99,8 +99,8 @@ export default function Navbar() {
                   className="rounded-full"
                   aria-label="User menu"
                 >
-                  <User className="w-4 h-4" />
-                </Button>
+            <User className="w-4 h-4" />
+          </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,22 +9,37 @@ import { MapPin, Calendar, Users } from "lucide-react"
 export function BookingWidget() {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
-    location: 'kuala-lumpur',
+    propertyId: '',
     startDate: '',
     endDate: '',
     guests: '1'
   })
+  const [properties, setProperties] = useState<{ propertyId: string, propertyName: string }[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const locations = [
-    { value: 'kuala-lumpur', label: 'Kuala Lumpur' },
-    { value: 'penang', label: 'Penang' },
-    { value: 'langkawi', label: 'Langkawi' },
-    { value: 'malacca', label: 'Malacca' }
-  ]
+  useEffect(() => {
+    const fetchProperties = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/cloudbeds-properties')
+        const data = await res.json()
+        if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
+          setProperties(data.properties)
+          setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
+        } else {
+          setProperties([{ propertyId: '', propertyName: 'No properties found' }])
+        }
+      } catch {
+        setProperties([{ propertyId: '', propertyName: 'Failed to load properties' }])
+      }
+      setLoading(false)
+    }
+    fetchProperties()
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchParams.location || !searchParams.startDate || !searchParams.endDate) {
+    if (!searchParams.propertyId || !searchParams.startDate || !searchParams.endDate) {
       return
     }
     const queryString = new URLSearchParams(searchParams).toString()
@@ -38,17 +53,16 @@ export function BookingWidget() {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
               <MapPin className="w-4 h-4" />
-              <span>Location</span>
+              <span>Property</span>
             </div>
             <select
-              value={searchParams.location}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, location: e.target.value }))}
+              value={searchParams.propertyId}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, propertyId: e.target.value }))}
               className="w-full h-12 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              disabled={loading}
             >
-              {locations.map(location => (
-                <option key={location.value} value={location.value}>
-                  {location.label}
-                </option>
+              {properties.map((property) => (
+                <option key={property.propertyId} value={property.propertyId}>{property.propertyName}</option>
               ))}
             </select>
           </div>

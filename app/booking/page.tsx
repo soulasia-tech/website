@@ -24,34 +24,6 @@ interface BookingFormData {
   password: string;
 }
 
-// Mock room data (matching search page)
-const mockRooms = {
-  room1: {
-    id: 'room1',
-    name: 'Deluxe KLCC View Suite',
-    description: 'Luxurious suite with breathtaking views of the Petronas Twin Towers',
-    price: 250,
-    maxGuests: 2,
-    images: [
-      'https://images.unsplash.com/photo-1582650625119-3a31f8fa2699',
-      'https://images.unsplash.com/photo-1560185007-cde436f6a4d0'
-    ],
-    amenities: ['King bed', 'City view', 'Free WiFi', 'Kitchen']
-  },
-  room2: {
-    id: 'room2',
-    name: 'Premium Two-Bedroom Apartment',
-    description: 'Spacious apartment perfect for families or extended stays',
-    price: 350,
-    maxGuests: 4,
-    images: [
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6',
-      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc'
-    ],
-    amenities: ['2 bedrooms', 'Full kitchen', 'Washer/Dryer', 'Balcony']
-  }
-};
-
 function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,6 +32,9 @@ function BookingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [room, setRoom] = useState<any>(null);
+  const [price, setPrice] = useState<number | null>(null);
+  const [propertyId, setPropertyId] = useState<string>(searchParams.get('propertyId') || '');
   const [bookingData, setBookingData] = useState<BookingFormData>({
     firstName: '',
     lastName: '',
@@ -75,11 +50,48 @@ function BookingForm() {
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  // Get room details
-  const room = mockRooms[bookingData.roomId as keyof typeof mockRooms];
-  const numberOfNights = bookingData.checkIn && bookingData.checkOut ? 
-    differenceInDays(parseISO(bookingData.checkOut), parseISO(bookingData.checkIn)) : 0;
-  const totalPrice = room ? room.price * numberOfNights : 0;
+  // Fetch real room info and price
+  useEffect(() => {
+    const roomId = searchParams.get('roomId') || '';
+    const checkIn = searchParams.get('startDate') || '';
+    const checkOut = searchParams.get('endDate') || '';
+    const propertyIdFromParams = searchParams.get('propertyId') || '';
+
+    if (!propertyIdFromParams || !roomId || !checkIn || !checkOut) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    (async () => {
+      try {
+        // Fetch room types
+        const roomRes = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${propertyIdFromParams}`);
+        const roomData = await roomRes.json();
+        // Debug log to help trace room lookup issues
+        console.log('roomTypes:', roomData.roomTypes, 'Looking for roomId:', roomId);
+        let foundRoom = null;
+        if (roomData.success && Array.isArray(roomData.roomTypes)) {
+          foundRoom = roomData.roomTypes.find((r: any) => String(r.roomTypeID) === String(roomId));
+        }
+        setRoom(foundRoom);
+        // Fetch rates
+        const rateRes = await fetch(`/api/test-cloudbeds-rateplans?propertyId=${propertyIdFromParams}&startDate=${checkIn}&endDate=${checkOut}`);
+        const rateData = await rateRes.json();
+        let foundPrice = null;
+        if (rateData.success && Array.isArray(rateData.ratePlans)) {
+          const rates = rateData.ratePlans.filter((r: any) => r.roomTypeID === roomId);
+          if (rates.length > 0) {
+            foundPrice = Math.min(...rates.map((r: any) => r.totalRate));
+          }
+        }
+        setPrice(foundPrice);
+      } catch {
+        setRoom(null);
+        setPrice(null);
+      }
+      setLoading(false);
+    })();
+  }, [searchParams]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -107,13 +119,28 @@ function BookingForm() {
   }, [supabase]);
 
   useEffect(() => {
-    // Validate required parameters
-    if (!bookingData.roomId || !bookingData.checkIn || !bookingData.checkOut || !room) {
-      router.push('/');
-      return;
+    if (!loading && room === null) {
+      setError('Could not load the selected room. Please try again or start your booking again.');
+    } else if (!loading && room !== null) {
+      setError(null); // Clear error if room is found
     }
-    setLoading(false);
-  }, [bookingData.roomId, bookingData.checkIn, bookingData.checkOut, room, router]);
+  }, [loading, room?.roomTypeID]);
+
+  useEffect(() => {
+    setBookingData(prev => ({
+      ...prev,
+      roomId: searchParams.get('roomId') || '',
+      checkIn: searchParams.get('startDate') || '',
+      checkOut: searchParams.get('endDate') || '',
+      // Optionally update adults/children if you want to sync those too
+    }));
+    setPropertyId(searchParams.get('propertyId') || '');
+  }, [searchParams]);
+
+  const numberOfNights = bookingData.checkIn && bookingData.checkOut && room
+    ? differenceInDays(parseISO(bookingData.checkOut), parseISO(bookingData.checkIn))
+    : 0;
+  const totalPrice = price !== null && numberOfNights > 0 ? price : 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -126,27 +153,27 @@ function BookingForm() {
       if (!room) {
         throw new Error('Invalid room selection');
       }
-
       if (numberOfNights <= 0) {
         throw new Error('Invalid date selection');
       }
-
       if (bookingData.adults > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
-
-      // Prepare base booking data
-      const baseBookingData = {
-        room_id: bookingData.roomId,
-        check_in: bookingData.checkIn,
-        check_out: bookingData.checkOut,
-        number_of_guests: bookingData.adults + bookingData.children,
-        total_price: totalPrice,
-        status: 'confirmed',
-        guest_first_name: bookingData.firstName,
-        guest_last_name: bookingData.lastName,
-        guest_email: bookingData.email
+      // Prepare Cloudbeds booking payload
+      const bookingPayload = {
+        propertyId,
+        roomTypeId: bookingData.roomId,
+        checkIn: bookingData.checkIn,
+        checkOut: bookingData.checkOut,
+        numberOfGuests: bookingData.adults + bookingData.children,
+        guestFirstName: bookingData.firstName,
+        guestLastName: bookingData.lastName,
+        guestEmail: bookingData.email,
+        totalPrice,
+        nights: numberOfNights,
+        // Add more fields as needed for Cloudbeds
       };
+      console.log('Prepared Cloudbeds booking payload:', bookingPayload);
 
       // Handle guest booking (no account)
       if (!user && !bookingData.createAccount) {
@@ -211,7 +238,7 @@ function BookingForm() {
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
           .insert([{
-            ...baseBookingData,
+            ...bookingPayload,
             user_id: authData.user.id
           }])
           .select()
@@ -235,7 +262,7 @@ function BookingForm() {
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
           .insert([{
-            ...baseBookingData,
+            ...bookingPayload,
             user_id: user.id
           }])
           .select()
@@ -277,6 +304,18 @@ function BookingForm() {
               <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-md p-8 max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold mb-4 text-red-600">Booking Error</h2>
+          <p className="text-gray-700 mb-6">{error}</p>
+          <Button onClick={() => router.push('/')} className="mt-2">Back to Home</Button>
         </div>
       </div>
     );
@@ -474,17 +513,21 @@ function BookingForm() {
                 <h2 className="font-semibold mb-4">Booking Summary</h2>
                 
                 <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                  <Image 
-                    src={`${room.images[0]}?w=400&h=300&fit=crop`}
-                    alt={room.name}
-                    width={400}
-                    height={300}
-                    className="object-cover"
-                  />
+                  {room && room.roomTypePhotos && room.roomTypePhotos[0] ? (
+                    <Image
+                      src={`${room.roomTypePhotos[0]}?w=400&h=300&fit=crop`}
+                      alt={room.roomTypeName}
+                      width={400}
+                      height={300}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No image</div>
+                  )}
                 </div>
 
-                <h3 className="font-medium mb-2">{room.name}</h3>
-                <p className="text-sm text-gray-600 mb-4">{room.description}</p>
+                <h3 className="font-medium mb-2">{room ? room.roomTypeName : ''}</h3>
+                <p className="text-sm text-gray-600 mb-4">{room ? room.roomTypeDescription : ''}</p>
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -501,11 +544,11 @@ function BookingForm() {
                   </div>
                   <div className="flex justify-between">
                     <span>Price per night</span>
-                    <span className="font-medium">${room.price}</span>
+                    <span className="font-medium">${room ? room.price : 'N/A'}</span>
                   </div>
                   <div className="pt-2 mt-2 border-t flex justify-between">
                     <span className="font-semibold">Total</span>
-                    <span className="font-semibold">${totalPrice}</span>
+                    <span className="font-semibold">{price !== null ? `$${totalPrice}` : 'N/A'}</span>
                   </div>
                 </div>
               </Card>

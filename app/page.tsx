@@ -3,7 +3,6 @@
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Heart, Share, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
@@ -28,25 +27,18 @@ const staggerContainer = {
   },
 }
 
-// Data
-const locations = [
-  {
-    name: "KLCC Apartments",
-    image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop",
-    description: "Luxury apartments with stunning views of the Petronas Twin Towers",
-  },
-  {
-    name: "Bukit Bintang Suites",
-    image: "https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?q=80&w=1374&auto=format&fit=crop",
-    description: "Modern living in the heart of KL's shopping and entertainment district",
-  },
-  {
-    name: "Mont Kiara Residences",
-    image: "https://images.unsplash.com/photo-1621551127221-1ae50c8ecf76?q=80&w=1374&auto=format&fit=crop",
-    description: "Exclusive apartments in KL's upscale international community",
-  },
-]
+// Add RoomResult type (reuse from search page)
+type RoomResult = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  maxGuests: number;
+  images: string[];
+  amenities: string[];
+};
 
+// Restore amenities and reviews arrays
 const amenities = [
   {
     icon: "🏠",
@@ -101,9 +93,6 @@ const reviews = [
 ]
 
 export default function Home() {
-  const [activeLocation, setActiveLocation] = useState(0)
-  const locationRefs = useRef<(HTMLDivElement | null)[]>([])
-
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Toaster />
@@ -179,93 +168,6 @@ export default function Home() {
                   ),
                 )}
               </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Locations Section */}
-        <section className="py-24">
-          <div className="container px-4 mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeIn}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Soulasia Locations</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Carefully handpicked apartments in the most desirable areas of Kuala Lumpur, offering exceptional
-                comfort and convenience for your stay.
-              </p>
-            </motion.div>
-
-            <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">Explore our properties</h3>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                    onClick={() => setActiveLocation((prev) => (prev === 0 ? locations.length - 1 : prev - 1))}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full"
-                    onClick={() => setActiveLocation((prev) => (prev === locations.length - 1 ? 0 : prev + 1))}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="relative overflow-hidden rounded-2xl h-[500px]">
-                {locations.map((location, index) => (
-                  <motion.div
-                    key={index}
-                    ref={el => { locationRefs.current[index] = el }}
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: activeLocation === index ? 1 : 0,
-                      scale: activeLocation === index ? 1 : 0.9,
-                    }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute inset-0"
-                    style={{ display: activeLocation === index ? "block" : "none" }}
-                  >
-                    <div className="relative h-full w-full">
-                      <Image
-                        src={location.image || "/placeholder.svg"}
-                        alt={location.name}
-                        fill
-                        className="object-cover rounded-2xl"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
-                      <div className="absolute bottom-0 left-0 p-8 text-white">
-                        <h3 className="text-3xl font-bold mb-2">{location.name}</h3>
-                        <p className="text-white/80 max-w-md">{location.description}</p>
-                        <Button className="mt-4 bg-white text-gray-900 hover:bg-white/90">View details</Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="flex justify-center mt-6 gap-2">
-                {locations.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      activeLocation === index ? "bg-blue-600 w-6" : "bg-gray-300"
-                    }`}
-                    onClick={() => setActiveLocation(index)}
-                  />
-                ))}
-              </div>
             </div>
           </div>
         </section>
@@ -364,7 +266,7 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
             >
-              {amenities.map((amenity, index) => (
+              {amenities.map((amenity: any, index: number) => (
                 <motion.div
                   key={index}
                   variants={fadeIn}
@@ -404,16 +306,16 @@ export default function Home() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative h-[400px] lg:h-auto">
-        <Image
-                    src="https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?q=80&w=1374&auto=format&fit=crop"
-                    alt="KLCC Skyline Suite"
+                  <Image
+                    src="/placeholder.svg"
+                    alt="Featured Property"
                     fill
                     className="object-cover"
                   />
                 </div>
                 <div className="p-8 lg:p-12 flex flex-col">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-2xl font-bold">KLCC Skyline Suite</h3>
+                    <h3 className="text-2xl font-bold">Featured Property</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" className="rounded-full">
                         <Share className="w-5 h-5" />
@@ -434,34 +336,13 @@ export default function Home() {
                   </div>
 
                   <p className="text-gray-600 mb-6">
-                    This stunning 2-bedroom apartment offers breathtaking views of the Petronas Twin Towers and the KL
-                    skyline. Featuring modern furnishings, a fully-equipped kitchen, and luxurious bedding, it&apos;s the
-                    perfect home away from home.
+                    This is a placeholder for the featured property. The actual property data should be fetched and displayed here.
                   </p>
-
-                  <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div>
-                      <p className="text-sm text-gray-500">Bedrooms</p>
-                      <p className="font-medium">2 bedrooms</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Bathrooms</p>
-                      <p className="font-medium">2 bathrooms</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Guests</p>
-                      <p className="font-medium">Up to 4 people</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Size</p>
-                      <p className="font-medium">1,200 sq ft</p>
-                    </div>
-                  </div>
 
                   <div className="mt-auto flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-bold">
-                        $120 <span className="text-sm font-normal text-gray-500">/ night</span>
+                        $0 <span className="text-sm font-normal text-gray-500">/ night</span>
                       </p>
                     </div>
                     <Button className="rounded-lg">View details</Button>
@@ -495,7 +376,7 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              {reviews.map((review, index) => (
+              {reviews.map((review: any, index: number) => (
                 <motion.div
                   key={index}
                   variants={fadeIn}
@@ -512,7 +393,7 @@ export default function Home() {
                   </div>
 
                   <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
+                    {[...Array(5)].map((_, i: number) => (
                       <Star
                         key={i}
                         className={`w-4 h-4 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
@@ -562,7 +443,7 @@ export default function Home() {
                 Book Your Stay Now
               </Button>
             </motion.div>
-        </div>
+          </div>
         </section>
 
         {/* Gallery Section */}
@@ -602,7 +483,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-2 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KL Tower"
                   fill
@@ -615,7 +496,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="Batu Caves"
                   fill
@@ -628,7 +509,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KLCC Park"
                   fill
