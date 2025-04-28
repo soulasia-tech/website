@@ -49,7 +49,7 @@ function SearchResults() {
         const res = await fetch('/api/cloudbeds-properties');
         const data = await res.json();
         if (data.success && Array.isArray(data.properties)) {
-          const found = data.properties.find((p: any) => p.propertyId === propertyId);
+          const found = data.properties.find((p: { propertyId: string, propertyName: string }) => p.propertyId === propertyId);
           setProperty(found || null);
         } else {
           setProperty(null);
@@ -69,7 +69,14 @@ function SearchResults() {
         const res = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${propertyId}`);
         const data = await res.json();
         if (data.success) {
-          const mapped = data.roomTypes.map((room: any) => ({
+          const mapped = data.roomTypes.map((room: {
+            roomTypeID: string;
+            roomTypeName: string;
+            roomTypeDescription: string;
+            maxGuests: number;
+            roomTypePhotos?: string[];
+            roomTypeFeatures?: Record<string, string>;
+          }) => ({
             id: room.roomTypeID,
             name: room.roomTypeName,
             description: room.roomTypeDescription,
@@ -84,7 +91,7 @@ function SearchResults() {
           setResults([]);
           setError('Failed to load rooms');
         }
-      } catch (err) {
+      } catch {
         setResults([]);
         setError('Failed to load rooms');
       }
@@ -101,7 +108,7 @@ function SearchResults() {
         if (data.success && Array.isArray(data.ratePlans)) {
           // Map: roomTypeID -> lowest totalRate
           const rateMap: { [roomTypeID: string]: number } = {};
-          data.ratePlans.forEach((rate: any) => {
+          data.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
             if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
               rateMap[rate.roomTypeID] = rate.totalRate;
             }
@@ -231,4 +238,10 @@ function SearchResults() {
   );
 }
 
-export default SearchResults;
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading search results...</div>}>
+      <SearchResults />
+    </Suspense>
+  );
+}

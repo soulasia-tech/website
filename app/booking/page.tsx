@@ -24,6 +24,23 @@ interface BookingFormData {
   password: string;
 }
 
+interface RoomType {
+  roomTypeID: string;
+  maxGuests: number;
+  roomTypePhotos?: string[];
+  roomTypeName?: string;
+  roomTypeDescription?: string;
+  price?: number;
+  // Add other fields as needed
+}
+
+interface RatePlan {
+  roomTypeID: string;
+  ratePlanID: string;
+  totalRate: number;
+  // Add other fields as needed
+}
+
 function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -32,7 +49,7 @@ function BookingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [room, setRoom] = useState<any>(null);
+  const [room, setRoom] = useState<RoomType | null>(null);
   const [price, setPrice] = useState<number | null>(null);
   const [propertyId, setPropertyId] = useState<string>(searchParams.get('propertyId') || '');
   const [bookingData, setBookingData] = useState<BookingFormData>({
@@ -49,6 +66,7 @@ function BookingForm() {
   });
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [ratePlanId, setRatePlanId] = useState<string>('');
 
   // Fetch real room info and price
   useEffect(() => {
@@ -67,27 +85,29 @@ function BookingForm() {
         // Fetch room types
         const roomRes = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${propertyIdFromParams}`);
         const roomData = await roomRes.json();
-        // Debug log to help trace room lookup issues
-        console.log('roomTypes:', roomData.roomTypes, 'Looking for roomId:', roomId);
         let foundRoom = null;
         if (roomData.success && Array.isArray(roomData.roomTypes)) {
-          foundRoom = roomData.roomTypes.find((r: any) => String(r.roomTypeID) === String(roomId));
+          foundRoom = roomData.roomTypes.find((r: RoomType) => String(r.roomTypeID) === String(roomId));
         }
         setRoom(foundRoom);
         // Fetch rates
         const rateRes = await fetch(`/api/test-cloudbeds-rateplans?propertyId=${propertyIdFromParams}&startDate=${checkIn}&endDate=${checkOut}`);
         const rateData = await rateRes.json();
         let foundPrice = null;
+        let foundRatePlanId = '';
         if (rateData.success && Array.isArray(rateData.ratePlans)) {
-          const rates = rateData.ratePlans.filter((r: any) => r.roomTypeID === roomId);
+          const rates = rateData.ratePlans.filter((r: RatePlan) => r.roomTypeID === roomId && r.ratePlanID);
           if (rates.length > 0) {
-            foundPrice = Math.min(...rates.map((r: any) => r.totalRate));
+            foundPrice = Math.min(...rates.map((r: RatePlan) => r.totalRate));
+            foundRatePlanId = rates[0].ratePlanID;
           }
         }
         setPrice(foundPrice);
+        setRatePlanId(foundRatePlanId);
       } catch {
         setRoom(null);
         setPrice(null);
+        setRatePlanId('');
       }
       setLoading(false);
     })();
@@ -159,121 +179,59 @@ function BookingForm() {
       if (bookingData.adults > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
-      // Prepare Cloudbeds booking payload
+      // Prepare Cloudbeds booking payload (flat JSON, Cloudbeds API field names)
       const bookingPayload = {
-        propertyId,
-        roomTypeId: bookingData.roomId,
-        checkIn: bookingData.checkIn,
-        checkOut: bookingData.checkOut,
-        numberOfGuests: bookingData.adults + bookingData.children,
+        propertyID: propertyId,
+        startDate: bookingData.checkIn,
+        endDate: bookingData.checkOut,
+        roomTypeID: bookingData.roomId,
+        numberOfRooms: 1,
+        numberOfAdults: bookingData.adults,
+        numberOfChildren: bookingData.children,
+        ratePlanID: ratePlanId,
         guestFirstName: bookingData.firstName,
         guestLastName: bookingData.lastName,
         guestEmail: bookingData.email,
-        totalPrice,
-        nights: numberOfNights,
-        // Add more fields as needed for Cloudbeds
+        guestCountry: 'US',
+        // Add more fields as needed
       };
-      console.log('Prepared Cloudbeds booking payload:', bookingPayload);
-
-      // Handle guest booking (no account)
-      if (!user && !bookingData.createAccount) {
-        setLoadingMessage('Processing guest booking...');
-        
-        // For guest bookings, we don't store in database
-        // Instead, we just redirect to confirmation with the booking details
-        const bookingId = `guest_${Date.now()}`;
-        const searchParams = new URLSearchParams({
-          bookingId,
-          checkIn: bookingData.checkIn,
-          checkOut: bookingData.checkOut,
-          firstName: bookingData.firstName,
-          lastName: bookingData.lastName,
-          email: bookingData.email,
-          totalPrice: totalPrice.toString(),
-          roomId: bookingData.roomId,
-          guests: (bookingData.adults + bookingData.children).toString()
-        });
-
-        setSuccessMessage('Booking successful! Redirecting to confirmation...');
-        setTimeout(() => {
-          router.push(`/confirmation?${searchParams.toString()}`);
-        }, 1500);
-        return;
+      console.log('Booking payload sent to backend:', bookingPayload);
+      // Call our API route to create the reservation in Cloudbeds
+      const res = await fetch('/api/create-cloudbeds-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingPayload),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to create reservation');
       }
-
-      // Handle booking with account creation
-      if (!user && bookingData.createAccount) {
-        setLoadingMessage('Creating your account...');
-        // Validate password
-        if (bookingData.password.length < 6) {
-          throw new Error('Password must be at least 6 characters long');
-        }
-        // Create new user
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email: bookingData.email,
-          password: bookingData.password,
-          options: {
-            data: {
-              first_name: bookingData.firstName,
-              last_name: bookingData.lastName,
-            },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
-        if (signUpError) {
-          console.error('Signup error:', signUpError);
-          throw new Error(signUpError.message);
-        }
-        if (!authData.user) {
-          throw new Error('Failed to create account');
-        }
-        console.log('Account created with ID:', authData.user.id);
-        setLoadingMessage('Creating your booking...');
-        // Assume cloudbedsBookingId is returned from Cloudbeds API after booking creation
-        const cloudbedsBookingId = 'mock_cloudbeds_' + Date.now(); // Replace with real ID from Cloudbeds
-        const { data: booking, error: bookingError } = await supabase
-          .from('bookings')
-          .insert([{
-            cloudbeds_res_id: cloudbedsBookingId,
-            user_id: authData.user.id,
-            cloudbeds_property_id: propertyId
-          }])
-          .select()
-          .single();
-        if (bookingError) {
-          console.error('New user booking error:', bookingError);
-          throw new Error(bookingError.message);
-        }
-        setSuccessMessage('Account and booking created successfully! Redirecting to confirmation...');
-        setTimeout(() => {
-          router.push(`/confirmation?bookingId=${booking.id}`);
-        }, 1500);
-        return;
-      }
-
-      // Handle booking for existing user
+      // Optionally, save booking in Supabase
+      let bookingId = '';
       if (user) {
-        setLoadingMessage('Creating your booking...');
-        // Assume cloudbedsBookingId is returned from Cloudbeds API after booking creation
-        const cloudbedsBookingId = 'mock_cloudbeds_' + Date.now(); // Replace with real ID from Cloudbeds
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
           .insert([{
-            cloudbeds_res_id: cloudbedsBookingId,
+            cloudbeds_res_id: data.data.reservationID || data.data.reservationId || '',
             user_id: user.id,
             cloudbeds_property_id: propertyId
           }])
           .select()
           .single();
         if (bookingError) {
-          console.error('Existing user booking error:', bookingError);
           throw new Error(bookingError.message);
         }
-        setSuccessMessage('Booking successful! Redirecting to confirmation...');
-        setTimeout(() => {
-          router.push(`/confirmation?bookingId=${booking.id}`);
-        }, 1500);
+        bookingId = booking.id;
       }
+      setSuccessMessage('Booking successful! Redirecting to confirmation...');
+      setTimeout(() => {
+        if (bookingId) {
+          router.push(`/confirmation?bookingId=${bookingId}`);
+        } else {
+          router.push('/confirmation');
+        }
+      }, 1500);
+      return;
     } catch (error: Error | unknown) {
       handleError(error);
     }
@@ -512,7 +470,7 @@ function BookingForm() {
                   {room && room.roomTypePhotos && room.roomTypePhotos[0] ? (
                     <Image
                       src={`${room.roomTypePhotos[0]}?w=400&h=300&fit=crop`}
-                      alt={room.roomTypeName}
+                      alt={room.roomTypeName || ''}
                       width={400}
                       height={300}
                       className="object-cover"

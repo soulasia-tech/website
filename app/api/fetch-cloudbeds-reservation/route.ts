@@ -31,7 +31,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: cbData.message || 'Failed to fetch from Cloudbeds' }, { status: 500 });
     }
     return NextResponse.json({ success: true, data: cbData.data });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, message: err.message || 'Error fetching from Cloudbeds' }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Error fetching from Cloudbeds';
+    return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
   }
 } 

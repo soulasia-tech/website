@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Heart, Share, Star } from "lucide-react"
+import { Heart, Share, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
@@ -27,16 +27,20 @@ const staggerContainer = {
   },
 }
 
-// Add RoomResult type (reuse from search page)
-type RoomResult = {
-  id: string;
-  name: string;
+interface Amenity {
+  icon: string;
+  title: string;
   description: string;
-  price: number;
-  maxGuests: number;
-  images: string[];
-  amenities: string[];
-};
+}
+
+interface Review {
+  name: string;
+  location: string;
+  rating: number;
+  comment: string;
+  image: string;
+  date: string;
+}
 
 // Restore amenities and reviews arrays
 const amenities = [
@@ -266,7 +270,7 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
             >
-              {amenities.map((amenity: any, index: number) => (
+              {amenities.map((amenity: Amenity, index: number) => (
                 <motion.div
                   key={index}
                   variants={fadeIn}
@@ -376,7 +380,7 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              {reviews.map((review: any, index: number) => (
+              {reviews.map((review: Review, index: number) => (
                 <motion.div
                   key={index}
                   variants={fadeIn}

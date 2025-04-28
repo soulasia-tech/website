@@ -40,6 +40,16 @@ interface BookingDetailsModalProps {
   onClose: () => void;
 }
 
+interface CloudbedsReservationDetails {
+  guestName?: string;
+  status?: string;
+  assigned?: { roomName?: string }[];
+  startDate?: string;
+  endDate?: string;
+  total?: number;
+  // Add other fields as needed
+}
+
 function formatDate(dateString: string | undefined | null): string {
   if (!dateString) return '';
   try {
@@ -51,7 +61,7 @@ function formatDate(dateString: string | undefined | null): string {
 }
 
 function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalProps) {
-  const [cloudbedsDetails, setCloudbedsDetails] = useState<any>(null);
+  const [cloudbedsDetails, setCloudbedsDetails] = useState<CloudbedsReservationDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,8 +77,8 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
         const data = await res.json();
         if (!data.success) throw new Error(data.message || 'Failed to fetch Cloudbeds details');
         setCloudbedsDetails(data.data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch Cloudbeds details');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch Cloudbeds details');
       } finally {
         setLoading(false);
       }
@@ -183,7 +193,7 @@ export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState<BookingError | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [cloudbedsDetailsMap, setCloudbedsDetailsMap] = useState<Record<string, any>>({});
+  const [cloudbedsDetailsMap, setCloudbedsDetailsMap] = useState<Record<string, CloudbedsReservationDetails>>({});
   const [loadingDetails, setLoadingDetails] = useState(false);
   
   const fetchBookings = useCallback(async () => {
@@ -214,7 +224,7 @@ export default function MyBookingsPage() {
   useEffect(() => {
     const fetchAllCloudbedsDetails = async () => {
       setLoadingDetails(true);
-      const detailsMap: Record<string, any> = {};
+      const detailsMap: Record<string, CloudbedsReservationDetails> = {};
       await Promise.all(
         bookings.map(async (booking) => {
           if (booking.cloudbeds_res_id && booking.cloudbeds_property_id) {

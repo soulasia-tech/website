@@ -5,6 +5,11 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+interface CloudbedsPropertyRow {
+  property_id: string;
+  name: string;
+}
+
 export async function GET() {
   const { data, error } = await supabase
     .from('cloudbeds_properties')
@@ -15,7 +20,7 @@ export async function GET() {
   }
 
   // Map to expected format
-  const properties = (data || []).map((row: any) => ({
+  const properties = (data || []).map((row: CloudbedsPropertyRow) => ({
     propertyId: row.property_id,
     propertyName: row.name,
   }));
