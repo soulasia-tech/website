@@ -204,12 +204,10 @@ function BookingForm() {
       // Handle booking with account creation
       if (!user && bookingData.createAccount) {
         setLoadingMessage('Creating your account...');
-        
         // Validate password
         if (bookingData.password.length < 6) {
           throw new Error('Password must be at least 6 characters long');
         }
-
         // Create new user
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: bookingData.email,
@@ -222,33 +220,30 @@ function BookingForm() {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         });
-
         if (signUpError) {
           console.error('Signup error:', signUpError);
           throw new Error(signUpError.message);
         }
-        
         if (!authData.user) {
           throw new Error('Failed to create account');
         }
-
         console.log('Account created with ID:', authData.user.id);
-
         setLoadingMessage('Creating your booking...');
+        // Assume cloudbedsBookingId is returned from Cloudbeds API after booking creation
+        const cloudbedsBookingId = 'mock_cloudbeds_' + Date.now(); // Replace with real ID from Cloudbeds
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
           .insert([{
-            ...bookingPayload,
-            user_id: authData.user.id
+            cloudbeds_res_id: cloudbedsBookingId,
+            user_id: authData.user.id,
+            cloudbeds_property_id: propertyId
           }])
           .select()
           .single();
-
         if (bookingError) {
           console.error('New user booking error:', bookingError);
           throw new Error(bookingError.message);
         }
-
         setSuccessMessage('Account and booking created successfully! Redirecting to confirmation...');
         setTimeout(() => {
           router.push(`/confirmation?bookingId=${booking.id}`);
@@ -259,20 +254,21 @@ function BookingForm() {
       // Handle booking for existing user
       if (user) {
         setLoadingMessage('Creating your booking...');
+        // Assume cloudbedsBookingId is returned from Cloudbeds API after booking creation
+        const cloudbedsBookingId = 'mock_cloudbeds_' + Date.now(); // Replace with real ID from Cloudbeds
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
           .insert([{
-            ...bookingPayload,
-            user_id: user.id
+            cloudbeds_res_id: cloudbedsBookingId,
+            user_id: user.id,
+            cloudbeds_property_id: propertyId
           }])
           .select()
           .single();
-
         if (bookingError) {
           console.error('Existing user booking error:', bookingError);
           throw new Error(bookingError.message);
         }
-
         setSuccessMessage('Booking successful! Redirecting to confirmation...');
         setTimeout(() => {
           router.push(`/confirmation?bookingId=${booking.id}`);
