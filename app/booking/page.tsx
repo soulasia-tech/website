@@ -22,6 +22,7 @@ interface BookingFormData {
   roomId: string;
   createAccount: boolean;
   password: string;
+  phone?: string;
 }
 
 interface RoomType {
@@ -62,7 +63,8 @@ function BookingForm() {
     children: 0,
     roomId: searchParams.get('roomId') || '',
     createAccount: false,
-    password: ''
+    password: '',
+    phone: ''
   });
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -83,7 +85,7 @@ function BookingForm() {
     (async () => {
       try {
         // Fetch room types
-        const roomRes = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${propertyIdFromParams}`);
+        const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyIdFromParams}`);
         const roomData = await roomRes.json();
         let foundRoom = null;
         if (roomData.success && Array.isArray(roomData.roomTypes)) {
@@ -91,7 +93,7 @@ function BookingForm() {
         }
         setRoom(foundRoom);
         // Fetch rates
-        const rateRes = await fetch(`/api/test-cloudbeds-rateplans?propertyId=${propertyIdFromParams}&startDate=${checkIn}&endDate=${checkOut}`);
+        const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${propertyIdFromParams}&startDate=${checkIn}&endDate=${checkOut}`);
         const rateData = await rateRes.json();
         let foundPrice = null;
         let foundRatePlanId = '';
@@ -120,11 +122,33 @@ function BookingForm() {
       
       if (user) {
         // Pre-fill form with user data from users table
-        const { data: userData } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('first_name, last_name, email')
           .eq('id', user.id)
           .single();
+
+        if (userError) {
+          console.error('Error fetching user data:', userError);
+          return;
+        }
+
+        // If user exists in auth but not in users table, create the record
+        if (!userData) {
+          const { error: createError } = await supabase
+            .from('users')
+            .insert([{
+              id: user.id,
+              email: user.email,
+              first_name: '',
+              last_name: ''
+            }]);
+
+          if (createError) {
+            console.error('Error creating user record:', createError);
+            return;
+          }
+        }
 
         setBookingData(prev => ({
           ...prev,
@@ -144,7 +168,7 @@ function BookingForm() {
     } else if (!loading && room !== null) {
       setError(null); // Clear error if room is found
     }
-  }, [loading, room?.roomTypeID]);
+  }, [loading, room]);
 
   useEffect(() => {
     setBookingData(prev => ({
@@ -170,6 +194,12 @@ function BookingForm() {
     setLoadingMessage('Processing your booking...');
 
     try {
+      console.log('Starting booking process...', {
+        createAccount: bookingData.createAccount,
+        user: user,
+        bookingData
+      });
+
       if (!room) {
         throw new Error('Invalid room selection');
       }
@@ -179,61 +209,180 @@ function BookingForm() {
       if (bookingData.adults > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
-      // Prepare Cloudbeds booking payload (flat JSON, Cloudbeds API field names)
-      const bookingPayload = {
-        propertyID: propertyId,
-        startDate: bookingData.checkIn,
-        endDate: bookingData.checkOut,
-        roomTypeID: bookingData.roomId,
-        numberOfRooms: 1,
-        numberOfAdults: bookingData.adults,
-        numberOfChildren: bookingData.children,
-        ratePlanID: ratePlanId,
-        guestFirstName: bookingData.firstName,
-        guestLastName: bookingData.lastName,
-        guestEmail: bookingData.email,
-        guestCountry: 'US',
-        // Add more fields as needed
-      };
-      console.log('Booking payload sent to backend:', bookingPayload);
-      // Call our API route to create the reservation in Cloudbeds
-      const res = await fetch('/api/create-cloudbeds-reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingPayload),
-      });
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to create reservation');
+
+      let currentUser = user;
+
+      // If user is already authenticated, update their information
+      if (currentUser) {
+        console.log('Updating existing user information...');
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            first_name: bookingData.firstName,
+            last_name: bookingData.lastName,
+            email: bookingData.email
+          })
+          .eq('id', currentUser.id);
+
+        if (updateError) {
+          console.error('Error updating user information:', updateError);
+          throw new Error(`Failed to update user information: ${updateError.message}`);
+        }
       }
-      // Optionally, save booking in Supabase
+      // Handle new user creation (existing code)
+      else if (bookingData.createAccount) {
+        setLoadingMessage('Creating your account...');
+        console.log('Creating new user account...');
+        
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: bookingData.email,
+          password: bookingData.password,
+          options: {
+            data: {
+              first_name: bookingData.firstName,
+              last_name: bookingData.lastName
+            }
+          }
+        });
+
+        console.log('User creation response:', { authData, authError });
+
+        if (authError || !authData.user) {
+          throw new Error(`Failed to create account: ${authError?.message || 'No user created'}`);
+        }
+
+        currentUser = authData.user;
+        setUser(currentUser);
+        console.log('New user set:', currentUser);
+
+        // Ensure user record exists in public.users table
+        const { error: userError } = await supabase
+          .from('users')
+          .upsert({
+            id: currentUser.id,
+            email: bookingData.email,
+            first_name: bookingData.firstName,
+            last_name: bookingData.lastName
+          });
+
+        if (userError) {
+          console.error('Error creating user record:', userError);
+          throw new Error(`Failed to create user record: ${userError.message}`);
+        }
+      }
+
+      setLoadingMessage('Creating your reservation...');
+      const formData = new FormData();
+      
+      // Add basic reservation details
+      formData.append('propertyId', propertyId);
+      formData.append('startDate', bookingData.checkIn);
+      formData.append('endDate', bookingData.checkOut);
+      
+      // Add guest information
+      formData.append('guestFirstName', bookingData.firstName);
+      formData.append('guestLastName', bookingData.lastName);
+      formData.append('guestEmail', bookingData.email);
+      formData.append('guestCountry', 'US'); // Default to US
+      formData.append('guestZip', '00000'); // Default zip
+      formData.append('paymentMethod', 'cash'); // Default to cash
+      formData.append('sendEmailConfirmation', 'true');
+      
+      if (bookingData.phone) {
+        formData.append('guestPhone', bookingData.phone);
+      }
+
+      // Add room data
+      const roomData = [{
+        roomTypeID: bookingData.roomId,
+        roomID: `${bookingData.roomId}-1`,
+        quantity: "1",
+        roomRateID: ratePlanId
+      }];
+      formData.append('rooms', JSON.stringify(roomData));
+
+      // Add adults data
+      const adultsData = [{
+        roomTypeID: bookingData.roomId,
+        roomID: `${bookingData.roomId}-1`,
+        quantity: String(bookingData.adults)
+      }];
+      formData.append('adults', JSON.stringify(adultsData));
+
+      // Add children data
+      const childrenData = [{
+        roomTypeID: bookingData.roomId,
+        roomID: `${bookingData.roomId}-1`,
+        quantity: String(bookingData.children)
+      }];
+      formData.append('children', JSON.stringify(childrenData));
+
+      console.log('Sending reservation request with data:', {
+        propertyId,
+        roomData,
+        adultsData,
+        childrenData
+      });
+
+      // Call our API route to create the reservation
+      const res = await fetch('/api/create-reservation', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      console.log('Cloudbeds reservation response:', data);
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to create reservation');
+      }
+
+      setLoadingMessage('Saving your booking...');
+
+      // Create booking in Supabase
       let bookingId = '';
-      if (user) {
+      
+      if (currentUser) {
+        console.log('Attempting to save booking to Supabase with user:', {
+          userId: currentUser.id,
+          cloudbedsResId: data.data.reservationID,
+          cloudbedsPropertyId: propertyId
+        });
+        
+        // Create the booking with required fields
         const { data: booking, error: bookingError } = await supabase
           .from('bookings')
-          .insert([{
-            cloudbeds_res_id: data.data.reservationID || data.data.reservationId || '',
-            user_id: user.id,
+          .insert({
+            user_id: currentUser.id,
+            cloudbeds_res_id: data.data.reservationID,
             cloudbeds_property_id: propertyId
-          }])
+          })
           .select()
           .single();
+
         if (bookingError) {
-          throw new Error(bookingError.message);
-        }
-        bookingId = booking.id;
-      }
-      setSuccessMessage('Booking successful! Redirecting to confirmation...');
-      setTimeout(() => {
-        if (bookingId) {
-          router.push(`/confirmation?bookingId=${bookingId}`);
+          console.error('Detailed booking error:', bookingError);
+          throw new Error(`Failed to save booking: ${bookingError.message}`);
         } else {
-          router.push('/confirmation');
+          bookingId = booking.id;
+          console.log('Successfully created booking with ID:', bookingId);
         }
-      }, 1500);
-      return;
-    } catch (error: Error | unknown) {
+      }
+
+      setSuccessMessage('Booking successful! Redirecting to confirmation...');
+      
+      if (bookingId) {
+        console.log('Redirecting to confirmation with booking ID:', bookingId);
+        router.push(`/confirmation?bookingId=${bookingId}`);
+      } else {
+        // For guest bookings without an account
+        console.log('Redirecting guest to confirmation');
+        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.adults + bookingData.children}&roomId=${bookingData.roomId}`);
+      }
+    } catch (error) {
+      console.error('Booking process error:', error);
       handleError(error);
+      setSubmitting(false);
     }
   };
 

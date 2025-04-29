@@ -34,13 +34,18 @@ function ConfirmationContent() {
 
   useEffect(() => {
     const bookingId = searchParams.get('bookingId');
-    if (!bookingId) return;
-
+    
     const fetchData = async () => {
       try {
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
+
+        if (!bookingId) {
+          // If no bookingId, we'll just show a generic success message
+          setLoading(false);
+          return;
+        }
 
         // If it's a guest booking (starts with 'guest_'), use URL params
         if (bookingId.startsWith('guest_')) {
@@ -97,16 +102,19 @@ function ConfirmationContent() {
     );
   }
 
+  // Show generic success message if no booking details
   if (!booking) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <Card className="bg-white rounded-xl p-6 shadow-sm">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Booking Not Found</h1>
-            <p className="mb-6">Sorry, we couldn&apos;t find your booking. Please contact support if you think this is an error.</p>
-            <Link href="/">
-              <Button variant="outline">Return to Home</Button>
-            </Link>
+            <h1 className="text-2xl font-bold text-green-600 mb-4">Booking Successful!</h1>
+            <p className="mb-6">Your booking has been confirmed. You will receive a confirmation email shortly.</p>
+            <div className="mt-8">
+              <Link href="/">
+                <Button variant="outline">Return to Home</Button>
+              </Link>
+            </div>
           </Card>
         </div>
       </div>
