@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
+import { RoomsSection } from "@/components/rooms-section"
 
 // Animation variants
 const fadeIn = {
@@ -155,6 +156,9 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
+
+        {/* Rooms Section */}
+        <RoomsSection />
 
         {/* Value Proposition Section */}
         <section className="py-24 bg-gray-50">

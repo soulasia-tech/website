@@ -62,6 +62,8 @@ export async function GET(request: Request) {
       }, { status: response.status });
     }
 
+    console.log('Cloudbeds room types response:', JSON.stringify(data.data, null, 2));
+
     return NextResponse.json({
       success: true,
       roomTypes: data.data
