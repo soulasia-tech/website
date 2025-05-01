@@ -1,12 +1,13 @@
 "use client"
 
 import Image from "next/image"
-import { Heart, Share, Star } from "lucide-react"
+import { Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
 import { RoomsSection } from "@/components/rooms-section"
+import { PropertiesSection } from "@/components/properties-section"
 
 // Animation variants
 const fadeIn = {
@@ -157,8 +158,27 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Properties Section */}
+        <section className="bg-white">
+          <PropertiesSection />
+        </section>
+
         {/* Rooms Section */}
-        <RoomsSection />
+        <section className="bg-gray-50">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeIn}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Available Rooms</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Find your perfect space in our carefully curated selection of rooms
+            </p>
+          </motion.div>
+          <RoomsSection />
+        </section>
 
         {/* Value Proposition Section */}
         <section className="py-24 bg-gray-50">
@@ -265,78 +285,6 @@ export default function Home() {
                   <p className="text-gray-600">{amenity.description}</p>
                 </motion.div>
               ))}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Featured Property */}
-        <section className="py-24 bg-gray-50">
-          <div className="container px-4 mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeIn}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Property</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Experience our most popular apartment, offering stunning views and exceptional amenities
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeIn}
-              className="bg-white rounded-2xl overflow-hidden shadow-xl"
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className="relative h-[400px] lg:h-auto">
-                  <Image
-                    src="/placeholder.svg"
-                    alt="Featured Property"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-8 lg:p-12 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-2xl font-bold">Featured Property</h3>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" className="rounded-full">
-                        <Share className="w-5 h-5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="rounded-full">
-                        <Heart className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center mb-6">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm font-medium">5.0 (124 reviews)</span>
-                  </div>
-
-                  <p className="text-gray-600 mb-6">
-                    This is a placeholder for the featured property. The actual property data should be fetched and displayed here.
-                  </p>
-
-                  <div className="mt-auto flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold">
-                        $0 <span className="text-sm font-normal text-gray-500">/ night</span>
-                      </p>
-                    </div>
-                    <Button className="rounded-lg">View details</Button>
-                  </div>
-                </div>
-              </div>
             </motion.div>
           </div>
         </section>

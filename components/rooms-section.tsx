@@ -4,17 +4,18 @@ import { useEffect, useState } from "react"
 import { RoomCard } from "@/components/room-card"
 import { addDays, format } from "date-fns"
 
-interface Property {
-  propertyId: string
-  propertyName: string
-}
-
 interface RoomType {
   roomTypeID: string
   roomTypeName: string
   propertyName: string
   roomTypePhotos: string[]
   rate?: number
+}
+
+interface CloudbedsRoomType {
+  roomTypeID: string
+  roomTypeName: string
+  roomTypePhotos: string[]
 }
 
 export function RoomsSection() {
@@ -60,7 +61,7 @@ export function RoomsSection() {
             }
 
             // Transform room data to match our interface
-            const transformedRooms = roomsData.roomTypes.map((room: any) => ({
+            const transformedRooms = roomsData.roomTypes.map((room: CloudbedsRoomType) => ({
               roomTypeID: room.roomTypeID,
               roomTypeName: room.roomTypeName,
               propertyName: property.propertyName,
