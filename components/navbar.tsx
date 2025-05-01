@@ -17,7 +17,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, usePathname } from 'next/navigation';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-export default function Navbar() {
+export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const supabase = createClientComponentClient();
@@ -73,23 +73,7 @@ export default function Navbar() {
           <span className="text-2xl font-bold text-blue-600">soulasia</span>
         </Link>
         
-        <div className="hidden md:flex items-center space-x-1 bg-white rounded-full shadow-sm border border-gray-100 p-1 px-2">
-          <Button variant="ghost" className="text-sm font-medium rounded-full">
-            Places to stay
-          </Button>
-          <Button variant="ghost" className="text-sm font-medium rounded-full">
-            Experiences
-          </Button>
-          <Button variant="ghost" className="text-sm font-medium rounded-full">
-            Online Experiences
-          </Button>
-        </div>
-        
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="rounded-full hidden md:flex">
-            Become a host
-          </Button>
-          
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -99,8 +83,8 @@ export default function Navbar() {
                   className="rounded-full"
                   aria-label="User menu"
                 >
-            <User className="w-4 h-4" />
-          </Button>
+                  <User className="w-4 h-4" />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
@@ -133,19 +117,55 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href="/auth/sign-in">
-              <Button variant="outline" size="sm" className="rounded-full">
-                Sign in
-              </Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-full"
+                  aria-label="User menu"
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="font-normal text-sm text-muted-foreground">Welcome to Soulasia</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/auth/sign-in" className="flex items-center cursor-pointer">
+                    Sign in
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/auth/sign-up" className="flex items-center cursor-pointer">
+                    Sign up
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           
-          <Button variant="outline" className="rounded-full flex items-center gap-2 shadow-sm">
-            <Menu className="w-4 h-4" />
-            <span className="sr-only md:not-sr-only">Menu</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="rounded-full flex items-center gap-2 shadow-sm">
+                <Menu className="w-4 h-4" />
+                <span className="sr-only md:not-sr-only">Menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link href="/become-host" className="flex items-center cursor-pointer">
+                  Become a host
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
-  );
-} 
+  )
+}
