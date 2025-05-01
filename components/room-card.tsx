@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface RoomCardProps {
@@ -26,16 +26,18 @@ export function RoomCard({ roomName, propertyName, photos }: RoomCardProps) {
   }
 
   return (
-    <div className="group relative flex flex-col gap-2">
+    <div className="w-full">
       {/* Image Carousel */}
-      <div className="relative aspect-square overflow-hidden rounded-xl">
+      <div className="relative aspect-[1/1] overflow-hidden rounded-xl mb-3">
         {photos.length > 0 ? (
           <>
             <Image
               src={photos[currentImageIndex].url}
               alt={photos[currentImageIndex].caption || roomName}
               fill
-              className="object-cover transition-transform group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority
             />
             {/* Navigation Buttons - Only show on hover if there are multiple images */}
             {photos.length > 1 && (
@@ -56,7 +58,7 @@ export function RoomCard({ roomName, propertyName, photos }: RoomCardProps) {
             )}
             {/* Image Indicators */}
             {photos.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1">
+              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
                 {photos.map((_, index) => (
                   <div
                     key={index}
@@ -74,15 +76,11 @@ export function RoomCard({ roomName, propertyName, photos }: RoomCardProps) {
             <p className="text-sm text-gray-500">No image available</p>
           </div>
         )}
-        {/* Favorite Button */}
-        <button className="absolute right-4 top-4 rounded-full bg-white p-1.5 shadow-md transition hover:scale-110">
-          <Heart className="h-4 w-4" />
-        </button>
       </div>
       {/* Room and Property Names */}
-      <div className="flex flex-col">
-        <h3 className="text-lg font-medium">{roomName}</h3>
-        <p className="text-sm text-gray-500">{propertyName}</p>
+      <div className="flex flex-col gap-1">
+        <h3 className="font-medium text-[15px] leading-5">{roomName}</h3>
+        <p className="text-[15px] leading-5 text-gray-500">{propertyName}</p>
       </div>
     </div>
   )

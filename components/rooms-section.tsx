@@ -66,10 +66,10 @@ export function RoomsSection() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-square rounded-xl bg-gray-200" />
-              <div className="mt-2 h-4 w-2/3 rounded bg-gray-200" />
-              <div className="mt-1 h-3 w-1/2 rounded bg-gray-200" />
+            <div key={i} className="animate-pulse w-full">
+              <div className="aspect-[1/1] rounded-xl bg-gray-200 mb-3" />
+              <div className="h-5 w-2/3 rounded bg-gray-200 mb-1" />
+              <div className="h-5 w-1/2 rounded bg-gray-200" />
             </div>
           ))}
         </div>
@@ -87,7 +87,7 @@ export function RoomsSection() {
 
   return (
     <section className="container mx-auto px-4 py-16">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 place-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {rooms.map((room) => (
           <RoomCard
             key={room.roomTypeID}
