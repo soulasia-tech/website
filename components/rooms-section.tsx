@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { RoomCard } from "@/components/room-card"
 import { addDays, format } from "date-fns"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface RoomType {
   roomTypeID: string
@@ -89,11 +91,42 @@ export function RoomsSection() {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse w-full">
-              <div className="aspect-[1/1] rounded-xl bg-gray-200 mb-3" />
-              <div className="h-5 w-2/3 rounded bg-gray-200 mb-1" />
-              <div className="h-5 w-1/2 rounded bg-gray-200 mb-1" />
-              <div className="h-5 w-1/4 rounded bg-gray-200" />
+            <div key={i} className="w-full group">
+              {/* Image Skeleton */}
+              <div className="relative aspect-[1/1] overflow-hidden rounded-xl mb-3 bg-gray-200 animate-pulse">
+                {/* Navigation Buttons */}
+                <button
+                  className={cn(
+                    "absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 shadow-md",
+                    "opacity-0 group-hover:opacity-100"
+                  )}
+                >
+                  <ChevronLeft className="h-4 w-4 text-gray-400" />
+                </button>
+                <button
+                  className={cn(
+                    "absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 p-1.5 shadow-md",
+                    "opacity-0 group-hover:opacity-100"
+                  )}
+                >
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </button>
+                {/* Image Indicators */}
+                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
+                  {[...Array(3)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="h-1.5 w-1.5 rounded-full bg-white/50"
+                    />
+                  ))}
+                </div>
+              </div>
+              {/* Text Skeletons */}
+              <div className="space-y-2">
+                <div className="h-5 w-3/4 rounded bg-gray-200 animate-pulse" />
+                <div className="h-5 w-1/2 rounded bg-gray-200 animate-pulse" />
+                <div className="h-5 w-1/3 rounded bg-gray-200 animate-pulse mt-1" />
+              </div>
             </div>
           ))}
         </div>
