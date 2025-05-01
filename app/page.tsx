@@ -102,45 +102,27 @@ export default function Home() {
       <Toaster />
       <main className="flex-1 pt-0">
         {/* Hero Section */}
-        <section className="relative h-screen overflow-hidden bg-gradient-to-br from-blue-800/80 via-blue-700/70 to-blue-600/60">
+        <section className="relative overflow-hidden bg-white py-24">
           {/* Decorative Elements */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -right-20 -top-20 w-[600px] h-[600px] rounded-full bg-blue-500/10 backdrop-blur-2xl" />
-            <div className="absolute left-20 bottom-40 w-[300px] h-[300px] rounded-full bg-blue-400/5 backdrop-blur-xl" />
-            <div className="absolute left-1/2 top-1/4 w-[200px] h-[400px] -rotate-45 rounded-3xl bg-blue-300/5 backdrop-blur-xl" />
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDBoNjB2NjBIMHoiLz48cGF0aCBkPSJNMzAgMzBoMzB2MzBIMzB6IiBmaWxsPSIjMDAwMDAwMDMiLz48cGF0aCBkPSJNMCAzMGgzMHYzMEgweiIgZmlsbD0iIzAwMDAwMDAzIi8+PC9nPjwvc3ZnPg==')] opacity-3" />
+            <div className="absolute -right-20 -top-20 w-[400px] h-[400px] rounded-full bg-gray-50" />
+            <div className="absolute left-20 bottom-20 w-[200px] h-[200px] rounded-full bg-gray-50" />
+            <div className="absolute left-1/2 top-1/4 w-[150px] h-[300px] -rotate-45 rounded-3xl bg-gray-50" />
           </div>
 
-          <div className="container relative z-10 flex flex-col items-center justify-center h-full px-4 mx-auto text-center">
+          <div className="container relative z-10 flex flex-col items-center justify-center px-4 mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-3xl"
+              className="max-w-3xl mb-8"
             >
-              {/* Brand Element */}
-              <div className="flex items-center justify-center mb-8">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg mb-4">
-                  <span className="text-2xl font-bold text-blue-600">S</span>
-                </div>
-              </div>
-
-              <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white leading-tight">
-                Soulful Stays,
-                <br />
-                Memorable Days
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+                Soulful Stays, Memorable Days
               </h1>
-              <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              <p className="text-base text-gray-600 max-w-2xl mx-auto">
                 Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
               </p>
-
-              {/* Animated Underline */}
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "120px" }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="h-1 bg-white/70 mx-auto mb-16 rounded-full"
-              />
             </motion.div>
 
             {/* Booking Widget Container */}
@@ -148,31 +130,29 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="w-full max-w-5xl mx-auto px-4 mb-24"
+              className="w-full"
             >
               <BookingWidget />
             </motion.div>
 
             {/* Floating Features */}
-            <div className="absolute bottom-12 left-0 right-0">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1 }}
-                className="flex flex-wrap justify-center gap-4"
-              >
-                {["Premium Locations", "24/7 Support", "Luxury Amenities", "Best Price Guarantee"].map(
-                  (feature, index) => (
-                    <div
-                      key={index}
-                      className="bg-white/8 backdrop-blur-md px-4 py-2 rounded-full text-sm text-white/90 border border-white/10"
-                    >
-                      {feature}
-                    </div>
-                  ),
-                )}
-              </motion.div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1 }}
+              className="flex flex-wrap justify-center gap-4 mt-8"
+            >
+              {["Premium Locations", "24/7 Support", "Luxury Amenities", "Best Price Guarantee"].map(
+                (feature, index) => (
+                  <div
+                    key={index}
+                    className="bg-white px-4 py-2 rounded-full text-sm text-gray-600 border border-gray-200 shadow-sm"
+                  >
+                    {feature}
+                  </div>
+                ),
+              )}
+            </motion.div>
           </div>
         </section>
 
@@ -310,7 +290,7 @@ export default function Home() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-2">
                 <div className="relative h-[400px] lg:h-auto">
-        <Image
+                  <Image
                     src="/placeholder.svg"
                     alt="Featured Property"
                     fill
@@ -447,7 +427,7 @@ export default function Home() {
                 Book Your Stay Now
               </Button>
             </motion.div>
-        </div>
+          </div>
         </section>
 
         {/* Gallery Section */}
@@ -487,7 +467,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-2 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KL Tower"
                   fill
@@ -500,7 +480,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="Batu Caves"
                   fill
@@ -513,7 +493,7 @@ export default function Home() {
                 </div>
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
-          <Image
+                <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KLCC Park"
                   fill

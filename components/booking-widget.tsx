@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { MapPin, Calendar, Users } from "lucide-react"
+import { Search } from "lucide-react"
 
 export function BookingWidget() {
   const router = useRouter()
@@ -47,76 +47,71 @@ export function BookingWidget() {
   }
 
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
-      <form onSubmit={handleSearch} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <MapPin className="w-4 h-4" />
-              <span>Property</span>
-            </div>
-            <select
-              value={searchParams.propertyId}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, propertyId: e.target.value }))}
-              className="w-full h-12 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              disabled={loading}
-            >
-              {properties.map((property) => (
-                <option key={property.propertyId} value={property.propertyId}>{property.propertyName}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Calendar className="w-4 h-4" />
-              <span>Check-in</span>
-            </div>
-            <Input
-              type="date"
-              required
-              value={searchParams.startDate}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, startDate: e.target.value }))}
-              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Calendar className="w-4 h-4" />
-              <span>Check-out</span>
-            </div>
-            <Input
-              type="date"
-              required
-              value={searchParams.endDate}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, endDate: e.target.value }))}
-              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Users className="w-4 h-4" />
-              <span>Guests</span>
-            </div>
-            <Input
-              type="number"
-              min="1"
-              required
-              value={searchParams.guests}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, guests: e.target.value }))}
-              className="h-12 rounded-xl border-gray-200 focus:ring-blue-500"
-            />
-          </div>
+    <div className="bg-white rounded-full shadow-lg border border-gray-200 max-w-6xl mx-auto">
+      <form onSubmit={handleSearch} className="flex items-center divide-x divide-gray-200">
+        {/* Where */}
+        <div className="relative flex-[2] min-w-[240px] pl-8 pr-4 py-3">
+          <label className="block text-sm font-medium text-gray-800">Where</label>
+          <select
+            value={searchParams.propertyId}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, propertyId: e.target.value }))}
+            className="w-full bg-transparent border-0 outline-none text-gray-600 text-sm placeholder:text-gray-400"
+            disabled={loading}
+          >
+            {properties.map((property) => (
+              <option key={property.propertyId} value={property.propertyId}>{property.propertyName}</option>
+            ))}
+          </select>
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full h-12 text-base font-medium rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-lg shadow-blue-500/25"
-        >
-          Search Availability
-        </Button>
+        {/* Check in */}
+        <div className="relative flex-1 px-6 py-3">
+          <label className="block text-sm font-medium text-gray-800">Check in</label>
+          <Input
+            type="date"
+            required
+            value={searchParams.startDate}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, startDate: e.target.value }))}
+            className="border-0 p-0 text-gray-600 text-sm focus:ring-0"
+          />
+        </div>
+
+        {/* Check out */}
+        <div className="relative flex-1 px-6 py-3">
+          <label className="block text-sm font-medium text-gray-800">Check out</label>
+          <Input
+            type="date"
+            required
+            value={searchParams.endDate}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, endDate: e.target.value }))}
+            className="border-0 p-0 text-gray-600 text-sm focus:ring-0"
+          />
+        </div>
+
+        {/* Who */}
+        <div className="relative flex-1 px-6 py-3">
+          <label className="block text-sm font-medium text-gray-800">Who</label>
+          <Input
+            type="number"
+            min="1"
+            required
+            value={searchParams.guests}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, guests: e.target.value }))}
+            className="border-0 p-0 text-gray-600 text-sm focus:ring-0"
+            placeholder="Add guests"
+          />
+        </div>
+
+        {/* Search Button */}
+        <div className="pr-2 pl-4 py-2">
+          <Button 
+            type="submit" 
+            size="icon"
+            className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+        </div>
       </form>
     </div>
   )
