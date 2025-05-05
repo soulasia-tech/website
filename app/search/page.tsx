@@ -35,6 +35,14 @@ function SearchResults() {
   const endDate = searchParams.get('endDate');
   const guests = searchParams.get('guests');
 
+  // Create initial search params object for BookingWidget
+  const initialSearchParams = {
+    propertyId: propertyId || '',
+    startDate: startDate || '',
+    endDate: endDate || '',
+    guests: guests || '1'
+  };
+
   useEffect(() => {
     // Validate search parameters
     if (!propertyId || !startDate || !endDate || !guests) {
@@ -140,7 +148,7 @@ function SearchResults() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <div className="mb-8">
-            <BookingWidget />
+            <BookingWidget initialSearchParams={initialSearchParams} />
           </div>
           <div className="animate-pulse space-y-8">
             {[1, 2, 3].map((i) => (
@@ -160,7 +168,7 @@ function SearchResults() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <BookingWidget />
+          <BookingWidget initialSearchParams={initialSearchParams} />
         </div>
 
         <div className="mb-8">

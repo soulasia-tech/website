@@ -1,13 +1,12 @@
 "use client"
 
 import Image from "next/image"
-import { Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
 import { RoomsSection } from "@/components/rooms-section"
 import { PropertiesSection } from "@/components/properties-section"
+import { CustomerReviews } from "@/components/customer-reviews"
 
 // Animation variants
 const fadeIn = {
@@ -35,16 +34,7 @@ interface Amenity {
   description: string;
 }
 
-interface Review {
-  name: string;
-  location: string;
-  rating: number;
-  comment: string;
-  image: string;
-  date: string;
-}
-
-// Restore amenities and reviews arrays
+// Restore amenities array
 const amenities = [
   {
     icon: "🏠",
@@ -65,36 +55,6 @@ const amenities = [
     icon: "🛁",
     title: "Premium Amenities",
     description: "Luxury toiletries, plush towels, and hotel-quality linens",
-  },
-]
-
-const reviews = [
-  {
-    name: "Rachel",
-    location: "United Kingdom",
-    rating: 5,
-    comment:
-      "Exceptional! The apartment exceeded all our expectations. Spotlessly clean with excellent facilities and a stunning view.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1374&auto=format&fit=crop",
-    date: "March 2023",
-  },
-  {
-    name: "Thomas",
-    location: "Australia",
-    rating: 5,
-    comment:
-      "Perfect apartment for our family. Spacious, well-equipped and in an ideal location. The host was incredibly responsive.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1374&auto=format&fit=crop",
-    date: "February 2023",
-  },
-  {
-    name: "Laura",
-    location: "United States",
-    rating: 5,
-    comment:
-      "Superb location and beautiful apartment. Everything was thoughtfully prepared and the check-in process was seamless.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=1470&auto=format&fit=crop",
-    date: "January 2023",
   },
 ]
 
@@ -160,24 +120,10 @@ export default function Home() {
 
         {/* Properties Section */}
         <section className="bg-white">
-          <PropertiesSection />
-        </section>
-
-        {/* Rooms Section */}
-        <section className="bg-gray-50">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeIn}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Available Rooms</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Find your perfect space in our carefully curated selection of rooms
-            </p>
-          </motion.div>
-          <RoomsSection />
+          <div className="container px-4 mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured locations</h2>
+            <PropertiesSection />
+          </div>
         </section>
 
         {/* Value Proposition Section */}
@@ -203,7 +149,6 @@ export default function Home() {
                   From the premium furnishings to the thoughtful amenities, every detail is curated to ensure your
                   comfort, convenience, and an exceptional experience that keeps you coming back.
                 </p>
-                <Button className="rounded-lg">Learn about our approach</Button>
               </motion.div>
 
               <motion.div
@@ -250,6 +195,14 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Rooms Section (moved below Value Proposition) */}
+        <section>
+          <div className="container px-4 mx-auto py-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured apartments</h2>
+            <RoomsSection />
+          </div>
+        </section>
+
         {/* Amenities Section */}
         <section className="py-24">
           <div className="container px-4 mx-auto">
@@ -289,96 +242,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Reviews Section */}
-        <section className="py-24">
-          <div className="container px-4 mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeIn}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Guests Say</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Don&apos;t just take our word for it. Here&apos;s what our guests have to say about their Soulasia experience.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            >
-              {reviews.map((review: Review, index: number) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4">
-                      <Image src={review.image || "/placeholder.svg"} alt={review.name} fill className="object-cover" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold">{review.name}</h4>
-                      <p className="text-sm text-gray-500">{review.location}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex mb-4">
-                    {[...Array(5)].map((_, i: number) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-gray-600 mb-4">&quot;{review.comment}&quot;</p>
-
-                  <p className="text-sm text-gray-500">{review.date}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <div className="text-center mt-12">
-              <Button variant="outline" className="rounded-lg">
-                View all reviews
-              </Button>
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
-        <section className="relative py-24 text-white overflow-hidden">
-          <div className="absolute inset-0">
-            <Image
-              src="https://images.unsplash.com/photo-1508964942454-1a56651d54ac?q=80&w=1635&auto=format&fit=crop"
-              alt="Kuala Lumpur Skyline"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-blue-600/70" />
-          </div>
-          <div className="container relative z-10 px-4 mx-auto text-center">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeIn}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready for a Soulful Stay?</h2>
-              <p className="text-white/80 max-w-2xl mx-auto mb-8">
-                Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of
-                comfort, convenience, and luxury.
-              </p>
-              <Button className="bg-white text-blue-600 hover:bg-white/90 rounded-lg text-lg px-8 py-6">
-                Book Your Stay Now
-              </Button>
-            </motion.div>
+        <section className="py-24 bg-white">
+          <div className="container px-4 mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Ready for a Soulful Stay?</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
+            </p>
           </div>
         </section>
 
@@ -459,6 +329,11 @@ export default function Home() {
               </motion.div>
             </motion.div>
           </div>
+        </section>
+
+        {/* Customer Reviews Section (moved to bottom) */}
+        <section className="bg-white">
+          <CustomerReviews />
         </section>
       </main>
     </div>

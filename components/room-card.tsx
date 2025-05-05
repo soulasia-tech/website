@@ -17,15 +17,18 @@ interface RoomCardProps {
 
 export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation()
     setCurrentImageIndex((prev) => (prev + 1) % photos.length)
+    setImageLoaded(false)
   }
 
   const previousImage = (e: React.MouseEvent) => {
     e.stopPropagation()
     setCurrentImageIndex((prev) => (prev - 1 + photos.length) % photos.length)
+    setImageLoaded(false)
   }
 
   return (
@@ -34,13 +37,21 @@ export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps
       <div className="relative aspect-[1/1] overflow-hidden rounded-xl mb-3">
         {photos.length > 0 ? (
           <>
+            {/* Skeleton Loader */}
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
+            )}
             <Image
               src={photos[currentImageIndex].url}
               alt={photos[currentImageIndex].caption || roomName}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
+              className={cn(
+                "object-cover transition-opacity duration-500",
+                imageLoaded ? "opacity-100" : "opacity-0"
+              )}
               priority
+              onLoad={() => setImageLoaded(true)}
             />
             {/* Navigation Buttons - Show if there are multiple images */}
             {photos.length > 1 && (

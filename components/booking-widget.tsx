@@ -10,13 +10,22 @@ import { format, addDays } from "date-fns"
 import { cn } from "@/lib/utils"
 import { DayPicker } from "react-day-picker"
 
-export function BookingWidget() {
+interface BookingWidgetProps {
+  initialSearchParams?: {
+    propertyId: string;
+    startDate: string;
+    endDate: string;
+    guests: string;
+  }
+}
+
+export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
-    propertyId: '',
-    startDate: '',
-    endDate: '',
-    guests: '1'
+    propertyId: initialSearchParams?.propertyId || '',
+    startDate: initialSearchParams?.startDate || '',
+    endDate: initialSearchParams?.endDate || '',
+    guests: initialSearchParams?.guests || '1'
   })
   const [properties, setProperties] = useState<{ propertyId: string, propertyName: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,7 +43,9 @@ export function BookingWidget() {
         const data = await res.json()
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
           setProperties(data.properties)
-          setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
+          if (!initialSearchParams?.propertyId) {
+            setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
+          }
         } else {
           setProperties([{ propertyId: '', propertyName: 'No properties found' }])
         }
@@ -44,7 +55,7 @@ export function BookingWidget() {
       setLoading(false)
     }
     fetchProperties()
-  }, [])
+  }, [initialSearchParams?.propertyId])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
