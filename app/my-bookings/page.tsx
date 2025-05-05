@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface BookingDetailsModalProps {
   booking: Booking | null;
@@ -122,6 +123,7 @@ interface BookingError {
 
 export default function MyBookingsPage() {
   const supabase = createClientComponentClient();
+  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState<BookingError | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -133,7 +135,8 @@ export default function MyBookingsPage() {
       // Get current user first
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        throw new Error('Not authenticated');
+        router.push('/');
+        return;
       }
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
@@ -150,7 +153,7 @@ export default function MyBookingsPage() {
       console.error('Error fetching bookings:', error);
       setError({ message: error instanceof Error ? error.message : 'Failed to fetch bookings' });
     }
-  }, [supabase]);
+  }, [supabase, router]);
 
   // Fetch Cloudbeds details for all bookings
   useEffect(() => {

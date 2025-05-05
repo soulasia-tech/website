@@ -8,6 +8,11 @@ import { Card } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { BookingWidget } from '@/components/booking-widget';
 import { PropertyInformation } from '@/components/property-information';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface RoomResult {
   id: string;
@@ -29,6 +34,8 @@ function SearchResults() {
   const [results, setResults] = useState<RoomResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [rates, setRates] = useState<{ [roomTypeID: string]: number }>({});
+  const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   // Get search parameters
   const propertyId = searchParams.get('propertyId');
@@ -133,6 +140,22 @@ function SearchResults() {
     fetchRates();
   }, [propertyId, startDate, endDate, guests, router]);
 
+  useEffect(() => {
+    if (!selectedRoomImages) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedRoomImages(null);
+        setCarouselIndex(0);
+      } else if (e.key === 'ArrowLeft') {
+        setCarouselIndex((prev) => prev > 0 ? prev - 1 : selectedRoomImages.length - 1);
+      } else if (e.key === 'ArrowRight') {
+        setCarouselIndex((prev) => prev < selectedRoomImages.length - 1 ? prev + 1 : 0);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedRoomImages]);
+
   const handleBookNow = (roomId: string) => {
     router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&guests=${guests}`);
   };
@@ -206,13 +229,13 @@ function SearchResults() {
                     alt={room.name}
                     width={600}
                     height={400}
-                    className="object-cover"
+                    className="object-cover cursor-pointer"
+                    onClick={() => setSelectedRoomImages(room.images)}
                   />
                 </div>
                 <div className="p-6 md:w-2/3 flex flex-col">
                   <div className="flex-grow">
                     <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
-                    <p className="text-gray-600 mb-4">{room.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {room.amenities.map((amenity, index) => (
                         <span 
@@ -252,6 +275,33 @@ function SearchResults() {
         </div>
         {/* Property Information Section */}
         {propertyId && <PropertyInformation propertyId={propertyId} />}
+        {selectedRoomImages && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}>
+            <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
+              <button
+                className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}
+                aria-label="Close image preview"
+              >
+                ✕
+              </button>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                navigation
+                pagination={{ clickable: true }}
+                className="rounded-xl"
+                initialSlide={carouselIndex}
+                onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
+              >
+                {selectedRoomImages.map((img, idx) => (
+                  <SwiperSlide key={idx}>
+                    <img src={img} alt={`Room image ${idx + 1}`} className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl" />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

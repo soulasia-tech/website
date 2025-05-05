@@ -740,7 +740,6 @@ function BookingForm() {
                 </div>
 
                 <h3 className="font-medium mb-2">{room ? room.roomTypeName : ''}</h3>
-                <p className="text-sm text-gray-600 mb-4">{room ? room.roomTypeDescription : ''}</p>
 
                 <div className="space-y-2 text-sm">
                   {price === null && (
