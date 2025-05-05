@@ -10,6 +10,10 @@ import { format, parseISO, differenceInDays } from "date-fns";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { PropertyInformation } from '@/components/property-information';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BookingFormData {
   firstName: string;
@@ -23,6 +27,8 @@ interface BookingFormData {
   createAccount: boolean;
   password: string;
   phone?: string;
+  estimatedArrivalTime?: string;
+  country: string;
 }
 
 interface RoomType {
@@ -41,6 +47,33 @@ interface RatePlan {
   totalRate: number;
   // Add other fields as needed
 }
+
+// Add a full list of countries
+const COUNTRIES = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)",
+  "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. \"Swaziland\")", "Ethiopia",
+  "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+  "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+  "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
+  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)",
+  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+  "Oman",
+  "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+  "Qatar",
+  "Romania", "Russia", "Rwanda",
+  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+  "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan",
+  "Vanuatu", "Venezuela", "Vietnam",
+  "Yemen",
+  "Zambia", "Zimbabwe"
+];
+
+// Helper for 24h arrival times
+const ARRIVAL_TIMES = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
 function BookingForm() {
   const router = useRouter();
@@ -64,7 +97,9 @@ function BookingForm() {
     roomId: searchParams.get('roomId') || '',
     createAccount: false,
     password: '',
-    phone: ''
+    phone: '',
+    estimatedArrivalTime: '',
+    country: '',
   });
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -283,7 +318,7 @@ function BookingForm() {
       formData.append('guestFirstName', bookingData.firstName);
       formData.append('guestLastName', bookingData.lastName);
       formData.append('guestEmail', bookingData.email);
-      formData.append('guestCountry', 'US'); // Default to US
+      formData.append('guestCountry', bookingData.country);
       formData.append('guestZip', '00000'); // Default zip
       formData.append('paymentMethod', 'cash'); // Default to cash
       formData.append('sendEmailConfirmation', 'true');
@@ -429,7 +464,7 @@ function BookingForm() {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Complete Your Booking</h1>
+            <h1 className="text-3xl font-bold">Add Guests</h1>
             <Button 
               variant="outline"
               onClick={() => {
@@ -540,6 +575,68 @@ function BookingForm() {
                     />
                   </div>
 
+                  {/* Estimated Arrival Time */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            "form-control flex items-center justify-between w-full text-left",
+                            !bookingData.estimatedArrivalTime && "text-gray-400"
+                          )}
+                        >
+                          {bookingData.estimatedArrivalTime || "Select time (optional)"}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                        {ARRIVAL_TIMES.map(time => (
+                          <DropdownMenuItem
+                            key={time}
+                            onSelect={() => setBookingData(prev => ({ ...prev, estimatedArrivalTime: time }))}
+                            className="flex items-center justify-between"
+                          >
+                            <span>{time}</span>
+                            {bookingData.estimatedArrivalTime === time && <Check className="h-4 w-4 text-green-600" />}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Country</label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            "form-control flex items-center justify-between w-full text-left",
+                            !bookingData.country && "text-gray-400"
+                          )}
+                        >
+                          {bookingData.country || "Select country"}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                        {COUNTRIES.map(country => (
+                          <DropdownMenuItem
+                            key={country}
+                            onSelect={() => setBookingData(prev => ({ ...prev, country }))}
+                            className="flex items-center justify-between"
+                          >
+                            <span>{country}</span>
+                            {bookingData.country === country && <Check className="h-4 w-4 text-green-600" />}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
                   {/* Add account creation section for non-authenticated users */}
                   {!user && (
                     <div className="mt-6 p-4 bg-gray-50 rounded-lg">
@@ -579,10 +676,11 @@ function BookingForm() {
                     </div>
                   )}
 
-                  <Button 
-                    type="submit" 
-                    disabled={submitting} 
-                    className="w-full h-12"
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    variant="outline"
+                    className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
                   >
                     {submitting ? (
                       <div className="flex items-center justify-center">
@@ -590,7 +688,7 @@ function BookingForm() {
                         Processing...
                       </div>
                     ) : (
-                      'Confirm Booking'
+                      'Continue to Payment'
                     )}
                   </Button>
 
@@ -657,6 +755,8 @@ function BookingForm() {
               </Card>
             </div>
           </div>
+          {/* Property Information Section (added below booking form/summary) */}
+          {propertyId && <div className="mt-12"><PropertyInformation propertyId={propertyId} /></div>}
         </div>
       </div>
     </div>

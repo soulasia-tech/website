@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     const paymentMethod = formData.get('paymentMethod');
     const sendEmailConfirmation = formData.get('sendEmailConfirmation');
     const guestPhone = formData.get('guestPhone');
+    const estimatedArrivalTime = formData.get('estimatedArrivalTime');
     
     // Parse JSON strings back to objects
     const rooms = JSON.parse(formData.get('rooms') as string) as RoomData[];
@@ -88,6 +89,9 @@ export async function POST(request: Request) {
 
     if (guestPhone) {
       params.append('guestPhone', guestPhone as string);
+    }
+    if (estimatedArrivalTime) {
+      params.append('estimatedArrivalTime', estimatedArrivalTime as string);
     }
 
     // Add room data
