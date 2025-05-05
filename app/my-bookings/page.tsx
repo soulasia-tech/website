@@ -2,37 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from 'date-fns';
-
-// Mock room data (matching booking page)
-const mockRooms = {
-  room1: {
-    id: 'room1',
-    name: 'Deluxe KLCC View Suite',
-    description: 'Luxurious suite with breathtaking views of the Petronas Twin Towers',
-    price: 250,
-    maxGuests: 2,
-    images: [
-      'https://images.unsplash.com/photo-1582650625119-3a31f8fa2699',
-      'https://images.unsplash.com/photo-1560185007-cde436f6a4d0'
-    ],
-    amenities: ['King bed', 'City view', 'Free WiFi', 'Kitchen']
-  },
-  room2: {
-    id: 'room2',
-    name: 'Premium Two-Bedroom Apartment',
-    description: 'Spacious apartment perfect for families or extended stays',
-    price: 350,
-    maxGuests: 4,
-    images: [
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6',
-      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc'
-    ],
-    amenities: ['2 bedrooms', 'Full kitchen', 'Washer/Dryer', 'Balcony']
-  }
-};
 
 interface BookingDetailsModalProps {
   booking: Booking | null;
@@ -88,8 +59,6 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
     }
   }, [booking, isOpen]);
 
-  const room = mockRooms[booking?.room_id as keyof typeof mockRooms];
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -105,12 +74,12 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
             </span>
           </div>
         </DialogHeader>
-        {loading && <div>Loading Cloudbeds details...</div>}
+        {loading && <div>Loading your booking details...</div>}
         {error && <div className="text-red-600">{error}</div>}
         {cloudbedsDetails && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold mb-2">Cloudbeds Reservation</h2>
+              <h2 className="text-lg font-semibold mb-2">Reservation</h2>
               <div className="grid grid-cols-2 gap-2">
                 <p className="text-gray-600">Guest Name:</p>
                 <p>{cloudbedsDetails.guestName}</p>
@@ -128,43 +97,6 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
             </div>
           </div>
         )}
-        <div className="space-y-6">
-          {room && (
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Property Details</h2>
-              <div className="grid grid-cols-2 gap-2">
-                <p className="text-gray-600">Room Type:</p>
-                <p>{room.name}</p>
-                <p className="text-gray-600">Description:</p>
-                <p>{room.description}</p>
-                <p className="text-gray-600">Max Guests:</p>
-                <p>{room.maxGuests} persons</p>
-                <p className="text-gray-600">Amenities:</p>
-                <p>{room.amenities.join(', ')}</p>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Booking Information</h2>
-            <div className="grid grid-cols-2 gap-2">
-              <p className="text-gray-600">Booking ID:</p>
-              <p>{booking?.id}</p>
-              <p className="text-gray-600">Check-in:</p>
-              <p>{formatDate(booking?.check_in)}</p>
-              <p className="text-gray-600">Check-out:</p>
-              <p>{formatDate(booking?.check_out)}</p>
-              <p className="text-gray-600">Number of Guests:</p>
-              <p>{booking?.number_of_guests}</p>
-              <p className="text-gray-600">Total Price:</p>
-              <p>MYR {booking?.total_price?.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -256,8 +188,6 @@ export default function MyBookingsPage() {
       
       <div className="bg-white rounded-lg shadow">
         <div className="px-4 py-5 sm:p-6">
-          <h2 className="text-lg font-medium mb-4">Your Bookings</h2>
-          
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
               {error.message}
@@ -275,12 +205,6 @@ export default function MyBookingsPage() {
                   <tr>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Room
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Guest Name
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
                     </th>
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Check In
@@ -303,20 +227,7 @@ export default function MyBookingsPage() {
                         className="cursor-pointer hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.assigned?.[0]?.roomName || mockRooms[booking.room_id as keyof typeof mockRooms]?.name || booking.room_id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.guestName || <span className="text-gray-400">-</span>}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            cb?.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                            cb?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            cb?.status === 'checked_out' ? 'bg-blue-100 text-blue-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {cb?.status || booking.status}
-                          </span>
+                          {cb?.assigned?.[0]?.roomName || 'Room info unavailable'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {cb?.startDate || formatDate(booking.check_in)}
@@ -332,7 +243,7 @@ export default function MyBookingsPage() {
                   })}
                 </tbody>
               </table>
-              {loadingDetails && <div className="text-center py-4 text-gray-500">Loading Cloudbeds details...</div>}
+              {loadingDetails && <div className="text-center py-4 text-gray-500">Loading booking details...</div>}
             </div>
           )}
         </div>
