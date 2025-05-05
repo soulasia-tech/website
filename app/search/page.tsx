@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { BookingWidget } from '@/components/booking-widget';
+import { PropertyInformation } from '@/components/property-information';
 
 interface RoomResult {
   id: string;
@@ -232,6 +233,8 @@ function SearchResults() {
                       onClick={() => handleBookNow(room.id)}
                       disabled={!room.available}
                       size="lg"
+                      variant="outline"
+                      className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
                     >
                       Book Now
                     </Button>
@@ -241,6 +244,8 @@ function SearchResults() {
             </Card>
           ))}
         </div>
+        {/* Property Information Section */}
+        {propertyId && <PropertyInformation propertyId={propertyId} />}
       </div>
     </div>
   );
