@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { LucideIcon, icons } from "lucide-react";
+import dynamic from "next/dynamic";
+import type { MapContainerProps, TileLayerProps, MarkerProps, PopupProps } from "react-leaflet";
 
 interface PropertyInformationProps {
   propertyId: string;
@@ -26,8 +28,80 @@ const amenityIconMap: Record<string, LucideIcon> = {
   "All rooms disinfected daily": icons.Sparkles,
 };
 
+// Dynamically import MapContainer and Marker to avoid SSR issues
+const MapContainer = dynamic<MapContainerProps>(
+  () => import("react-leaflet").then(mod => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic<TileLayerProps>(
+  () => import("react-leaflet").then(mod => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic<MarkerProps>(
+  () => import("react-leaflet").then(mod => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic<PopupProps>(
+  () => import("react-leaflet").then(mod => mod.Popup),
+  { ssr: false }
+);
+
+// Define interfaces for property data
+interface PropertyImage {
+  image: string;
+}
+interface PropertyAddress {
+  propertyAddress1: string;
+  propertyCity: string;
+  propertyState: string;
+  propertyPostalCode: string;
+  propertyCountry: string;
+}
+interface PropertyContact {
+  phone?: string;
+  email?: string;
+}
+interface PropertyAmenity {
+  amenityName?: string;
+  /** extra keys coming from the Cloudbeds API */
+  [key: string]: string | number | boolean | undefined;
+}
+interface PropertyPolicy {
+  policyName?: string;
+  policy?: string;
+  /** extra keys coming from the Cloudbeds API */
+  [key: string]: string | number | boolean | undefined;
+}
+interface Property {
+  propertyName?: string;
+  propertyImage?: PropertyImage[];
+  propertyAdditionalPhotos?: PropertyImage[];
+  propertyAmenities?: PropertyAmenity[];
+  propertyAddress?: PropertyAddress;
+  propertyContact?: PropertyContact;
+  checkInTime?: string;
+  checkOutTime?: string;
+  propertyPolicies?: PropertyPolicy[];
+  termsAndConditions?: string;
+}
+
+interface PropertyApiResponse {
+  success: boolean;
+  hotel?: Property;
+  error?: string;
+}
+
+// Helper function to map property images with type control
+function mapPropertyImages(images: unknown, caption: string): { url: string; caption?: string }[] {
+  if (!Array.isArray(images)) return [];
+  return (images as PropertyImage[]).map((img) => ({
+    url: img.image,
+    caption,
+  }));
+}
+
 export function PropertyInformation({ propertyId }: PropertyInformationProps) {
-  const [property, setProperty] = useState<any>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
@@ -35,6 +109,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   // Ref for carousel scroll
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [mapPosition, setMapPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -42,7 +117,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
       setError(null);
       try {
         const res = await fetch(`/api/test-cloudbeds-property?propertyId=${propertyId}`);
-        const data = await res.json();
+        const data: PropertyApiResponse = await res.json();
         if (data.success && data.hotel) {
           setProperty(data.hotel);
         } else {
@@ -55,6 +130,29 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
     };
     fetchProperty();
   }, [propertyId]);
+
+  useEffect(() => {
+    if (!property) return;
+    const address = property.propertyAddress;
+    if (!address) return;
+    const addressString = [
+      address.propertyAddress1,
+      address.propertyCity,
+      address.propertyState,
+      address.propertyPostalCode,
+      address.propertyCountry
+    ].filter(Boolean).join(", ");
+    // Only geocode if not already set
+    if (!mapPosition && addressString) {
+      (async () => {
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`);
+        const geoData: { lat: string; lon: string }[] = await geoRes.json();
+        if (geoData && geoData.length > 0) {
+          setMapPosition({ lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon) });
+        }
+      })();
+    }
+  }, [property, mapPosition]);
 
   if (loading) {
     return (
@@ -73,12 +171,12 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
 
   // Photos
   const photos = [
-    ...(property.propertyImage?.map((img: any) => ({ url: img.image, caption: "Main" })) || []),
-    ...(property.propertyAdditionalPhotos?.map((img: any) => ({ url: img.image, caption: "" })) || [])
+    ...mapPropertyImages(property.propertyImage, "Main"),
+    ...mapPropertyImages(property.propertyAdditionalPhotos, "")
   ];
 
   // Amenities
-  const amenities = property.propertyAmenities || [];
+  const amenities: PropertyAmenity[] = property.propertyAmenities || [];
   const shownAmenities = showAllAmenities ? amenities : amenities.slice(0, 12);
 
   // Address & Contact
@@ -88,7 +186,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
   // Policies
   const checkIn = property.checkInTime;
   const checkOut = property.checkOutTime;
-  const policies = property.propertyPolicies || [];
+  const policies: PropertyPolicy[] = property.propertyPolicies || [];
   const terms = property.termsAndConditions || null;
 
   return (
@@ -184,8 +282,8 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-4">Property Amenities</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 mb-4">
-              {shownAmenities.map((a: any, i: number) => {
-                const name = a.amenityName || a;
+              {shownAmenities.map((a, i) => {
+                const name = a.amenityName || (typeof a === 'string' ? a : '');
                 const Icon = amenityIconMap[name] || icons.BadgeCheck;
                 return (
                   <div key={i} className="flex items-center gap-3 text-gray-700">
@@ -205,24 +303,53 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
             )}
           </div>
         )}
-        {/* Address & Contact */}
+        {/* Address & Contact + Map */}
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-2">Address & Contact</h3>
-          <div className="text-gray-700 mb-1">
-            {address && (
-              <div>
-                {address.propertyAddress1}<br />
-                {address.propertyCity}, {address.propertyState} {address.propertyPostalCode}<br />
-                {address.propertyCountry}
-              </div>
-            )}
-          </div>
-          {contact && (
-            <div className="text-gray-700">
-              {contact.phone && <div>Phone: {contact.phone}</div>}
-              {contact.email && <div>Email: {contact.email}</div>}
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="text-gray-700 mb-1 md:w-1/2">
+              {address && (
+                <div>
+                  {address.propertyAddress1}<br />
+                  {address.propertyCity}, {address.propertyState} {address.propertyPostalCode}<br />
+                  {address.propertyCountry}
+                </div>
+              )}
+              {contact && (
+                <div className="text-gray-700 mt-2">
+                  {contact.phone && <div>Phone: {contact.phone}</div>}
+                  {contact.email && <div>Email: {contact.email}</div>}
+                </div>
+              )}
             </div>
-          )}
+            {/* Map */}
+            <div className="w-full md:w-1/2 min-h-[256px] h-64 rounded-xl overflow-hidden shadow flex items-center justify-center" style={{ minWidth: 240, minHeight: 200 }}>
+              {mapPosition && MapContainer ? (
+                <MapContainer
+                  {...{
+                    center: mapPosition,
+                    zoom: 15,
+                    scrollWheelZoom: false,
+                    style: { width: "100%", height: "100%" }
+                  } as import('react-leaflet').MapContainerProps}
+                >
+                  <TileLayer
+                    {...{
+                      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    } as import('react-leaflet').TileLayerProps}
+                  />
+                  <Marker position={mapPosition}>
+                    <Popup>
+                      {property.propertyName || "Property Location"}
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              ) : (
+                <span className="text-gray-400 text-sm text-center px-2">Location not found on map.</span>
+              )}
+            </div>
+          </div>
         </div>
         {/* Check-In/Check-Out Policies */}
         {(checkIn || checkOut) && (
@@ -239,8 +366,8 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-2">Property & Cancellation Policies</h3>
             <ul className="list-disc pl-6 text-gray-700">
-              {policies.map((p: any, i: number) => (
-                <li key={i}>{p.policyName || p.policy || p}</li>
+              {policies.map((p, i) => (
+                <li key={i}>{p.policyName || p.policy || (typeof p === 'string' ? p : '')}</li>
               ))}
             </ul>
           </div>
