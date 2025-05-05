@@ -58,58 +58,62 @@ export default function SignInForm() {
   };
 
   return (
-    <Card className="p-6 w-full max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Sign In</h1>
-      
-      <form onSubmit={handleSignIn} className="space-y-4">
-        {success && (
-          <Alert>
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="password">
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-          />
-        </div>
-
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
-    </Card>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        <Card className="max-w-lg w-full mx-auto p-6">
+          <h1 className="text-2xl font-bold mb-6">Sign In</h1>
+          <form onSubmit={handleSignIn} className="space-y-4">
+            {success && (
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="email">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </div>
+            <Button 
+              type="submit"
+              variant="outline"
+              className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+            <p className="text-sm text-gray-500 text-center mt-4">
+              Don&apos;t have an account?{' '}
+              <a href="/auth/sign-up" className="text-blue-600 hover:underline">Create one</a>
+            </p>
+          </form>
+        </Card>
+      </div>
+    </div>
   );
 } 
