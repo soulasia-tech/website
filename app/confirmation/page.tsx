@@ -131,7 +131,7 @@ function ConfirmationContent() {
             <p>Your booking reference: <span className="font-mono">{booking.id}</span></p>
             <p>Check-in: {new Date(booking.check_in).toLocaleDateString()}</p>
             <p>Check-out: {new Date(booking.check_out).toLocaleDateString()}</p>
-            <p>Total price: ${booking.total_price}</p>
+            <p>Total price: MYR {booking.total_price?.toFixed(2)}</p>
             
             {/* Show guest info for guest bookings */}
             {!booking.user_id && (

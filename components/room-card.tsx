@@ -107,7 +107,7 @@ export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps
         <p className="text-[15px] leading-5 text-gray-500">{propertyName}</p>
         {rate !== undefined && (
           <p className="text-[15px] leading-5 mt-1">
-            <span className="font-medium">${rate}</span>
+            <span className="font-medium">MYR {rate.toFixed(2)}</span>
             <span className="text-gray-500"> night</span>
           </p>
         )}

@@ -116,7 +116,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/test-cloudbeds-property?propertyId=${propertyId}`);
+        const res = await fetch(`/api/cloudbeds/property?propertyId=${propertyId}`);
         const data: PropertyApiResponse = await res.json();
         if (data.success && data.hotel) {
           setProperty(data.hotel);
@@ -323,7 +323,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
               )}
             </div>
             {/* Map */}
-            <div className="w-full md:w-1/2 min-h-[256px] h-64 rounded-xl overflow-hidden shadow flex items-center justify-center" style={{ minWidth: 240, minHeight: 200 }}>
+            <div className="w-full md:w-1/2 min-h-[256px] h-64 rounded-xl overflow-hidden shadow bg-white flex items-center justify-center" style={{ minWidth: 240, minHeight: 200, position: 'relative', zIndex: 1 }}>
               {mapPosition && MapContainer ? (
                 <MapContainer
                   {...{

@@ -36,7 +36,7 @@ export function PropertiesSection() {
         const allProperties: Property[] = []
         for (const property of propertiesData.properties) {
           // Get property details including photos
-          const detailsRes = await fetch(`/api/test-cloudbeds-property?propertyId=${property.propertyId}`)
+          const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`)
           const detailsData = await detailsRes.json()
           
           if (detailsData.success && detailsData.hotel) {

@@ -40,7 +40,7 @@ export function RoomsSection() {
         const allRooms: RoomType[] = []
         for (const property of propertiesData.properties) {
           // Get room types
-          const roomsRes = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${property.propertyId}`)
+          const roomsRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`)
           const roomsData = await roomsRes.json()
           
           if (roomsData.success && roomsData.roomTypes) {
@@ -48,7 +48,7 @@ export function RoomsSection() {
             const startDate = format(new Date(), 'yyyy-MM-dd')
             const endDate = format(addDays(new Date(), 5), 'yyyy-MM-dd')
             const ratesRes = await fetch(
-              `/api/test-cloudbeds-rateplans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`
+              `/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`
             )
             const ratesData = await ratesRes.json()
 

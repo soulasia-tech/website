@@ -75,7 +75,7 @@ function SearchResults() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/test-cloudbeds-roomtypes?propertyId=${propertyId}`);
+        const res = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyId}`);
         const data = await res.json();
         if (data.success) {
           const mapped = data.roomTypes.map((room: {
@@ -112,7 +112,7 @@ function SearchResults() {
     const fetchRates = async () => {
       if (!propertyId || !startDate || !endDate) return;
       try {
-        const res = await fetch(`/api/test-cloudbeds-rateplans?propertyId=${propertyId}&startDate=${startDate}&endDate=${endDate}`);
+        const res = await fetch(`/api/cloudbeds/rate-plans?propertyId=${propertyId}&startDate=${startDate}&endDate=${endDate}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.ratePlans)) {
           // Map: roomTypeID -> lowest totalRate
@@ -134,7 +134,7 @@ function SearchResults() {
   }, [propertyId, startDate, endDate, guests, router]);
 
   const handleBookNow = (roomId: string) => {
-    router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}`);
+    router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&guests=${guests}`);
   };
 
   // Parse guests as integer, default to 1 if not set
@@ -143,6 +143,9 @@ function SearchResults() {
   const filteredRooms = results.filter(
     room => rates[room.id] !== undefined && room.maxGuests >= numGuests
   );
+
+  // Calculate number of nights
+  const numberOfNights = startDate && endDate ? Math.max(1, Math.ceil((parseISO(endDate).getTime() - parseISO(startDate).getTime()) / (1000 * 60 * 60 * 24))) : 1;
 
   if (propertyLoading || loading) {
     return (
@@ -225,9 +228,12 @@ function SearchResults() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div>
                       <p className="text-2xl font-bold">
-                        {rates[room.id] !== undefined ? `$${rates[room.id]}` : 'N/A'}
+                        {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
                       </p>
                       <p className="text-gray-600">per night</p>
+                      <p className="text-lg font-medium mt-1">
+                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
+                      </p>
                     </div>
                     <Button 
                       onClick={() => handleBookNow(room.id)}

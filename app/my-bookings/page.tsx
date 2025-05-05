@@ -123,7 +123,7 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
                 <p className="text-gray-600">Check-out:</p>
                 <p>{cloudbedsDetails.endDate}</p>
                 <p className="text-gray-600">Total:</p>
-                <p>${cloudbedsDetails.total}</p>
+                <p>MYR {cloudbedsDetails.total?.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -157,7 +157,7 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
               <p className="text-gray-600">Number of Guests:</p>
               <p>{booking?.number_of_guests}</p>
               <p className="text-gray-600">Total Price:</p>
-              <p>${booking?.total_price}</p>
+              <p>MYR {booking?.total_price?.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function MyBookingsPage() {
                           {cb?.endDate || formatDate(booking.check_out)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.total !== undefined ? `$${cb.total}` : (booking.total_price ? `$${booking.total_price}` : <span className="text-gray-400">-</span>)}
+                          {cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}
                         </td>
                       </tr>
                     );

@@ -107,7 +107,7 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
         <p className="text-[15px] leading-5 text-gray-500">{location}</p>
         {pricePerDay !== undefined && (
           <p className="text-[15px] leading-5 mt-1">
-            <span className="font-medium">From ${pricePerDay}</span>
+            <span className="font-medium">From MYR {pricePerDay.toFixed(2)}</span>
             <span className="text-gray-500"> night</span>
           </p>
         )}

@@ -112,14 +112,19 @@ function BookingForm() {
     const checkOut = searchParams.get('endDate') || '';
     const propertyIdFromParams = searchParams.get('propertyId') || '';
 
+    // If any required param is missing, show error and do not fetch
     if (!propertyIdFromParams || !roomId || !checkIn || !checkOut) {
+      setRoom(null);
+      setPrice(null);
+      setRatePlanId('');
       setLoading(false);
+      setError('Missing required booking information. Please return to the search page and select your room and dates again.');
       return;
     }
     setLoading(true);
     (async () => {
       try {
-        // Fetch room types
+        // Always use production endpoints
         const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyIdFromParams}`);
         const roomData = await roomRes.json();
         let foundRoom = null;
@@ -133,10 +138,13 @@ function BookingForm() {
         let foundPrice = null;
         let foundRatePlanId = '';
         if (rateData.success && Array.isArray(rateData.ratePlans)) {
-          const rates = rateData.ratePlans.filter((r: RatePlan) => r.roomTypeID === roomId && r.ratePlanID);
+          // Match logic to search page: filter all rates for this roomTypeID, pick the minimum totalRate
+          const rates = rateData.ratePlans.filter((r: RatePlan) => String(r.roomTypeID) === String(roomId));
           if (rates.length > 0) {
-            foundPrice = Math.min(...rates.map((r: RatePlan) => r.totalRate));
-            foundRatePlanId = rates[0].ratePlanID;
+            // Find the rate with the minimum totalRate
+            const minRate = rates.reduce((min: RatePlan, r: RatePlan) => r.totalRate < min.totalRate ? r : min, rates[0]);
+            foundPrice = minRate.totalRate;
+            foundRatePlanId = minRate.ratePlanID || '';
           }
         }
         setPrice(foundPrice);
@@ -216,10 +224,13 @@ function BookingForm() {
     setPropertyId(searchParams.get('propertyId') || '');
   }, [searchParams]);
 
+  // Calculate number of nights
   const numberOfNights = bookingData.checkIn && bookingData.checkOut && room
     ? differenceInDays(parseISO(bookingData.checkOut), parseISO(bookingData.checkIn))
     : 0;
-  const totalPrice = price !== null && numberOfNights > 0 ? price : 0;
+
+  // Calculate total price
+  const totalPrice = price !== null && numberOfNights > 0 ? price * numberOfNights : null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -468,10 +479,11 @@ function BookingForm() {
             <Button 
               variant="outline"
               onClick={() => {
+                // Use all current search params to reconstruct the search URL
                 const params = new URLSearchParams();
-                params.set('location', 'kuala-lumpur');  // Default location
-                params.set('startDate', bookingData.checkIn);
-                params.set('endDate', bookingData.checkOut);
+                searchParams.forEach((value, key) => {
+                  params.set(key, value);
+                });
                 router.push(`/search?${params.toString()}`);
               }}
               className="flex items-center gap-2"
@@ -731,6 +743,9 @@ function BookingForm() {
                 <p className="text-sm text-gray-600 mb-4">{room ? room.roomTypeDescription : ''}</p>
 
                 <div className="space-y-2 text-sm">
+                  {price === null && (
+                    <div className="text-red-500 text-sm mb-2">No rates available for this room and date selection. Please try different dates or another room.</div>
+                  )}
                   <div className="flex justify-between">
                     <span>Check-in</span>
                     <span className="font-medium">{format(parseISO(bookingData.checkIn), 'MMM d, yyyy')}</span>
@@ -745,11 +760,15 @@ function BookingForm() {
                   </div>
                   <div className="flex justify-between">
                     <span>Price per night</span>
-                    <span className="font-medium">${room ? room.price : 'N/A'}</span>
+                    <span className="font-medium">
+                      {price !== null ? `MYR ${price.toFixed(2)}` : 'N/A'}
+                    </span>
                   </div>
                   <div className="pt-2 mt-2 border-t flex justify-between">
                     <span className="font-semibold">Total</span>
-                    <span className="font-semibold">{price !== null ? `$${totalPrice}` : 'N/A'}</span>
+                    <span className="font-semibold">
+                      {typeof totalPrice === 'number' ? `MYR ${totalPrice.toFixed(2)}` : 'N/A'}
+                    </span>
                   </div>
                 </div>
               </Card>
