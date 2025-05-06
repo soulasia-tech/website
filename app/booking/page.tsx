@@ -27,8 +27,7 @@ interface BookingFormData {
   email: string;
   checkIn: string;
   checkOut: string;
-  adults: number;
-  children: number;
+  guests: number;
   roomId: string;
   createAccount: boolean;
   password: string;
@@ -54,28 +53,16 @@ interface RatePlan {
   // Add other fields as needed
 }
 
-// Add a full list of countries
+// Replace COUNTRIES array with objects containing code and name
 const COUNTRIES = [
-  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
-  "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
-  "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Congo-Brazzaville)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia (Czech Republic)",
-  "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini (fmr. \"Swaziland\")", "Ethiopia",
-  "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-  "Haiti", "Holy See", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
-  "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan",
-  "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-  "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar (formerly Burma)",
-  "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
-  "Oman",
-  "Pakistan", "Palau", "Palestine State", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
-  "Qatar",
-  "Romania", "Russia", "Rwanda",
-  "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
-  "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-  "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States of America", "Uruguay", "Uzbekistan",
-  "Vanuatu", "Venezuela", "Vietnam",
-  "Yemen",
-  "Zambia", "Zimbabwe"
+  { code: 'MY', name: 'Malaysia' },
+  { code: 'US', name: 'United States of America' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'IN', name: 'India' },
+  // ...add more as needed, or use a full ISO country code list
 ];
 
 // Helper for 24h arrival times
@@ -98,8 +85,7 @@ function BookingForm() {
     email: '',
     checkIn: searchParams.get('startDate') || '',
     checkOut: searchParams.get('endDate') || '',
-    adults: 2,
-    children: 0,
+    guests: 2,
     roomId: searchParams.get('roomId') || '',
     createAccount: false,
     password: '',
@@ -299,7 +285,7 @@ function BookingForm() {
       if (numberOfNights <= 0) {
         throw new Error('Invalid date selection');
       }
-      if (bookingData.adults > room.maxGuests) {
+      if (bookingData.guests > room.maxGuests) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
 
@@ -395,37 +381,44 @@ function BookingForm() {
       formData.append('rooms', JSON.stringify(roomData));
 
       // Add adults data
-      const adultsData = [{
+      const adultsData = Array.from({ length: bookingData.guests }).map(() => ({
         roomTypeID: bookingData.roomId,
         roomID: `${bookingData.roomId}-1`,
-        quantity: String(bookingData.adults)
-      }];
+        quantity: "1"
+      }));
       formData.append('adults', JSON.stringify(adultsData));
 
-      // Add children data
-      const childrenData = [{
-        roomTypeID: bookingData.roomId,
-        roomID: `${bookingData.roomId}-1`,
-        quantity: String(bookingData.children)
-      }];
-      formData.append('children', JSON.stringify(childrenData));
+      // Always add children as an empty array
+      formData.append('children', JSON.stringify([]));
 
       console.log('Sending reservation request with data:', {
         propertyId,
         roomData,
-        adultsData,
-        childrenData
+        adultsData
       });
 
       // Call our API route to create the reservation
-      const res = await fetch('/api/create-reservation', {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await res.json();
+      let res, data;
+      try {
+        res = await fetch('/api/create-reservation', {
+          method: 'POST',
+          body: formData
+        });
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          console.error('Non-JSON response:', text);
+          throw new Error('Server returned a non-JSON response: ' + text);
+        }
+      } catch (fetchError) {
+        console.error('Network or fetch error:', fetchError);
+        setError('Network error: ' + (fetchError instanceof Error ? fetchError.message : String(fetchError)));
+        setSubmitting(false);
+        return;
+      }
       console.log('Cloudbeds reservation response:', data);
-      
       if (!data.success) {
         throw new Error(data.error || 'Failed to create reservation');
       }
@@ -470,7 +463,7 @@ function BookingForm() {
       } else {
         // For guest bookings without an account
         console.log('Redirecting guest to confirmation');
-        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.adults + bookingData.children}&roomId=${bookingData.roomId}`);
+        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.guests}&roomId=${bookingData.roomId}`);
       }
     } catch (error) {
       console.error('Booking process error:', error);
@@ -616,21 +609,14 @@ function BookingForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Adults</label>
+                    <label className="block text-sm font-medium mb-1">Number of guests</label>
                     <Input
                       type="number"
                       required
-                      value={bookingData.adults}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, adults: Number(e.target.value) }))}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Children</label>
-                    <Input
-                      type="number"
-                      value={bookingData.children}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, children: Number(e.target.value) }))}
+                      min={1}
+                      max={room?.maxGuests || 10}
+                      value={bookingData.guests}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, guests: Number(e.target.value) }))}
                     />
                   </div>
 
@@ -677,19 +663,19 @@ function BookingForm() {
                             !bookingData.country && "text-gray-400"
                           )}
                         >
-                          {bookingData.country || "Select country"}
+                          {COUNTRIES.find(c => c.code === bookingData.country)?.name || "Select country"}
                           <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
                         {COUNTRIES.map(country => (
                           <DropdownMenuItem
-                            key={country}
-                            onSelect={() => setBookingData(prev => ({ ...prev, country }))}
+                            key={country.code}
+                            onSelect={() => setBookingData(prev => ({ ...prev, country: country.code }))}
                             className="flex items-center justify-between"
                           >
-                            <span>{country}</span>
-                            {bookingData.country === country && <Check className="h-4 w-4 text-green-600" />}
+                            <span>{country.name}</span>
+                            {bookingData.country === country.code && <Check className="h-4 w-4 text-green-600" />}
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>

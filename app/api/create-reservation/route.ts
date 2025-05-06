@@ -94,6 +94,9 @@ export async function POST(request: Request) {
       params.append('estimatedArrivalTime', estimatedArrivalTime as string);
     }
 
+    // Log outgoing payload for debugging
+    console.log('Cloudbeds reservation payload:', params.toString());
+
     // Add room data
     rooms.forEach((room: RoomData, index: number) => {
       params.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
@@ -109,14 +112,20 @@ export async function POST(request: Request) {
       params.append(`adults[${index}][quantity]`, adult.quantity);
     });
 
-    // Add children data if present
-    if (children && children.length > 0) {
-      children.forEach((child: GuestData, index: number) => {
-        params.append(`children[${index}][roomTypeID]`, child.roomTypeID);
-        params.append(`children[${index}][roomID]`, child.roomID);
-        params.append(`children[${index}][quantity]`, child.quantity);
-      });
+    // Add children data (always, even if empty)
+    let childrenToSend = children;
+    if (!childrenToSend || childrenToSend.length === 0) {
+      childrenToSend = [{
+        roomTypeID: rooms[0].roomTypeID,
+        roomID: rooms[0].roomID,
+        quantity: "0"
+      }];
     }
+    childrenToSend.forEach((child: GuestData, index: number) => {
+      params.append(`children[${index}][roomTypeID]`, child.roomTypeID);
+      params.append(`children[${index}][roomID]`, child.roomID);
+      params.append(`children[${index}][quantity]`, child.quantity);
+    });
 
     // Make the request to Cloudbeds API
     const response = await fetch(cloudbedsUrl, {
@@ -126,6 +135,9 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+
+    // Log full Cloudbeds response for debugging
+    console.log('Cloudbeds API response:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       console.error('Cloudbeds API error:', data);
