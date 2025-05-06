@@ -13,6 +13,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import type { Swiper as SwiperType } from 'swiper';
 
 interface RoomResult {
   id: string;
@@ -36,7 +37,7 @@ function SearchResults() {
   const [rates, setRates] = useState<{ [roomTypeID: string]: number }>({});
   const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
 
   // Get search parameters
@@ -310,7 +311,13 @@ function SearchResults() {
               >
                 {selectedRoomImages.map((img, idx) => (
                   <SwiperSlide key={idx}>
-                    <img src={img} alt={`Room image ${idx + 1}`} className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl" />
+                    <Image
+                      src={img}
+                      alt={`Room image ${idx + 1}`}
+                      fill
+                      className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   </SwiperSlide>
                 ))}
               </Swiper>

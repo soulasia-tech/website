@@ -19,6 +19,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import type { Swiper as SwiperType } from 'swiper';
 
 interface BookingFormData {
   firstName: string;
@@ -111,7 +112,7 @@ function BookingForm() {
   const [ratePlanId, setRatePlanId] = useState<string>('');
   const [carouselOpen, setCarouselOpen] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
 
   // Fetch real room info and price
@@ -241,6 +242,12 @@ function BookingForm() {
   // Calculate total price
   const totalPrice = price !== null && numberOfNights > 0 ? price * numberOfNights : null;
 
+  // Reset carouselIndex and swiperInitialized when room changes or modal closes
+  useEffect(() => {
+    setCarouselIndex(0);
+    swiperInitialized.current = false;
+  }, [room, carouselOpen]);
+
   // Keyboard navigation for carousel
   useEffect(() => {
     if (!carouselOpen) return;
@@ -248,14 +255,15 @@ function BookingForm() {
       if (e.key === 'Escape') {
         setCarouselOpen(false);
         setCarouselIndex(0);
+        swiperInitialized.current = false;
       } else if (e.key === 'ArrowLeft') {
         setCarouselIndex((prev) => {
-          if (!room?.roomTypePhotos) return 0;
+          if (!room?.roomTypePhotos || room.roomTypePhotos.length === 0) return 0;
           return prev > 0 ? prev - 1 : room.roomTypePhotos.length - 1;
         });
       } else if (e.key === 'ArrowRight') {
         setCarouselIndex((prev) => {
-          if (!room?.roomTypePhotos) return 0;
+          if (!room?.roomTypePhotos || room.roomTypePhotos.length === 0) return 0;
           return prev < room.roomTypePhotos.length - 1 ? prev + 1 : 0;
         });
       }
@@ -819,11 +827,11 @@ function BookingForm() {
       </div>
       {/* Swiper Modal Carousel */}
       {carouselOpen && room && room.roomTypePhotos && room.roomTypePhotos.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setCarouselOpen(false); setCarouselIndex(0); }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}>
           <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
             <button
               className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
-              onClick={() => { setCarouselOpen(false); setCarouselIndex(0); }}
+              onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}
               aria-label="Close image preview"
             >
               ✕
@@ -844,7 +852,13 @@ function BookingForm() {
             >
               {room.roomTypePhotos.map((img, idx) => (
                 <SwiperSlide key={idx}>
-                  <img src={img} alt={`Room image ${idx + 1}`} className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl" />
+                  <Image
+                    src={img}
+                    alt={`Room image ${idx + 1}`}
+                    fill
+                    className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
