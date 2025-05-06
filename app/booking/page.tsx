@@ -20,6 +20,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface BookingFormData {
   firstName: string;
@@ -47,9 +48,10 @@ interface RoomType {
 }
 
 interface RatePlan {
+  rateID: string;
   roomTypeID: string;
-  ratePlanID: string;
   totalRate: number;
+  ratePlanNamePublic?: string;
   // Add other fields as needed
 }
 
@@ -85,7 +87,7 @@ function BookingForm() {
     email: '',
     checkIn: searchParams.get('startDate') || '',
     checkOut: searchParams.get('endDate') || '',
-    guests: 2,
+    guests: Number(searchParams.get('guests')) || 1,
     roomId: searchParams.get('roomId') || '',
     createAccount: false,
     password: '',
@@ -100,6 +102,8 @@ function BookingForm() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
+  const [ratePlans, setRatePlans] = useState<RatePlan[]>([]);
+  const [selectedRateID, setSelectedRateID] = useState<string>('');
 
   // Fetch real room info and price
   useEffect(() => {
@@ -133,14 +137,15 @@ function BookingForm() {
         const rateData = await rateRes.json();
         let foundPrice = null;
         let foundRatePlanId = '';
+        let foundRatePlans: RatePlan[] = [];
         if (rateData.success && Array.isArray(rateData.ratePlans)) {
-          // Match logic to search page: filter all rates for this roomTypeID, pick the minimum totalRate
-          const rates = rateData.ratePlans.filter((r: RatePlan) => String(r.roomTypeID) === String(roomId));
-          if (rates.length > 0) {
-            // Find the rate with the minimum totalRate
-            const minRate = rates.reduce((min: RatePlan, r: RatePlan) => r.totalRate < min.totalRate ? r : min, rates[0]);
-            foundPrice = minRate.totalRate;
-            foundRatePlanId = minRate.ratePlanID || '';
+          // Filter all rates for this roomTypeID
+          foundRatePlans = rateData.ratePlans.filter((r: RatePlan) => String(r.roomTypeID) === String(roomId));
+          setRatePlans(foundRatePlans);
+          if (foundRatePlans.length > 0) {
+            foundPrice = foundRatePlans[0].totalRate;
+            foundRatePlanId = foundRatePlans[0].rateID;
+            setSelectedRateID(foundRatePlans[0].rateID);
           }
         }
         setPrice(foundPrice);
@@ -215,7 +220,7 @@ function BookingForm() {
       roomId: searchParams.get('roomId') || '',
       checkIn: searchParams.get('startDate') || '',
       checkOut: searchParams.get('endDate') || '',
-      // Optionally update adults/children if you want to sync those too
+      guests: Number(searchParams.get('guests')) || 1,
     }));
     setPropertyId(searchParams.get('propertyId') || '');
   }, [searchParams]);
@@ -376,7 +381,7 @@ function BookingForm() {
         roomTypeID: bookingData.roomId,
         roomID: `${bookingData.roomId}-1`,
         quantity: "1",
-        roomRateID: ratePlanId
+        roomRateID: selectedRateID
       }];
       formData.append('rooms', JSON.stringify(roomData));
 
@@ -701,7 +706,6 @@ function BookingForm() {
                           Create an account to manage your bookings
                         </label>
                       </div>
-
                       {bookingData.createAccount && (
                         <div className="space-y-2">
                           <label className="block text-sm font-medium">Password</label>
@@ -718,6 +722,23 @@ function BookingForm() {
                           </p>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {ratePlans.length > 0 && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">Select Rate</label>
+                      <RadioGroup value={selectedRateID} onValueChange={setSelectedRateID} className="space-y-3">
+                        {ratePlans.map((rate) => (
+                          <div key={rate.rateID} className="flex items-center gap-3 p-2 rounded border border-gray-200 hover:bg-gray-50">
+                            <RadioGroupItem value={rate.rateID} id={rate.rateID} />
+                            <label htmlFor={rate.rateID} className="flex flex-col cursor-pointer">
+                              <span className="font-medium text-gray-900">{rate.ratePlanNamePublic || 'Standard Rate'}</span>
+                              <span className="text-gray-600 text-sm">MYR {rate.totalRate.toFixed(2)}</span>
+                            </label>
+                          </div>
+                        ))}
+                      </RadioGroup>
                     </div>
                   )}
 
@@ -739,13 +760,9 @@ function BookingForm() {
 
                   {!user && (
                     <p className="text-sm text-gray-500 text-center mt-4">
-                      Want to save your booking details?{' '}
+                      Already have an account?{' '}
                       <Link href={`/auth/sign-in?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
                         Sign in
-                      </Link>
-                      {' '}or{' '}
-                      <Link href={`/auth/sign-up?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
-                        create an account
                       </Link>
                     </p>
                   )}

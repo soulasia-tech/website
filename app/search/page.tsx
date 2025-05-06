@@ -261,11 +261,11 @@ function SearchResults() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div>
                       <p className="text-2xl font-bold">
-                        {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
+                        {rates[room.id] !== undefined ? `from MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
                       </p>
                       <p className="text-gray-600">per night</p>
                       <p className="text-lg font-medium mt-1">
-                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
+                        {rates[room.id] !== undefined ? `from MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
                       </p>
                     </div>
                     <Button 
