@@ -41,58 +41,76 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
             {!imageLoaded && (
               <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
             )}
-            <Image
-              src={photos[currentImageIndex].url}
-              alt={photos[currentImageIndex].caption || propertyName}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className={cn(
-                "object-cover transition-opacity duration-500",
-                imageLoaded ? "opacity-100" : "opacity-0"
-              )}
-              priority
-              onLoad={() => setImageLoaded(true)}
-            />
-            {/* Navigation Buttons - Show if there are multiple images */}
-            {photos.length > 1 && (
-              <>
-                <button
-                  onClick={previousImage}
-                  className={cn(
-                    "absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-md transition-opacity duration-200",
-                    "opacity-0 group-hover:opacity-100 hover:scale-110",
-                    currentImageIndex === 0 && "hidden"
-                  )}
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-md transition-opacity duration-200",
-                    "opacity-0 group-hover:opacity-100 hover:scale-110",
-                    currentImageIndex === photos.length - 1 && "hidden"
-                  )}
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
+            {/* Only render the first image until it's loaded */}
+            {!imageLoaded && (
+              <Image
+                src={photos[0].url}
+                alt={photos[0].caption || propertyName}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className={cn(
+                  "object-cover transition-opacity duration-500",
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                )}
+                priority
+                onLoad={() => setImageLoaded(true)}
+              />
             )}
-            {/* Image Indicators */}
-            {photos.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
-                {photos.map((_, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "h-1.5 w-1.5 rounded-full bg-white transition",
-                      index === currentImageIndex ? "opacity-100" : "opacity-50"
-                    )}
-                  />
-                ))}
-              </div>
+            {/* After first image is loaded, render the carousel */}
+            {imageLoaded && (
+              <>
+                <Image
+                  src={photos[currentImageIndex].url}
+                  alt={photos[currentImageIndex].caption || propertyName}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className={cn(
+                    "object-cover transition-opacity duration-500",
+                    "opacity-100"
+                  )}
+                />
+                {/* Navigation Buttons - Show if there are multiple images */}
+                {photos.length > 1 && (
+                  <>
+                    <button
+                      onClick={previousImage}
+                      className={cn(
+                        "absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-md transition-opacity duration-200",
+                        "opacity-0 group-hover:opacity-100 hover:scale-110",
+                        currentImageIndex === 0 && "hidden"
+                      )}
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className={cn(
+                        "absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-md transition-opacity duration-200",
+                        "opacity-0 group-hover:opacity-100 hover:scale-110",
+                        currentImageIndex === photos.length - 1 && "hidden"
+                      )}
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+                {/* Image Indicators */}
+                {photos.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
+                    {photos.map((_, index) => (
+                      <div
+                        key={index}
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full bg-white transition",
+                          index === currentImageIndex ? "opacity-100" : "opacity-50"
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         ) : (
