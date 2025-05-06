@@ -4,8 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from 'next/link';
 import { User } from '@supabase/supabase-js';
 import { PropertyInformation } from '@/components/property-information';
 
