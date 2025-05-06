@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { User } from '@supabase/supabase-js';
+import { PropertyInformation } from '@/components/property-information';
 
 interface Booking {
   id: string;
@@ -23,6 +24,8 @@ interface Booking {
   number_of_guests: number;
   room_id: string;
   status: string;
+  property_id?: string;
+  cloudbeds_property_id?: string;
 }
 
 function ConfirmationContent() {
@@ -110,11 +113,6 @@ function ConfirmationContent() {
           <Card className="bg-white rounded-xl p-6 shadow-sm">
             <h1 className="text-2xl font-bold text-green-600 mb-4">Booking Successful!</h1>
             <p className="mb-6">Your booking has been confirmed. You will receive a confirmation email shortly.</p>
-            <div className="mt-8">
-              <Link href="/">
-                <Button variant="outline">Return to Home</Button>
-              </Link>
-            </div>
           </Card>
         </div>
       </div>
@@ -150,14 +148,22 @@ function ConfirmationContent() {
               <p>Please check your email to verify your account. Once verified, you can sign in to manage your bookings.</p>
             </div>
           )}
-
-          <div className="mt-8">
-            <Link href="/">
-              <Button variant="outline">Return to Home</Button>
-            </Link>
-          </div>
         </Card>
       </div>
+      {/* Property Information Section (added at the bottom) */}
+      {(() => {
+        let propertyId = booking?.property_id || booking?.cloudbeds_property_id;
+        if (!propertyId && typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          propertyId = params.get('propertyId') || '';
+        }
+        propertyId = String(propertyId);
+        return propertyId ? (
+          <div className="mt-12">
+            <PropertyInformation propertyId={propertyId} />
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 }

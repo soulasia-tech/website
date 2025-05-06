@@ -286,43 +286,49 @@ function SearchResults() {
         {/* Property Information Section */}
         {propertyId && <PropertyInformation propertyId={propertyId} />}
         {selectedRoomImages && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}>
-            <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
-              <button
-                className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
-                onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}
-                aria-label="Close image preview"
-              >
-                ✕
-              </button>
-              <Swiper
-                modules={[Navigation, Pagination]}
-                navigation
-                pagination={{ clickable: true }}
-                className="rounded-xl"
-                onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
-                onSwiper={(swiper) => {
-                  swiperRef.current = swiper;
-                  if (!swiperInitialized.current) {
-                    swiper.slideTo(carouselIndex);
-                    swiperInitialized.current = true;
-                  }
-                }}
-              >
-                {selectedRoomImages.map((img, idx) => (
-                  <SwiperSlide key={idx}>
-                    <Image
-                      src={img}
-                      alt={`Room image ${idx + 1}`}
-                      fill
-                      className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
+          (() => {
+            console.log('Search Modal images:', selectedRoomImages);
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}>
+                <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
+                  <button
+                    className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                    onClick={() => { setSelectedRoomImages(null); setCarouselIndex(0); }}
+                    aria-label="Close image preview"
+                  >
+                    ✕
+                  </button>
+                  <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    className="rounded-xl"
+                    onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
+                    onSwiper={(swiper) => {
+                      swiperRef.current = swiper;
+                      if (!swiperInitialized.current) {
+                        swiper.slideTo(carouselIndex);
+                        swiperInitialized.current = true;
+                      }
+                    }}
+                  >
+                    {selectedRoomImages.map((img, idx) => (
+                      <SwiperSlide key={idx}>
+                        <Image
+                          src={img}
+                          alt={`Room image ${idx + 1}`}
+                          fill
+                          className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          unoptimized
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </div>
+            );
+          })()
         )}
       </div>
     </div>

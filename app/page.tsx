@@ -7,6 +7,7 @@ import { Toaster } from "sonner"
 import { RoomsSection } from "@/components/rooms-section"
 import { PropertiesSection } from "@/components/properties-section"
 import { CustomerReviews } from "@/components/customer-reviews"
+import { PropertyInformation } from '@/components/property-information'
 
 // Animation variants
 const fadeIn = {
@@ -335,6 +336,11 @@ export default function Home() {
         <section className="bg-white">
           <CustomerReviews />
         </section>
+
+        {/* Add Property Information section at the bottom */}
+        <div className="mt-16">
+          <PropertyInformation propertyId="270917" />
+        </div>
       </main>
     </div>
   )

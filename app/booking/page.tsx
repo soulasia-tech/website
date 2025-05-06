@@ -468,7 +468,7 @@ function BookingForm() {
       } else {
         // For guest bookings without an account
         console.log('Redirecting guest to confirmation');
-        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.guests}&roomId=${bookingData.roomId}`);
+        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.guests}&roomId=${bookingData.roomId}&propertyId=${propertyId}`);
       }
     } catch (error) {
       console.error('Booking process error:', error);
@@ -830,43 +830,49 @@ function BookingForm() {
       </div>
       {/* Swiper Modal Carousel */}
       {carouselOpen && room && room.roomTypePhotos && room.roomTypePhotos.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}>
-          <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
-            <button
-              className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
-              onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}
-              aria-label="Close image preview"
-            >
-              ✕
-            </button>
-            <Swiper
-              modules={[Navigation, Pagination]}
-              navigation
-              pagination={{ clickable: true }}
-              className="rounded-xl"
-              onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
-              onSwiper={(swiper) => {
-                swiperRef.current = swiper;
-                if (!swiperInitialized.current) {
-                  swiper.slideTo(carouselIndex);
-                  swiperInitialized.current = true;
-                }
-              }}
-            >
-              {room.roomTypePhotos.map((img, idx) => (
-                <SwiperSlide key={idx}>
-                  <Image
-                    src={img}
-                    alt={`Room image ${idx + 1}`}
-                    fill
-                    className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
-        </div>
+        (() => {
+          console.log('Booking Modal images:', room.roomTypePhotos);
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}>
+              <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
+                <button
+                  className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                  onClick={() => { setCarouselOpen(false); setCarouselIndex(0); swiperInitialized.current = false; }}
+                  aria-label="Close image preview"
+                >
+                  ✕
+                </button>
+                <Swiper
+                  modules={[Navigation, Pagination]}
+                  navigation
+                  pagination={{ clickable: true }}
+                  className="rounded-xl"
+                  onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
+                  onSwiper={(swiper) => {
+                    swiperRef.current = swiper;
+                    if (!swiperInitialized.current) {
+                      swiper.slideTo(carouselIndex);
+                      swiperInitialized.current = true;
+                    }
+                  }}
+                >
+                  {room.roomTypePhotos.map((img, idx) => (
+                    <SwiperSlide key={idx}>
+                      <Image
+                        src={img}
+                        alt={`Room image ${idx + 1}`}
+                        fill
+                        className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        unoptimized
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+            </div>
+          );
+        })()
       )}
     </div>
   );
