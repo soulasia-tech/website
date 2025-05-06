@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,8 @@ function SearchResults() {
   const [rates, setRates] = useState<{ [roomTypeID: string]: number }>({});
   const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const swiperRef = useRef<any>(null);
+  const swiperInitialized = useRef(false);
 
   // Get search parameters
   const propertyId = searchParams.get('propertyId');
@@ -155,6 +157,13 @@ function SearchResults() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedRoomImages]);
+
+  // Sync Swiper with carouselIndex
+  useEffect(() => {
+    if (swiperRef.current && selectedRoomImages && swiperInitialized.current) {
+      swiperRef.current.slideTo(carouselIndex);
+    }
+  }, [carouselIndex, selectedRoomImages]);
 
   const handleBookNow = (roomId: string) => {
     router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&guests=${guests}`);
@@ -290,8 +299,14 @@ function SearchResults() {
                 navigation
                 pagination={{ clickable: true }}
                 className="rounded-xl"
-                initialSlide={carouselIndex}
                 onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
+                onSwiper={(swiper) => {
+                  swiperRef.current = swiper;
+                  if (!swiperInitialized.current) {
+                    swiper.slideTo(carouselIndex);
+                    swiperInitialized.current = true;
+                  }
+                }}
               >
                 {selectedRoomImages.map((img, idx) => (
                   <SwiperSlide key={idx}>
