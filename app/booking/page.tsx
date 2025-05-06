@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,11 @@ import { PropertyInformation } from '@/components/property-information';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface BookingFormData {
   firstName: string;
@@ -104,6 +109,10 @@ function BookingForm() {
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [ratePlanId, setRatePlanId] = useState<string>('');
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const swiperRef = useRef<any>(null);
+  const swiperInitialized = useRef(false);
 
   // Fetch real room info and price
   useEffect(() => {
@@ -231,6 +240,36 @@ function BookingForm() {
 
   // Calculate total price
   const totalPrice = price !== null && numberOfNights > 0 ? price * numberOfNights : null;
+
+  // Keyboard navigation for carousel
+  useEffect(() => {
+    if (!carouselOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setCarouselOpen(false);
+        setCarouselIndex(0);
+      } else if (e.key === 'ArrowLeft') {
+        setCarouselIndex((prev) => {
+          if (!room?.roomTypePhotos) return 0;
+          return prev > 0 ? prev - 1 : room.roomTypePhotos.length - 1;
+        });
+      } else if (e.key === 'ArrowRight') {
+        setCarouselIndex((prev) => {
+          if (!room?.roomTypePhotos) return 0;
+          return prev < room.roomTypePhotos.length - 1 ? prev + 1 : 0;
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [carouselOpen, room]);
+
+  // Sync Swiper with carouselIndex
+  useEffect(() => {
+    if (swiperRef.current && carouselOpen && swiperInitialized.current) {
+      swiperRef.current.slideTo(carouselIndex);
+    }
+  }, [carouselIndex, carouselOpen]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -732,7 +771,8 @@ function BookingForm() {
                       alt={room.roomTypeName || ''}
                       width={400}
                       height={300}
-                      className="object-cover"
+                      className="object-cover cursor-pointer"
+                      onClick={() => setCarouselOpen(true)}
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No image</div>
@@ -777,6 +817,40 @@ function BookingForm() {
           {propertyId && <div className="mt-12"><PropertyInformation propertyId={propertyId} /></div>}
         </div>
       </div>
+      {/* Swiper Modal Carousel */}
+      {carouselOpen && room && room.roomTypePhotos && room.roomTypePhotos.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => { setCarouselOpen(false); setCarouselIndex(0); }}>
+          <div className="relative max-w-2xl w-full mx-4" onClick={e => e.stopPropagation()}>
+            <button
+              className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+              onClick={() => { setCarouselOpen(false); setCarouselIndex(0); }}
+              aria-label="Close image preview"
+            >
+              ✕
+            </button>
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              className="rounded-xl"
+              onSlideChange={(swiper) => setCarouselIndex(swiper.activeIndex)}
+              onSwiper={(swiper) => {
+                swiperRef.current = swiper;
+                if (!swiperInitialized.current) {
+                  swiper.slideTo(carouselIndex);
+                  swiperInitialized.current = true;
+                }
+              }}
+            >
+              {room.roomTypePhotos.map((img, idx) => (
+                <SwiperSlide key={idx}>
+                  <img src={img} alt={`Room image ${idx + 1}`} className="w-full h-[60vw] max-h-[80vh] object-contain rounded-xl" />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
