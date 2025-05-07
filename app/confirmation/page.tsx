@@ -137,22 +137,15 @@ function ConfirmationContent() {
           userIdToUse = bookingPayload.userId;
         }
         if (userIdToUse) {
+          const insertPayload = {
+            user_id: userIdToUse,
+            cloudbeds_res_id: resData.data.reservationID,
+            cloudbeds_property_id: bookingPayload.propertyId,
+          };
+          console.log('Inserting booking:', insertPayload);
           const { error: bookingInsertError } = await supabase
             .from('bookings')
-            .insert([{
-              user_id: userIdToUse,
-              cloudbeds_res_id: resData.data.reservationID,
-              cloudbeds_property_id: bookingPayload.propertyId,
-              check_in: bookingPayload.bookingData.checkIn,
-              check_out: bookingPayload.bookingData.checkOut,
-              total_price: bookingPayload.totalPrice,
-              guest_first_name: bookingPayload.bookingData.firstName,
-              guest_last_name: bookingPayload.bookingData.lastName,
-              guest_email: bookingPayload.bookingData.email,
-              number_of_guests: bookingPayload.bookingData.guests,
-              room_id: bookingPayload.bookingData.roomId,
-              status: 'confirmed',
-            }]);
+            .insert([insertPayload]);
           if (bookingInsertError) {
             console.error('Error saving booking in Supabase:', bookingInsertError);
           }
