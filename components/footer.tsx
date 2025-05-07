@@ -32,15 +32,10 @@ export function Footer() {
           </div>
           <div>
            
-            <p className="text-sm text-gray-400 mb-2">+603 2181175</p>
+            <p className="text-sm text-gray-400 mb-2">+60 3 21818729</p>
+            <p className="text-sm text-gray-400 mb-2">info@soulasia.com.my</p>
             <p className="text-sm text-gray-400 mb-2">
-              B-13-02, The Scott
-              <br />
-              Garden Office, Jalan Klang
-              <br />
-              Lama, 58000 Kuala
-              <br />
-              Lumpur, Malaysia
+              B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia
             </p>
           </div>
           <div>
@@ -66,11 +61,6 @@ export function Footer() {
           <div>
            
             <ul className="space-y-2">
-              <li>
-                <Link href="/about-us" className="text-sm text-gray-400 hover:text-white">
-                  About Us
-                </Link>
-              </li>
               <li>
                 <Link href="/for-owners" className="text-sm text-gray-400 hover:text-white">
                   For Owners
