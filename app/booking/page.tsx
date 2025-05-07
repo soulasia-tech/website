@@ -375,6 +375,7 @@ function BookingForm() {
         price,
         numberOfNights,
         totalPrice,
+        userId: currentUser?.id // Store userId if available
       };
       localStorage.setItem(`booking_${bookingToken}`, JSON.stringify(bookingPayload));
 

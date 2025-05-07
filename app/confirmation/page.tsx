@@ -129,12 +129,18 @@ function ConfirmationContent() {
           property_id: bookingPayload.propertyId,
         });
         // If user is logged in, insert booking into Supabase
+        let userIdToUse = null;
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          userIdToUse = user.id;
+        } else if (bookingPayload.userId) {
+          userIdToUse = bookingPayload.userId;
+        }
+        if (userIdToUse) {
           const { error: bookingInsertError } = await supabase
             .from('bookings')
             .insert([{
-              user_id: user.id,
+              user_id: userIdToUse,
               cloudbeds_res_id: resData.data.reservationID,
               cloudbeds_property_id: bookingPayload.propertyId,
               check_in: bookingPayload.bookingData.checkIn,
