@@ -37,9 +37,9 @@ export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps
       <div className="relative aspect-[1/1] overflow-hidden rounded-xl mb-3">
         {photos.length > 0 ? (
           <>
-            {/* Skeleton Loader */}
+            {/* Shimmer Skeleton Loader */}
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gray-200 animate-pulse z-10" />
+              <div className="absolute inset-0 skeleton-shimmer rounded-xl z-10" />
             )}
             {/* Only render the first image until it's loaded */}
             {!imageLoaded && (
@@ -49,7 +49,7 @@ export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className={cn(
-                  "object-cover transition-opacity duration-500",
+                  "object-cover transition-opacity duration-700",
                   imageLoaded ? "opacity-100" : "opacity-0"
                 )}
                 priority
@@ -65,7 +65,7 @@ export function RoomCard({ roomName, propertyName, photos, rate }: RoomCardProps
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className={cn(
-                    "object-cover transition-opacity duration-500",
+                    "object-cover transition-opacity duration-700",
                     "opacity-100"
                   )}
                 />
