@@ -44,7 +44,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
           setProperties(data.properties)
           if (!initialSearchParams?.propertyId) {
-            setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
+          setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
           }
         } else {
           setProperties([{ propertyId: '', propertyName: 'No properties found' }])
@@ -91,7 +91,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
+          </div>
 
         {/* Check in */}
         <div className="relative flex-1 px-6 py-3">
@@ -160,7 +160,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
               />
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
 
         {/* Check out */}
         <div className="relative flex-1 px-6 py-3">
@@ -226,7 +226,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
               />
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
 
         {/* Who */}
         <div className="relative flex-1 px-6 py-3">
@@ -253,13 +253,13 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
 
         {/* Search Button */}
         <div className="pr-2 pl-4 py-2">
-          <Button 
-            type="submit" 
+        <Button 
+          type="submit" 
             size="icon"
             className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-          >
+        >
             <Search className="w-5 h-5" />
-          </Button>
+        </Button>
         </div>
       </form>
     </div>

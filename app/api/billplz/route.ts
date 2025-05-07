@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   const apiKey = process.env.BILLPLZ_API_KEY;
-  const collectionId = 'your_collection_id_here'; // Replace with a real collection ID
+  const collectionId = process.env.BILLPLZ_COLLECTION_ID;
 
   if (!apiKey) {
     return NextResponse.json({ success: false, error: 'Missing BILLPLZ_API_KEY' }, { status: 500 });
+  }
+  if (!collectionId) {
+    return NextResponse.json({ success: false, error: 'Missing BILLPLZ_COLLECTION_ID' }, { status: 500 });
   }
 
   try {

@@ -80,7 +80,6 @@ function BookingForm() {
   const [error, setError] = useState<string | null>(null);
   const [room, setRoom] = useState<RoomType | null>(null);
   const [price, setPrice] = useState<number | null>(null);
-  const [propertyId, setPropertyId] = useState<string>(searchParams.get('propertyId') || '');
   const [bookingData, setBookingData] = useState<BookingFormData>({
     firstName: '',
     lastName: '',
@@ -103,6 +102,17 @@ function BookingForm() {
   const swiperInitialized = useRef(false);
   const [ratePlans, setRatePlans] = useState<RatePlan[]>([]);
   const [selectedRateID, setSelectedRateID] = useState<string>('');
+
+  // Log propertyId and searchParams for debugging
+  useEffect(() => {
+    const propertyId = searchParams.get('propertyId') || '';
+    console.log('searchParams:', searchParams.toString());
+    console.log('propertyId from searchParams:', propertyId);
+    if (!propertyId) {
+      console.warn('propertyId missing on mount, redirecting to /search');
+      router.replace('/search');
+    }
+  }, [searchParams, router]);
 
   // Fetch real room info and price
   useEffect(() => {
@@ -216,7 +226,6 @@ function BookingForm() {
       checkOut: searchParams.get('endDate') || '',
       guests: Number(searchParams.get('guests')) || 1,
     }));
-    setPropertyId(searchParams.get('propertyId') || '');
   }, [searchParams]);
 
   // Calculate number of nights
@@ -269,9 +278,16 @@ function BookingForm() {
     setSubmitting(true);
     setError(null);
     setSuccessMessage('');
-    setLoadingMessage('Processing your booking...');
+    setLoadingMessage('Redirecting to payment...');
 
     try {
+      const propertyId = searchParams.get('propertyId') || '';
+      if (!propertyId) {
+        setError('Missing propertyId. Please return to the search page and select your property again.');
+        setSubmitting(false);
+        return;
+      }
+      console.log('propertyId at submit:', propertyId);
       console.log('Starting booking process...', {
         createAccount: bookingData.createAccount,
         user: user,
@@ -349,121 +365,44 @@ function BookingForm() {
         }
       }
 
-      setLoadingMessage('Creating your reservation...');
-      const formData = new FormData();
-      
-      // Add basic reservation details
-      formData.append('propertyId', propertyId);
-      formData.append('startDate', bookingData.checkIn);
-      formData.append('endDate', bookingData.checkOut);
-      
-      // Add guest information
-      formData.append('guestFirstName', bookingData.firstName);
-      formData.append('guestLastName', bookingData.lastName);
-      formData.append('guestEmail', bookingData.email);
-      formData.append('guestCountry', bookingData.country);
-      formData.append('guestZip', '00000'); // Default zip
-      formData.append('paymentMethod', 'cash'); // Default to cash
-      formData.append('sendEmailConfirmation', 'true');
-      
-      if (bookingData.phone) {
-        formData.append('guestPhone', bookingData.phone);
-      }
-
-      // Add room data
-      const roomData = [{
-        roomTypeID: bookingData.roomId,
-        roomID: `${bookingData.roomId}-1`,
-        quantity: "1",
-        roomRateID: selectedRateID
-      }];
-      formData.append('rooms', JSON.stringify(roomData));
-
-      // Add adults data
-      const adultsData = Array.from({ length: bookingData.guests }).map(() => ({
-        roomTypeID: bookingData.roomId,
-        roomID: `${bookingData.roomId}-1`,
-        quantity: "1"
-      }));
-      formData.append('adults', JSON.stringify(adultsData));
-
-      // Always add children as an empty array
-      formData.append('children', JSON.stringify([]));
-
-      console.log('Sending reservation request with data:', {
+      // --- Generate a random token and store booking data in localStorage ---
+      const bookingToken = crypto.randomUUID();
+      const bookingPayload = {
+        bookingData,
+        selectedRateID,
         propertyId,
-        roomData,
-        adultsData
+        room: room,
+        price,
+        numberOfNights,
+        totalPrice,
+      };
+      localStorage.setItem(`booking_${bookingToken}`, JSON.stringify(bookingPayload));
+
+      // --- Billplz Payment Flow ---
+      setLoadingMessage('Redirecting to payment...');
+      // Use bookingToken as Billplz reference_1 and pass propertyId as reference_2
+      const billPayload = {
+        amount: 100, // TESTING: Always charge 1.00 MYR for now. REMOVE THIS FOR PRODUCTION!
+        name: `${bookingData.firstName} ${bookingData.lastName}`,
+        email: bookingData.email,
+        callback_url: `${window.location.origin}/api/payment/billplz-callback`,
+        redirect_url: `${window.location.origin}/confirmation?bookingToken=${bookingToken}`,
+        reference_1: bookingToken,
+        reference_2: propertyId,
+      };
+      // Call our API route to create the Billplz bill
+      const billRes = await fetch('/api/payment/create-bill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(billPayload),
       });
-
-      // Call our API route to create the reservation
-      let res, data;
-      try {
-        res = await fetch('/api/create-reservation', {
-          method: 'POST',
-          body: formData
-        });
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          data = await res.json();
-        } else {
-          const text = await res.text();
-          console.error('Non-JSON response:', text);
-          throw new Error('Server returned a non-JSON response: ' + text);
-        }
-      } catch (fetchError) {
-        console.error('Network or fetch error:', fetchError);
-        setError('Network error: ' + (fetchError instanceof Error ? fetchError.message : String(fetchError)));
-        setSubmitting(false);
-        return;
+      const billData = await billRes.json();
+      if (!billData.success || !billData.bill?.url) {
+        throw new Error(billData.error || 'Failed to create payment bill');
       }
-      console.log('Cloudbeds reservation response:', data);
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to create reservation');
-      }
-
-      setLoadingMessage('Saving your booking...');
-
-      // Create booking in Supabase
-      let bookingId = '';
-      
-      if (currentUser) {
-        console.log('Attempting to save booking to Supabase with user:', {
-          userId: currentUser.id,
-          cloudbedsResId: data.data.reservationID,
-          cloudbedsPropertyId: propertyId
-        });
-        
-        // Create the booking with required fields
-        const { data: booking, error: bookingError } = await supabase
-          .from('bookings')
-          .insert({
-            user_id: currentUser.id,
-            cloudbeds_res_id: data.data.reservationID,
-            cloudbeds_property_id: propertyId
-          })
-          .select()
-          .single();
-
-        if (bookingError) {
-          console.error('Detailed booking error:', bookingError);
-          throw new Error(`Failed to save booking: ${bookingError.message}`);
-        } else {
-          bookingId = booking.id;
-          console.log('Successfully created booking with ID:', bookingId);
-        }
-      }
-
-      setSuccessMessage('Booking successful! Redirecting to confirmation...');
-      
-      if (bookingId) {
-        console.log('Redirecting to confirmation with booking ID:', bookingId);
-        router.push(`/confirmation?bookingId=${bookingId}`);
-      } else {
-        // For guest bookings without an account
-        console.log('Redirecting guest to confirmation');
-        router.push(`/confirmation?bookingId=guest_${data.data.reservationID}&checkIn=${bookingData.checkIn}&checkOut=${bookingData.checkOut}&totalPrice=${totalPrice}&firstName=${bookingData.firstName}&lastName=${bookingData.lastName}&email=${bookingData.email}&guests=${bookingData.guests}&roomId=${bookingData.roomId}&propertyId=${propertyId}`);
-      }
+      // Redirect user to Billplz payment page
+      window.location.href = billData.bill.url;
+      // No further code runs after redirect
     } catch (error) {
       console.error('Booking process error:', error);
       handleError(error);
@@ -819,7 +758,7 @@ function BookingForm() {
             </div>
           </div>
           {/* Property Information Section (added below booking form/summary) */}
-          {propertyId && <div className="mt-12"><PropertyInformation propertyId={propertyId} /></div>}
+          {searchParams.get('propertyId') && <div className="mt-12"><PropertyInformation propertyId={searchParams.get('propertyId')!} /></div>}
         </div>
       </div>
       {/* Swiper Modal Carousel */}

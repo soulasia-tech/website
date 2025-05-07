@@ -122,10 +122,10 @@ export async function POST(request: Request) {
       }];
     }
     childrenToSend.forEach((child: GuestData, index: number) => {
-      params.append(`children[${index}][roomTypeID]`, child.roomTypeID);
-      params.append(`children[${index}][roomID]`, child.roomID);
-      params.append(`children[${index}][quantity]`, child.quantity);
-    });
+        params.append(`children[${index}][roomTypeID]`, child.roomTypeID);
+        params.append(`children[${index}][roomID]`, child.roomID);
+        params.append(`children[${index}][quantity]`, child.quantity);
+      });
 
     // Make the request to Cloudbeds API
     const response = await fetch(cloudbedsUrl, {

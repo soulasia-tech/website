@@ -7,8 +7,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { propertyID, ...bookingData } = body;
+    // Parse FormData from the request
+    const formData = await request.formData();
+    // Log all incoming fields for debugging
+    for (const [key, value] of formData.entries()) {
+      console.log(`Received field: ${key} =`, value);
+    }
+    // Extract required fields (use PascalCase as per Cloudbeds docs)
+    const propertyID = formData.get('propertyID');
     if (!propertyID) {
       return NextResponse.json({ success: false, message: 'Missing propertyID' }, { status: 400 });
     }
@@ -22,16 +28,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'API key not found for property' }, { status: 404 });
     }
     const apiKey = data.api_key;
-    // Call Cloudbeds API
-    console.log('Booking data sent to Cloudbeds:', bookingData);
+    // Prepare FormData to send to Cloudbeds
+    const cbFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+      cbFormData.append(key, value);
+    }
+    // Call Cloudbeds API with multipart/form-data
     const cbRes = await fetch(`https://api.cloudbeds.com/api/v1.2/postReservation?propertyID=${propertyID}`,
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+          // Do NOT set Content-Type; fetch will set it for FormData
         },
-        body: JSON.stringify(bookingData),
+        body: cbFormData,
       }
     );
     const cbData = await cbRes.json();
