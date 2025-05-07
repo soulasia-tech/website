@@ -141,22 +141,6 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="rounded-full flex items-center gap-2 shadow-sm">
-                <Menu className="w-4 h-4" />
-                <span className="sr-only md:not-sr-only">Menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link href="/become-host" className="flex items-center cursor-pointer">
-                  Become a host
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </header>
