@@ -99,6 +99,21 @@ function ConfirmationContent() {
         if (!resData.success || !resData.data?.reservationID) {
           throw new Error(resData.message || 'Failed to create reservation in Cloudbeds');
         }
+        // --- Add payment to reservation ---
+        const paymentFd = new FormData();
+        paymentFd.append('propertyID', bookingPayload.propertyId);
+        paymentFd.append('addPayment', 'true');
+        paymentFd.append('amount', bookingPayload.totalPrice.toString());
+        paymentFd.append('reservationID', resData.data.reservationID);
+        // Call the same API to add payment
+        const paymentRes = await fetch('/api/create-cloudbeds-reservation', {
+          method: 'POST',
+          body: paymentFd,
+        });
+        const paymentData = await paymentRes.json();
+        if (paymentData.paymentError) {
+          throw new Error('Reservation created, but failed to attach payment: ' + paymentData.paymentError);
+        }
         // Set booking info for confirmation
         setBooking({
           id: resData.data.reservationID,

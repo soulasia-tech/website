@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { addPaymentToReservation } from '@/lib/cloudbeds';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -49,7 +50,25 @@ export async function POST(request: Request) {
       console.error('Cloudbeds API error response:', cbData);
       return NextResponse.json({ success: false, message: cbData.message || 'Failed to create reservation in Cloudbeds', cloudbedsResponse: cbData }, { status: 500 });
     }
-    return NextResponse.json({ success: true, data: cbData });
+    // Optionally add payment if requested
+    const addPayment = formData.get('addPayment');
+    const amount = formData.get('amount');
+    let paymentResult = null;
+    if (addPayment && addPayment === 'true' && cbData.reservationID && amount) {
+      try {
+        paymentResult = await addPaymentToReservation({
+          propertyId: propertyID.toString(),
+          reservationId: cbData.reservationID,
+          amount: Number(amount),
+          paymentMethod: 'credit_card',
+        });
+      } catch (err) {
+        console.error('Error adding payment to reservation:', err);
+        // Still return reservation, but include payment error
+        return NextResponse.json({ success: true, data: cbData, paymentError: err instanceof Error ? err.message : String(err) });
+      }
+    }
+    return NextResponse.json({ success: true, data: cbData, paymentResult });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Error creating reservation in Cloudbeds';
     return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
