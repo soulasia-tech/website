@@ -21,7 +21,7 @@ export async function createBill({ amount, name, email, callback_url, redirect_u
     throw new Error('Missing BILLPLZ_API_KEY or BILLPLZ_COLLECTION_ID');
   }
 
-  const payload: Record<string, any> = {
+  const payload: Record<string, string | number | undefined> = {
     collection_id: collectionId,
     description: `Booking for ${name}`,
     email,

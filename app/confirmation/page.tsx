@@ -159,13 +159,13 @@ function ConfirmationContent() {
         }
         // Clean up localStorage
         localStorage.removeItem(`booking_${bookingToken}`);
-      } catch (err: any) {
-        setError(err.message || 'Failed to create reservation.');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to create reservation.');
       } finally {
         setLoading(false);
       }
     })();
-  }, [searchParams]);
+  }, [searchParams, supabase]);
 
   useEffect(() => {
     const bookingId = searchParams.get('bookingId');
