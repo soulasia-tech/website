@@ -44,19 +44,21 @@ function SearchResults() {
   const propertyId = searchParams.get('propertyId');
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
-  const guests = searchParams.get('guests');
+  const adults = searchParams.get('adults');
+  const children = searchParams.get('children');
 
   // Create initial search params object for BookingWidget
   const initialSearchParams = {
     propertyId: propertyId || '',
     startDate: startDate || '',
     endDate: endDate || '',
-    guests: guests || '1'
+    adults: adults || '2',
+    children: children || '0',
   };
 
   useEffect(() => {
     // Validate search parameters
-    if (!propertyId || !startDate || !endDate || !guests) {
+    if (!propertyId || !startDate || !endDate || !adults || !children) {
       router.push('/');
       return;
     }
@@ -141,7 +143,7 @@ function SearchResults() {
       }
     };
     fetchRates();
-  }, [propertyId, startDate, endDate, guests, router]);
+  }, [propertyId, startDate, endDate, adults, children, router]);
 
   useEffect(() => {
     if (!selectedRoomImages) return;
@@ -167,14 +169,16 @@ function SearchResults() {
   }, [carouselIndex, selectedRoomImages]);
 
   const handleBookNow = (roomId: string) => {
-    router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&guests=${guests}`);
+    router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&adults=${adults}&children=${children}`);
   };
 
-  // Parse guests as integer, default to 1 if not set
-  const numGuests = guests ? parseInt(guests, 10) : 1;
+  // Parse adults and children as integers, default to 2 adults, 0 children
+  const numAdults = adults ? parseInt(adults, 10) : 2;
+  const numChildren = children ? parseInt(children, 10) : 0;
+  const totalGuests = numAdults + numChildren;
   // Filter rooms based on both rate and guest capacity
   const filteredRooms = results.filter(
-    room => rates[room.id] !== undefined && room.maxGuests >= numGuests
+    room => rates[room.id] !== undefined && room.maxGuests >= totalGuests
   );
 
   // Calculate number of nights
@@ -218,8 +222,8 @@ function SearchResults() {
                 {format(parseISO(startDate), 'MMM d, yyyy')} - {format(parseISO(endDate), 'MMM d, yyyy')}
               </span>
             )}
-            {guests && (
-              <span> &middot; {guests} guest{guests === '1' ? '' : 's'}</span>
+            {(adults || children) && (
+              <span> &middot; {numAdults} adult{numAdults === 1 ? '' : 's'}{numChildren > 0 ? `, ${numChildren} child${numChildren === 1 ? '' : 'ren'}` : ''}</span>
             )}
           </div>
           {error && <div className="text-red-500 mb-2">{error}</div>}

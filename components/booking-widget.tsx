@@ -15,7 +15,8 @@ interface BookingWidgetProps {
     propertyId: string;
     startDate: string;
     endDate: string;
-    guests: string;
+    adults: string;
+    children: string;
   }
 }
 
@@ -25,7 +26,8 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     propertyId: initialSearchParams?.propertyId || '',
     startDate: initialSearchParams?.startDate || '',
     endDate: initialSearchParams?.endDate || '',
-    guests: initialSearchParams?.guests || '1'
+    adults: initialSearchParams?.adults || '2',
+    children: initialSearchParams?.children || '0',
   })
   const [properties, setProperties] = useState<{ propertyId: string, propertyName: string }[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,7 +64,13 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     if (!searchParams.propertyId || !searchParams.startDate || !searchParams.endDate) {
       return
     }
-    const queryString = new URLSearchParams(searchParams).toString()
+    const queryString = new URLSearchParams({
+      propertyId: searchParams.propertyId,
+      startDate: searchParams.startDate,
+      endDate: searchParams.endDate,
+      adults: searchParams.adults,
+      children: searchParams.children,
+    }).toString()
     router.push(`/search?${queryString}`)
   }
 
@@ -230,21 +238,42 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
 
         {/* Who */}
         <div className="relative flex-1 px-6 py-3">
-          <label className="block text-sm font-medium text-gray-800">Who</label>
+          <label className="block text-sm font-medium text-gray-800">Adults</label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="w-full justify-start p-0 font-normal">
                 <Users className="mr-2 h-4 w-4" />
-                {searchParams.guests} {parseInt(searchParams.guests) === 1 ? 'guest' : 'guests'}
+                {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               {[1, 2, 3, 4, 5, 6].map((num) => (
                 <DropdownMenuItem
                   key={num}
-                  onClick={() => setSearchParams(prev => ({ ...prev, guests: num.toString() }))}
+                  onClick={() => setSearchParams(prev => ({ ...prev, adults: num.toString() }))}
                 >
-                  {num} {num === 1 ? 'guest' : 'guests'}
+                  {num} {num === 1 ? 'adult' : 'adults'}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="relative flex-1 px-6 py-3">
+          <label className="block text-sm font-medium text-gray-800">Children</label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start p-0 font-normal">
+                <Users className="mr-2 h-4 w-4" />
+                {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {[0, 1, 2, 3, 4].map((num) => (
+                <DropdownMenuItem
+                  key={num}
+                  onClick={() => setSearchParams(prev => ({ ...prev, children: num.toString() }))}
+                >
+                  {num} {num === 1 ? 'child' : 'children'}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

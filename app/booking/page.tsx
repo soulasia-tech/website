@@ -27,7 +27,8 @@ interface BookingFormData {
   email: string;
   checkIn: string;
   checkOut: string;
-  guests: number;
+  adults: number;
+  children: number;
   roomId: string;
   createAccount: boolean;
   password: string;
@@ -85,7 +86,8 @@ function BookingForm() {
     email: '',
     checkIn: searchParams.get('startDate') || '',
     checkOut: searchParams.get('endDate') || '',
-    guests: Number(searchParams.get('guests')) || 1,
+    adults: Number(searchParams.get('adults')) || 2,
+    children: Number(searchParams.get('children')) || 0,
     roomId: searchParams.get('roomId') || '',
     createAccount: false,
     password: '',
@@ -230,7 +232,8 @@ function BookingForm() {
       roomId: searchParams.get('roomId') || '',
       checkIn: searchParams.get('startDate') || '',
       checkOut: searchParams.get('endDate') || '',
-      guests: Number(searchParams.get('guests')) || 1,
+      adults: Number(searchParams.get('adults')) || 2,
+      children: Number(searchParams.get('children')) || 0,
     }));
   }, [searchParams]);
 
@@ -307,7 +310,7 @@ function BookingForm() {
       if (numberOfNights <= 0) {
         throw new Error('Invalid date selection');
       }
-      if (bookingData.guests > room.maxGuests) {
+      if (bookingData.adults + bookingData.children > (room.maxGuests || 0)) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
 
@@ -554,17 +557,24 @@ function BookingForm() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Number of guests</label>
-                    <Input
-                      type="number"
-                      required
-                      min={1}
-                      max={room?.maxGuests || 10}
-                      value={bookingData.guests}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, guests: Number(e.target.value) }))}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Number of adults</label>
+                      <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.adults}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Number of children</label>
+                      <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.children}</div>
+                    </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => {
+                    // Use all current search params to reconstruct the search URL
+                    const params = new URLSearchParams();
+                    searchParams.forEach((value, key) => {
+                      params.set(key, value);
+                    });
+                    router.push(`/search?${params.toString()}`);
+                  }}>go back to search</button>.</p>
 
                   {/* Estimated Arrival Time */}
                   <div>
