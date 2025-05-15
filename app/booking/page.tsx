@@ -20,7 +20,6 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface BookingFormData {
   firstName: string;
@@ -100,7 +99,6 @@ function BookingForm() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
-  const [ratePlans, setRatePlans] = useState<RatePlan[]>([]);
   const [selectedRateID, setSelectedRateID] = useState<string>('');
 
   // Log propertyId and searchParams for debugging
@@ -144,20 +142,28 @@ function BookingForm() {
         const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${propertyIdFromParams}&startDate=${checkIn}&endDate=${checkOut}`);
         const rateData = await rateRes.json();
         let foundPrice = null;
-        let foundRatePlans: RatePlan[] = [];
+        let directBookingRate = null;
         if (rateData.success && Array.isArray(rateData.ratePlans)) {
-          // Filter all rates for this roomTypeID
-          foundRatePlans = rateData.ratePlans.filter((r: RatePlan) => String(r.roomTypeID) === String(roomId));
-          setRatePlans(foundRatePlans);
-          if (foundRatePlans.length > 0) {
-            foundPrice = foundRatePlans[0].totalRate;
-            setSelectedRateID(foundRatePlans[0].rateID);
+          // Only use the direct booking rate
+          directBookingRate = rateData.ratePlans.find((r: RatePlan) => r.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!");
+          if (directBookingRate) {
+            foundPrice = directBookingRate.totalRate;
+            setSelectedRateID(directBookingRate.rateID);
+          } else {
+            foundPrice = null;
+            setSelectedRateID('');
           }
         }
         setPrice(foundPrice);
+        if (!directBookingRate) {
+          setError('Direct booking rate not available for these dates/room. Please try different dates or another room.');
+        } else {
+          setError(null);
+        }
       } catch {
         setRoom(null);
         setPrice(null);
+        setError('Failed to fetch rates. Please try again later.');
       }
       setLoading(false);
     })();
@@ -233,8 +239,9 @@ function BookingForm() {
     ? differenceInDays(parseISO(bookingData.checkOut), parseISO(bookingData.checkIn))
     : 0;
 
-  // Calculate total price
-  const totalPrice = price !== null && numberOfNights > 0 ? price * numberOfNights : null;
+  // Calculate total price (Cloudbeds totalRate is for the whole stay)
+  const totalPrice = price !== null ? price : null;
+  const perNightPrice = price !== null && numberOfNights > 0 ? price / numberOfNights : null;
 
   // Reset carouselIndex and swiperInitialized when room changes or modal closes
   useEffect(() => {
@@ -369,7 +376,7 @@ function BookingForm() {
       const bookingToken = crypto.randomUUID();
       const bookingPayload = {
         bookingData,
-        selectedRateID,
+        selectedRateID, // this will be the direct booking rateID
         propertyId,
         room: room,
         price,
@@ -659,22 +666,18 @@ function BookingForm() {
                     </div>
                   )}
 
-                  {ratePlans.length > 0 && (
+                  {/*
+                  // --- Direct Booking Rate UI (commented out as per request) ---
+                  {ratePlans.length > 0 && !error && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1">Select Rate</label>
-                      <RadioGroup value={selectedRateID} onValueChange={setSelectedRateID} className="space-y-3">
-                        {ratePlans.map((rate) => (
-                          <div key={rate.rateID} className="flex items-center gap-3 p-2 rounded border border-gray-200 hover:bg-gray-50">
-                            <RadioGroupItem value={rate.rateID} id={rate.rateID} />
-                            <label htmlFor={rate.rateID} className="flex flex-col cursor-pointer">
-                              <span className="font-medium text-gray-900">{rate.ratePlanNamePublic || 'Standard Rate'}</span>
-                              <span className="text-gray-600 text-sm">MYR {rate.totalRate.toFixed(2)}</span>
-                            </label>
-                          </div>
-                        ))}
-                      </RadioGroup>
+                      <label className="block text-sm font-medium mb-1">Direct Booking Rate</label>
+                      <div className="flex items-center gap-3 p-2 rounded border border-gray-200 bg-gray-50">
+                        <span className="font-medium text-gray-900">{ratePlans[0].ratePlanNamePublic}</span>
+                        <span className="text-gray-600 text-sm">MYR {ratePlans[0].totalRate.toFixed(2)}</span>
+                      </div>
                     </div>
                   )}
+                  */}
 
                   <Button 
                     type="submit" 
@@ -745,13 +748,13 @@ function BookingForm() {
                   <div className="flex justify-between">
                     <span>Price per night</span>
                     <span className="font-medium">
-                      {price !== null ? `MYR ${price.toFixed(2)}` : 'N/A'}
+                      {perNightPrice !== null ? `MYR ${perNightPrice.toFixed(2)}` : 'N/A'}
                     </span>
                   </div>
                   <div className="pt-2 mt-2 border-t flex justify-between">
                     <span className="font-semibold">Total</span>
                     <span className="font-semibold">
-                      {typeof totalPrice === 'number' ? `MYR ${totalPrice.toFixed(2)}` : 'N/A'}
+                      {totalPrice !== null ? `MYR ${totalPrice.toFixed(2)}` : 'N/A'}
                     </span>
                   </div>
                 </div>

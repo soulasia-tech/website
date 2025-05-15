@@ -125,10 +125,10 @@ function SearchResults() {
         const res = await fetch(`/api/cloudbeds/rate-plans?propertyId=${propertyId}&startDate=${startDate}&endDate=${endDate}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.ratePlans)) {
-          // Map: roomTypeID -> lowest totalRate
+          // Map: roomTypeID -> direct booking rate only
           const rateMap: { [roomTypeID: string]: number } = {};
-          data.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
-            if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+          data.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
+            if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
               rateMap[rate.roomTypeID] = rate.totalRate;
             }
           });
@@ -261,11 +261,11 @@ function SearchResults() {
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div>
                       <p className="text-2xl font-bold">
-                        {rates[room.id] !== undefined ? `from MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
+                        {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
                       </p>
                       <p className="text-gray-600">per night</p>
                       <p className="text-lg font-medium mt-1">
-                        {rates[room.id] !== undefined ? `from MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
+                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
                       </p>
                     </div>
                     <Button 
