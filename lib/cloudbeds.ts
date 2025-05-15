@@ -88,7 +88,7 @@ export async function getHotelDetails(propertyId: string) {
     throw new Error(`Cloudbeds API error: ${data.message}`);
   }
   return data.data;
-}
+} 
 
 export interface BookingData {
   propertyId: string;

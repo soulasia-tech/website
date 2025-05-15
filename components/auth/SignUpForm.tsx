@@ -51,26 +51,39 @@ function SignUpFormContent() {
         },
       });
 
+      // Log the error object for debugging
       if (signUpError) {
-        throw signUpError;
+        console.error('signUpError object:', signUpError, JSON.stringify(signUpError));
+        // Only throw if error is not an empty object or has a message
+        if (signUpError.message || Object.keys(signUpError).length > 0) {
+          throw signUpError;
+        }
       }
 
+      // Do NOT throw if authData.user is null; this is expected with email verification enabled
       if (!authData.user) {
-        throw new Error('Failed to create account');
+        // Optionally log a warning for debugging
+        console.warn('Signup succeeded, but user is null (likely due to email verification).');
       }
 
       // Create user profile
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert([{
-          id: authData.user.id,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email
-        }]);
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .upsert([{
+            id: authData.user.id,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            email: formData.email
+          }]);
 
-      if (profileError) {
-        throw profileError;
+        // Log the error object for debugging
+        if (profileError) {
+          console.error('profileError object:', profileError, JSON.stringify(profileError));
+          if (profileError.message || Object.keys(profileError).length > 0) {
+            throw profileError;
+          }
+        }
       }
 
       // Check for guest booking to link
@@ -78,18 +91,21 @@ function SignUpFormContent() {
         const lastBookingId = sessionStorage.getItem('lastBookingId');
         if (lastBookingId) {
           // Link the booking to the new user
-          const { error: linkError } = await supabase
-            .from('bookings')
-            .update({ user_id: authData.user.id })
-            .eq('id', lastBookingId)
-            .eq('guest_email', formData.email); // Extra safety check
+          if (authData.user) {
+            const { error: linkError } = await supabase
+              .from('bookings')
+              .update({ user_id: authData.user.id })
+              .eq('id', lastBookingId)
+              .eq('guest_email', formData.email); // Extra safety check
 
-          if (linkError) {
-            console.error('Failed to link booking:', linkError);
-            // Don't throw here - we still want to complete signup
-          } else {
-            // Clear the session storage only on successful linking
-            sessionStorage.removeItem('lastBookingId');
+            // Log the error object for debugging
+            if (linkError) {
+              console.error('Failed to link booking:', linkError, JSON.stringify(linkError));
+              // Don't throw here - we still want to complete signup
+            } else {
+              // Clear the session storage only on successful linking
+              sessionStorage.removeItem('lastBookingId');
+            }
           }
         }
       }
@@ -99,8 +115,27 @@ function SignUpFormContent() {
       router.push(redirectTo || '/auth/verify-email');
 
     } catch (error) {
-      console.error('Signup error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create account');
+      // Log the error object for debugging
+      console.error('Signup error (catch):', error, typeof error, JSON.stringify(error));
+      // Check for duplicate user errors from Supabase Auth or Postgres
+      let errorMessage = 'Failed to create account';
+      if (error && typeof error === 'object') {
+        const errStr = JSON.stringify(error);
+        // Type guard for 'message' property
+        const hasMessage = Object.prototype.hasOwnProperty.call(error, 'message');
+        const message = hasMessage ? (error as { message: string }).message : '';
+        if (
+          (message &&
+            (message.toLowerCase().includes('user already registered') ||
+             message.toLowerCase().includes('user already exists') ||
+             message.toLowerCase().includes('email already registered') ||
+             message.toLowerCase().includes('duplicate')))
+          || (errStr.includes('duplicate key value') || errStr.includes('23505'))
+        ) {
+          errorMessage = 'This user already exists – log in';
+        }
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

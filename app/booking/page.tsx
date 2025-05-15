@@ -400,7 +400,7 @@ function BookingForm() {
       const billData = await billRes.json();
       if (!billData.success || !billData.bill?.url) {
         throw new Error(billData.error || 'Failed to create payment bill');
-      }
+        }
       // Redirect user to Billplz payment page
       window.location.href = billData.bill.url;
       // No further code runs after redirect
@@ -676,9 +676,9 @@ function BookingForm() {
                     </div>
                   )}
 
-                  <Button
-                    type="submit"
-                    disabled={submitting}
+                  <Button 
+                    type="submit" 
+                    disabled={submitting} 
                     variant="outline"
                     className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
                   >
