@@ -4,8 +4,6 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
-import { RoomsSection } from "@/components/rooms-section"
-import { PropertiesSection } from "@/components/properties-section"
 import { CustomerReviews } from "@/components/customer-reviews"
 
 // Animation variants
@@ -118,14 +116,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Properties Section */}
-        <section className="bg-white">
-          <div className="container px-4 mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured locations</h2>
-            <PropertiesSection />
-          </div>
-        </section>
-
         {/* Value Proposition Section */}
         <section className="py-24 bg-gray-50">
           <div className="container px-4 mx-auto">
@@ -192,14 +182,6 @@ export default function Home() {
                 </motion.div>
               </motion.div>
             </div>
-          </div>
-        </section>
-
-        {/* Rooms Section (moved below Value Proposition) */}
-        <section>
-          <div className="container px-4 mx-auto py-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured apartments</h2>
-            <RoomsSection />
           </div>
         </section>
 

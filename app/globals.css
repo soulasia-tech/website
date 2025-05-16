@@ -1,6 +1,7 @@
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 @import "tailwindcss";
 @import "tw-animate-css";
+@import 'mapbox-gl/dist/mapbox-gl.css';
 
 @custom-variant dark (&:is(.dark *));
 
