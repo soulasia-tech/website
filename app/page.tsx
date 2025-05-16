@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
 import { CustomerReviews } from "@/components/customer-reviews"
+import { Locations } from "@/components/blocks/locations"
 
 // Animation variants
 const fadeIn = {
@@ -115,6 +116,9 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
+
+        {/* Locations Section */}
+        <Locations />
 
         {/* Value Proposition Section */}
         <section className="py-24 bg-gray-50">
