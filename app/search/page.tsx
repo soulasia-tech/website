@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { format, parseISO } from "date-fns";
 import { BookingWidget } from '@/components/booking-widget';
-import { PropertyInformation } from '@/components/property-information';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -24,6 +23,9 @@ interface RoomResult {
   available: boolean;
   images: string[];
   amenities: string[];
+  propertyName: string;
+  propertyId: string;
+  city: string;
 }
 
 function SearchResults() {
@@ -41,7 +43,7 @@ function SearchResults() {
   const swiperInitialized = useRef(false);
 
   // Get search parameters
-  const propertyId = searchParams.get('propertyId');
+  const city = searchParams.get('city');
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const adults = searchParams.get('adults');
@@ -49,7 +51,7 @@ function SearchResults() {
 
   // Create initial search params object for BookingWidget
   const initialSearchParams = {
-    propertyId: propertyId || '',
+    city: city || '',
     startDate: startDate || '',
     endDate: endDate || '',
     adults: adults || '2',
@@ -58,92 +60,93 @@ function SearchResults() {
 
   useEffect(() => {
     // Validate search parameters
-    if (!propertyId || !startDate || !endDate || !adults || !children) {
+    if (!city || !startDate || !endDate || !adults || !children) {
       router.push('/');
       return;
     }
 
-    // Fetch property info
-    const fetchProperty = async () => {
+    // Fetch all properties in the selected city
+    const fetchPropertiesAndRooms = async () => {
       setPropertyLoading(true);
-      try {
-        const res = await fetch('/api/cloudbeds-properties');
-        const data = await res.json();
-        if (data.success && Array.isArray(data.properties)) {
-          const found = data.properties.find((p: { propertyId: string, propertyName: string }) => p.propertyId === propertyId);
-          setProperty(found || null);
-        } else {
-          setProperty(null);
-        }
-      } catch {
-        setProperty(null);
-      }
-      setPropertyLoading(false);
-    };
-    fetchProperty();
-
-    // Fetch live room types from Cloudbeds
-    const fetchRooms = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyId}`);
-        const data = await res.json();
-        if (data.success) {
-          const mapped = data.roomTypes.map((room: {
-            roomTypeID: string;
-            roomTypeName: string;
-            roomTypeDescription: string;
-            maxGuests: number;
-            roomTypePhotos?: string[];
-            roomTypeFeatures?: Record<string, string>;
-          }) => ({
-            id: room.roomTypeID,
-            name: room.roomTypeName,
-            description: room.roomTypeDescription,
-            price: 0, // Will be set after fetching rates
-            maxGuests: room.maxGuests,
-            available: true, // You can check availability separately if needed
-            images: room.roomTypePhotos || [],
-            amenities: Object.values(room.roomTypeFeatures || {})
-          }));
-          setResults(mapped);
-        } else {
+        const propRes = await fetch('/api/cloudbeds-properties');
+        const propData = await propRes.json();
+        if (!propData.success || !Array.isArray(propData.properties)) {
+          setProperty(null);
           setResults([]);
-          setError('Failed to load rooms');
+          setRates({});
+          setPropertyLoading(false);
+          setLoading(false);
+          setError('Failed to load properties');
+          return;
         }
+        // Filter properties by city
+        const cityProperties = propData.properties.filter((p: { city: string }) => p.city === city);
+        if (cityProperties.length === 0) {
+          setProperty(null);
+          setResults([]);
+          setRates({});
+          setPropertyLoading(false);
+          setLoading(false);
+          setError('No properties found in this city');
+          return;
+        }
+        setProperty({ propertyId: '', propertyName: city }); // For header display
+        // Fetch rooms and rates for all properties in parallel
+        const allRooms: RoomResult[] = [];
+        const allRates: { [roomTypeID: string]: number } = {};
+        await Promise.all(cityProperties.map(async (property: { propertyId: string; propertyName: string; city: string }) => {
+          // Fetch room types
+          const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
+          const roomData = await roomRes.json();
+          if (roomData.success && Array.isArray(roomData.roomTypes)) {
+            // Fetch rates for this property
+            const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
+            const rateData = await rateRes.json();
+            let propertyRates: { [roomTypeID: string]: number } = {};
+            if (rateData.success && Array.isArray(rateData.ratePlans)) {
+              rateData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
+                if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
+                  propertyRates[rate.roomTypeID] = rate.totalRate;
+                  allRates[rate.roomTypeID] = rate.totalRate;
+                }
+              });
+            }
+            // Map rooms and attach property info
+            roomData.roomTypes.forEach((room: any) => {
+              allRooms.push({
+                id: room.roomTypeID,
+                name: room.roomTypeName,
+                description: room.roomTypeDescription,
+                price: propertyRates[room.roomTypeID] || 0,
+                maxGuests: room.maxGuests,
+                available: propertyRates[room.roomTypeID] !== undefined,
+                images: room.roomTypePhotos || [],
+                amenities: Object.values(room.roomTypeFeatures || {}),
+                propertyName: property.propertyName,
+                propertyId: property.propertyId,
+                city: property.city,
+              });
+            });
+          }
+        }));
+        setResults(allRooms);
+        setRates(allRates);
+        setPropertyLoading(false);
+        setLoading(false);
       } catch {
+        setProperty(null);
         setResults([]);
+        setRates({});
+        setPropertyLoading(false);
+        setLoading(false);
         setError('Failed to load rooms');
       }
-      setLoading(false);
     };
-    fetchRooms();
-
-    // Fetch rates for the property and dates
-    const fetchRates = async () => {
-      if (!propertyId || !startDate || !endDate) return;
-      try {
-        const res = await fetch(`/api/cloudbeds/rate-plans?propertyId=${propertyId}&startDate=${startDate}&endDate=${endDate}`);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.ratePlans)) {
-          // Map: roomTypeID -> direct booking rate only
-          const rateMap: { [roomTypeID: string]: number } = {};
-          data.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
-            if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
-              rateMap[rate.roomTypeID] = rate.totalRate;
-            }
-          });
-          setRates(rateMap);
-        } else {
-          setRates({});
-        }
-      } catch {
-        setRates({});
-      }
-    };
-    fetchRates();
-  }, [propertyId, startDate, endDate, adults, children, router]);
+    fetchPropertiesAndRooms();
+  }, [city, startDate, endDate, adults, children, router]);
 
   useEffect(() => {
     if (!selectedRoomImages) return;
@@ -168,7 +171,7 @@ function SearchResults() {
     }
   }, [carouselIndex, selectedRoomImages]);
 
-  const handleBookNow = (roomId: string) => {
+  const handleBookNow = (roomId: string, propertyId: string) => {
     router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&adults=${adults}&children=${children}`);
   };
 
@@ -250,6 +253,7 @@ function SearchResults() {
                 <div className="p-6 md:w-2/3 flex flex-col">
                   <div className="flex-grow">
                     <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
+                    <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {room.amenities.map((amenity, index) => (
                         <span 
@@ -273,7 +277,7 @@ function SearchResults() {
                       </p>
                     </div>
                     <Button 
-                      onClick={() => handleBookNow(room.id)}
+                      onClick={() => handleBookNow(room.id, room.propertyId)}
                       disabled={!room.available}
                       size="lg"
                       variant="outline"
@@ -287,8 +291,6 @@ function SearchResults() {
             </Card>
           ))}
         </div>
-        {/* Property Information Section */}
-        {propertyId && <PropertyInformation propertyId={propertyId} />}
         {selectedRoomImages && (() => {
           console.log('Modal images:', selectedRoomImages);
           return (

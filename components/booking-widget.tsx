@@ -12,7 +12,7 @@ import { DayPicker } from "react-day-picker"
 
 interface BookingWidgetProps {
   initialSearchParams?: {
-    propertyId: string;
+    city: string;
     startDate: string;
     endDate: string;
     adults: string;
@@ -23,13 +23,14 @@ interface BookingWidgetProps {
 export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
-    propertyId: initialSearchParams?.propertyId || '',
+    city: initialSearchParams?.city || '',
     startDate: initialSearchParams?.startDate || '',
     endDate: initialSearchParams?.endDate || '',
     adults: initialSearchParams?.adults || '2',
     children: initialSearchParams?.children || '0',
   })
-  const [properties, setProperties] = useState<{ propertyId: string, propertyName: string }[]>([])
+  const [properties, setProperties] = useState<{ propertyId: string, propertyName: string, city: string }[]>([])
+  const [cities, setCities] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   // Add disabled dates logic
@@ -45,27 +46,32 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         const data = await res.json()
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
           setProperties(data.properties)
-          if (!initialSearchParams?.propertyId) {
-          setSearchParams(prev => ({ ...prev, propertyId: data.properties[0].propertyId }))
+          // Get unique cities as string[]
+          const uniqueCities = Array.from(new Set(data.properties.map((p: { city: string }) => p.city))) as string[]
+          setCities(uniqueCities)
+          if (!initialSearchParams?.city) {
+            setSearchParams(prev => ({ ...prev, city: String(uniqueCities[0]) }))
           }
         } else {
-          setProperties([{ propertyId: '', propertyName: 'No properties found' }])
+          setProperties([])
+          setCities([])
         }
       } catch {
-        setProperties([{ propertyId: '', propertyName: 'Failed to load properties' }])
+        setProperties([])
+        setCities([])
       }
       setLoading(false)
     }
     fetchProperties()
-  }, [initialSearchParams?.propertyId])
+  }, [initialSearchParams?.city])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchParams.propertyId || !searchParams.startDate || !searchParams.endDate) {
+    if (!searchParams.city || !searchParams.startDate || !searchParams.endDate) {
       return
     }
     const queryString = new URLSearchParams({
-      propertyId: searchParams.propertyId,
+      city: searchParams.city,
       startDate: searchParams.startDate,
       endDate: searchParams.endDate,
       adults: searchParams.adults,
@@ -74,32 +80,30 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     router.push(`/search?${queryString}`)
   }
 
-  const selectedProperty = properties.find(p => p.propertyId === searchParams.propertyId)
-
   return (
     <div className="bg-white rounded-full shadow-lg border border-gray-200 max-w-6xl mx-auto">
       <form onSubmit={handleSearch} className="flex items-center divide-x divide-gray-200">
-        {/* Where */}
+        {/* City */}
         <div className="relative flex-[2] min-w-[240px] pl-8 pr-4 py-3">
-          <label className="block text-sm font-medium text-gray-800">Where</label>
+          <label className="block text-sm font-medium text-gray-800">City</label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild disabled={loading}>
               <Button variant="ghost" className="w-full justify-start p-0 font-normal">
-                {selectedProperty?.propertyName || 'Select a property'}
+                {searchParams.city || 'Select a city'}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[240px]">
-              {properties.map((property) => (
+              {cities.map((city) => (
                 <DropdownMenuItem
-                  key={property.propertyId}
-                  onClick={() => setSearchParams(prev => ({ ...prev, propertyId: property.propertyId }))}
+                  key={city}
+                  onClick={() => setSearchParams(prev => ({ ...prev, city }))}
                 >
-                  {property.propertyName}
+                  {city}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          </div>
+        </div>
 
         {/* Check in */}
         <div className="relative flex-1 px-6 py-3">
@@ -168,7 +172,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
               />
             </PopoverContent>
           </Popover>
-          </div>
+        </div>
 
         {/* Check out */}
         <div className="relative flex-1 px-6 py-3">
@@ -234,7 +238,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
               />
             </PopoverContent>
           </Popover>
-          </div>
+        </div>
 
         {/* Who */}
         <div className="relative flex-1 px-6 py-3">
@@ -282,13 +286,13 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
 
         {/* Search Button */}
         <div className="pr-2 pl-4 py-2">
-        <Button 
-          type="submit" 
+          <Button 
+            type="submit" 
             size="icon"
             className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-        >
+          >
             <Search className="w-5 h-5" />
-        </Button>
+          </Button>
         </div>
       </form>
     </div>

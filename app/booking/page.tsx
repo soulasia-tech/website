@@ -102,6 +102,7 @@ function BookingForm() {
   const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
   const [selectedRateID, setSelectedRateID] = useState<string>('');
+  const [city, setCity] = useState<string | null>(searchParams.get('city'));
 
   // Log propertyId and searchParams for debugging
   useEffect(() => {
@@ -282,6 +283,23 @@ function BookingForm() {
       swiperRef.current.slideTo(carouselIndex);
     }
   }, [carouselIndex, carouselOpen]);
+
+  // Fetch city from propertyId if missing
+  useEffect(() => {
+    if (!city) {
+      const propertyId = searchParams.get('propertyId');
+      if (propertyId) {
+        fetch('/api/cloudbeds-properties')
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && Array.isArray(data.properties)) {
+              const found = data.properties.find((p: { propertyId: string }) => p.propertyId === propertyId);
+              if (found && found.city) setCity(found.city);
+            }
+          });
+      }
+    }
+  }, [city, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -470,9 +488,11 @@ function BookingForm() {
               onClick={() => {
                 // Use all current search params to reconstruct the search URL
                 const params = new URLSearchParams();
-                searchParams.forEach((value, key) => {
-                  params.set(key, value);
-                });
+                if (city) params.set('city', city);
+                if (searchParams.get('startDate')) params.set('startDate', searchParams.get('startDate')!);
+                if (searchParams.get('endDate')) params.set('endDate', searchParams.get('endDate')!);
+                if (searchParams.get('adults')) params.set('adults', searchParams.get('adults')!);
+                if (searchParams.get('children')) params.set('children', searchParams.get('children')!);
                 router.push(`/search?${params.toString()}`);
               }}
               className="flex items-center gap-2"
