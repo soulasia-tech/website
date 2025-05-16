@@ -105,7 +105,7 @@ function SearchResults() {
             // Fetch rates for this property
             const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
             const rateData = await rateRes.json();
-            let propertyRates: { [roomTypeID: string]: number } = {};
+            const propertyRates: { [roomTypeID: string]: number } = {};
             if (rateData.success && Array.isArray(rateData.ratePlans)) {
               rateData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
                 if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
@@ -115,7 +115,14 @@ function SearchResults() {
               });
             }
             // Map rooms and attach property info
-            roomData.roomTypes.forEach((room: any) => {
+            roomData.roomTypes.forEach((room: {
+              roomTypeID: string;
+              roomTypeName: string;
+              roomTypeDescription: string;
+              maxGuests: number;
+              roomTypePhotos?: string[];
+              roomTypeFeatures?: Record<string, string>;
+            }) => {
               allRooms.push({
                 id: room.roomTypeID,
                 name: room.roomTypeName,

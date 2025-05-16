@@ -29,7 +29,6 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     adults: initialSearchParams?.adults || '2',
     children: initialSearchParams?.children || '0',
   })
-  const [properties, setProperties] = useState<{ propertyId: string, propertyName: string, city: string }[]>([])
   const [cities, setCities] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -45,19 +44,16 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         const res = await fetch('/api/cloudbeds-properties')
         const data = await res.json()
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
-          setProperties(data.properties)
           // Get unique cities as string[]
-          const uniqueCities = Array.from(new Set(data.properties.map((p: { city: string }) => p.city))) as string[]
+          const uniqueCities: string[] = Array.from(new Set(data.properties.map((p: { city: string }) => String(p.city))))
           setCities(uniqueCities)
           if (!initialSearchParams?.city) {
-            setSearchParams(prev => ({ ...prev, city: String(uniqueCities[0]) }))
+            setSearchParams(prev => ({ ...prev, city: uniqueCities[0] || '' }))
           }
         } else {
-          setProperties([])
           setCities([])
         }
       } catch {
-        setProperties([])
         setCities([])
       }
       setLoading(false)
