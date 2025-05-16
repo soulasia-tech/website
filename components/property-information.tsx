@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { LucideIcon, icons } from "lucide-react";
-import dynamic from "next/dynamic";
-import type { MapContainerProps, TileLayerProps, MarkerProps, PopupProps } from "react-leaflet";
+import Map, { Marker, Popup } from 'react-map-gl';
 
 interface PropertyInformationProps {
   propertyId: string;
@@ -27,24 +26,6 @@ const amenityIconMap: Record<string, LucideIcon> = {
   "24-hour check-in": icons.Clock,
   "All rooms disinfected daily": icons.Sparkles,
 };
-
-// Dynamically import MapContainer and Marker to avoid SSR issues
-const MapContainer = dynamic<MapContainerProps>(
-  () => import("react-leaflet").then(mod => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic<TileLayerProps>(
-  () => import("react-leaflet").then(mod => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic<MarkerProps>(
-  () => import("react-leaflet").then(mod => mod.Marker),
-  { ssr: false }
-);
-const Popup = dynamic<PopupProps>(
-  () => import("react-leaflet").then(mod => mod.Popup),
-  { ssr: false }
-);
 
 // Define interfaces for property data
 interface PropertyImage {
@@ -324,27 +305,26 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
             </div>
             {/* Map */}
             <div className="w-full md:w-1/2 min-h-[256px] h-64 rounded-xl overflow-hidden shadow bg-white flex items-center justify-center" style={{ minWidth: 240, minHeight: 200, position: 'relative', zIndex: 1 }}>
-              {mapPosition && MapContainer ? (
-                <MapContainer
-                  {...{
-                    center: mapPosition,
-                    zoom: 15,
-                    scrollWheelZoom: false,
-                    style: { width: "100%", height: "100%" }
-                  } as import('react-leaflet').MapContainerProps}
+              {mapPosition ? (
+                <Map
+                  mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                  initialViewState={{ longitude: mapPosition.lng, latitude: mapPosition.lat, zoom: 15 }}
+                  style={{ width: '100%', height: '100%' }}
+                  mapStyle="mapbox://styles/mapbox/streets-v11"
                 >
-                  <TileLayer
-                    {...{
-                      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    } as import('react-leaflet').TileLayerProps}
-                  />
-                  <Marker position={mapPosition}>
-                    <Popup>
-                      {property.propertyName || "Property Location"}
-                    </Popup>
+                  <Marker longitude={mapPosition.lng} latitude={mapPosition.lat} anchor="bottom">
+                    <div style={{ fontSize: 32, color: '#3b82f6' }}>📍</div>
                   </Marker>
-                </MapContainer>
+                  <Popup
+                    longitude={mapPosition.lng}
+                    latitude={mapPosition.lat}
+                    anchor="top"
+                    closeOnClick={false}
+                    focusAfterOpen={false}
+                  >
+                    {property.propertyName || "Property Location"}
+                  </Popup>
+                </Map>
               ) : (
                 <span className="text-gray-400 text-sm text-center px-2">Location not found on map.</span>
               )}
