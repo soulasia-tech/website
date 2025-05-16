@@ -147,12 +147,79 @@ export async function POST(request: Request) {
       }, { status: response.status });
     }
 
+    // --- Handle payment-only requests ---
+    const addPayment = formData.get('addPayment');
+    const amount = formData.get('amount');
+    const reservationID = formData.get('reservationID');
+    if (addPayment && amount && reservationID && propertyId) {
+      try {
+        const { addPaymentToReservation, getReservation } = await import('@/lib/cloudbeds');
+        // Fetch reservation details to get grand total
+        let paidAmount = Number(amount);
+        try {
+          const reservation = await getReservation(propertyId.toString(), reservationID.toString());
+          paidAmount = reservation?.grandTotal || reservation?.grand_total || reservation?.total || paidAmount;
+        } catch (err) {
+          console.error('Failed to fetch reservation or extract grand total, falling back to original amount:', err);
+        }
+        console.log('Posting payment to Cloudbeds (payment-only request):', { propertyId, reservationID, paidAmount });
+        const paymentResult = await addPaymentToReservation({
+          propertyId: propertyId.toString(),
+          reservationId: reservationID.toString(),
+          amount: Number(paidAmount),
+          paymentMethod: 'credit_card',
+        });
+        console.log('Payment posted to Cloudbeds:', paymentResult);
+        return NextResponse.json({ success: true, paymentResult });
+      } catch (err) {
+        console.error('Error adding payment to reservation (payment-only request):', err);
+        return NextResponse.json({ success: false, paymentError: err instanceof Error ? err.message : String(err) }, { status: 500 });
+      }
+    }
+
+    // --- Add payment to reservation if amount is present ---
+    let paymentResult = null;
+    if (data.reservationID && amount) {
+      try {
+        // Dynamically import addPaymentToReservation and getReservation to avoid circular deps
+        const { addPaymentToReservation, getReservation } = await import('@/lib/cloudbeds');
+        // Fetch reservation details to get grand total
+        let paidAmount = Number(amount);
+        try {
+          const reservation = await getReservation(propertyId.toString(), data.reservationID);
+          paidAmount = reservation?.grandTotal || reservation?.grand_total || reservation?.total || paidAmount;
+        } catch (err) {
+          console.error('Failed to fetch reservation or extract grand total, falling back to original amount:', err);
+        }
+        console.log('Posting payment to Cloudbeds:', { propertyId, reservationID: data.reservationID, paidAmount });
+        paymentResult = await addPaymentToReservation({
+          propertyId: propertyId.toString(),
+          reservationId: data.reservationID,
+          amount: Number(paidAmount),
+          paymentMethod: 'credit_card',
+        });
+        console.log('Payment posted to Cloudbeds:', paymentResult);
+      } catch (err) {
+        console.error('Error adding payment to reservation:', err);
+        // Still return reservation, but include payment error
+        return NextResponse.json({
+          success: true,
+          data: {
+            reservationID: data.reservationID,
+            status: data.status
+          },
+          paymentError: err instanceof Error ? err.message : String(err)
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         reservationID: data.reservationID,
         status: data.status
-      }
+      },
+      paymentResult
     });
 
   } catch (error) {

@@ -61,7 +61,7 @@ function ConfirmationContent() {
         fd.append('guestFirstName', bookingPayload.bookingData.firstName);
         fd.append('guestLastName', bookingPayload.bookingData.lastName);
         fd.append('guestEmail', bookingPayload.bookingData.email);
-        fd.append('guestCountry', bookingPayload.bookingData.country);
+        fd.append('guestCountry', bookingPayload.bookingData.country || 'MY');
         fd.append('guestZip', '00000');
         fd.append('paymentMethod', 'credit_card'); // Mark as paid
         fd.append('sendEmailConfirmation', 'true');
@@ -77,7 +77,11 @@ function ConfirmationContent() {
           {
             roomTypeID: bookingPayload.bookingData.roomId,
             roomID: bookingPayload.bookingData.roomId,
-            quantity: String(bookingPayload.bookingData.guests)
+            quantity: String(
+              typeof bookingPayload.bookingData.guests === 'number' && bookingPayload.bookingData.guests > 0
+                ? bookingPayload.bookingData.guests
+                : 1
+            )
           }
         ]));
         fd.append('children', JSON.stringify([

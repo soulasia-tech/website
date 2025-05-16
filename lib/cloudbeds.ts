@@ -88,7 +88,25 @@ export async function getHotelDetails(propertyId: string) {
     throw new Error(`Cloudbeds API error: ${data.message}`);
   }
   return data.data;
-} 
+}
+
+export async function getReservation(propertyId: string, reservationId: string) {
+  const property = await getCloudbedsProperty(propertyId);
+  const url = `${CLOUDBEDS_API_BASE}/getReservation?propertyID=${propertyId}&reservationID=${reservationId}`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${property.api_key}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Cloudbeds API error: ${res.status} ${res.statusText}`);
+  }
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(`Cloudbeds API error: ${data.message}`);
+  }
+  return data.data;
+}
 
 export interface BookingData {
   propertyId: string;
@@ -180,7 +198,7 @@ export async function addPaymentToReservation({ propertyId, reservationId, amoun
   note?: string;
 }) {
   const property = await getCloudbedsProperty(propertyId);
-  const cloudbedsUrl = 'https://hotels.cloudbeds.com/api/v1.1/addPayment';
+  const cloudbedsUrl = 'https://hotels.cloudbeds.com/api/v1.1/postPayment';
   const requestHeaders = new Headers();
   requestHeaders.append('Authorization', `Bearer ${property.api_key}`);
   requestHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
@@ -191,13 +209,35 @@ export async function addPaymentToReservation({ propertyId, reservationId, amoun
   params.append('amount', amount.toString());
   params.append('paymentMethod', paymentMethod);
   params.append('note', note);
+  params.append('type', 'Billplz');
+
+  // Detailed logging
+  console.log('Posting payment to Cloudbeds:', {
+    url: cloudbedsUrl,
+    propertyId,
+    reservationId,
+    amount,
+    paymentMethod,
+    note,
+    type: 'Billplz',
+    params: params.toString()
+  });
 
   const response = await fetch(cloudbedsUrl, {
     method: 'POST',
     headers: requestHeaders,
     body: params,
   });
-  const data = await response.json();
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+    console.log('Cloudbeds payment API JSON response:', data);
+  } else {
+    const text = await response.text();
+    console.error('Cloudbeds payment API returned non-JSON:', text);
+    throw new Error('Cloudbeds payment API returned non-JSON: ' + text);
+  }
   if (!response.ok) {
     throw new Error(data.message || 'Failed to add payment to reservation');
   }

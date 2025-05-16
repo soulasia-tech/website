@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyPayment } from '@/lib/billplz';
-import { addPaymentToReservation } from '@/lib/cloudbeds';
+import { addPaymentToReservation, getReservation } from '@/lib/cloudbeds';
 import { saveBookingInDB } from '@/lib/booking';
 
 export async function POST(request: Request) {
@@ -32,7 +32,21 @@ export async function POST(request: Request) {
     }
 
     // Add payment to reservation in Cloudbeds
-    await addPaymentToReservation({ propertyId, reservationId: reservationID, amount: amount || 100, paymentMethod: 'credit_card' });
+    // Fetch reservation details from Cloudbeds to get the grand total
+    let paidAmount = amount || 100;
+    try {
+      const reservation = await getReservation(propertyId, reservationID);
+      // Try to extract the grand total (try several possible fields)
+      paidAmount =
+        reservation?.grandTotal ||
+        reservation?.grand_total ||
+        reservation?.total ||
+        reservation?.balanceDue ||
+        paidAmount;
+    } catch (err) {
+      console.error('Failed to fetch reservation or extract grand total, falling back to Billplz amount:', err);
+    }
+    await addPaymentToReservation({ propertyId, reservationId: reservationID, amount: paidAmount, paymentMethod: 'credit_card' });
 
     // Save booking in DB (mock or real)
     const booking = await saveBookingInDB({ userId, reservationId: reservationID, amount });

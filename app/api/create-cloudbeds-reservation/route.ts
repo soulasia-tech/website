@@ -51,17 +51,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: cbData.message || 'Failed to create reservation in Cloudbeds', cloudbedsResponse: cbData }, { status: 500 });
     }
     // Optionally add payment if requested
-    const addPayment = formData.get('addPayment');
     const amount = formData.get('amount');
     let paymentResult = null;
-    if (addPayment && addPayment === 'true' && cbData.reservationID && amount) {
+    if (cbData.reservationID && amount) {
       try {
+        console.log('Posting payment to Cloudbeds:', { propertyID, reservationID: cbData.reservationID, amount });
         paymentResult = await addPaymentToReservation({
           propertyId: propertyID.toString(),
           reservationId: cbData.reservationID,
           amount: Number(amount),
           paymentMethod: 'credit_card',
         });
+        console.log('Payment posted to Cloudbeds:', paymentResult);
       } catch (err) {
         console.error('Error adding payment to reservation:', err);
         // Still return reservation, but include payment error
