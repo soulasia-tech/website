@@ -1,5 +1,5 @@
 "use client";
-declare const process: any;
+declare const process: { env: Record<string, string | undefined> };
 import { useEffect, useState } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
 import { PropertyCard } from '@/components/property-card';
@@ -12,12 +12,32 @@ interface PropertyMarker {
   address: string;
 }
 
-const KL_CENTER = { lat: 3.1579, lng: 101.7123 };
+interface Property {
+  propertyId: string;
+  propertyName: string;
+  location: string;
+  photos: { url: string; caption?: string }[];
+  pricePerDay?: number;
+}
+
+interface Room {
+  roomTypeID: string;
+  roomTypeName: string;
+  propertyName: string;
+  roomTypePhotos: { url: string; caption?: string }[];
+  rate?: number;
+}
+
+interface RatePlan {
+  roomTypeID: string;
+  totalRate: number;
+}
 
 function AllPropertiesMap() {
   const [propertyMarkers, setPropertyMarkers] = useState<PropertyMarker[]>([]);
-  const [center, setCenter] = useState<{ lat: number; lng: number }>(KL_CENTER);
+  const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Malaysia bounding box (approximate)
   const MALAYSIA_BOUNDS = {
@@ -29,6 +49,7 @@ function AllPropertiesMap() {
 
   useEffect(() => {
     const fetchAllProperties = async () => {
+      setLoading(true);
       const res = await fetch('/api/cloudbeds-properties');
       const data = await res.json();
       if (!data.success) return;
@@ -73,14 +94,30 @@ function AllPropertiesMap() {
         const avgLat = markers.reduce((sum, m) => sum + m.lat, 0) / markers.length;
         const avgLng = markers.reduce((sum, m) => sum + m.lng, 0) / markers.length;
         setCenter({ lat: avgLat, lng: avgLng });
+      } else {
+        setCenter(null);
       }
+      setLoading(false);
     };
     fetchAllProperties();
-  }, []);
+  }, [MALAYSIA_BOUNDS.maxLat, MALAYSIA_BOUNDS.maxLng, MALAYSIA_BOUNDS.minLat, MALAYSIA_BOUNDS.minLng]);
 
+  if (loading) {
+    return (
+      <div className="w-full h-[80vh] rounded-xl shadow bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+      </div>
+    );
+  }
+  if (!center || propertyMarkers.length === 0) {
+    return (
+      <div className="w-full h-[80vh] rounded-xl shadow bg-white flex items-center justify-center text-gray-400">
+        No properties found on the map.
+      </div>
+    );
+  }
   return (
     <div className="w-full h-[80vh] rounded-xl shadow bg-white">
-      {/* @ts-ignore: process.env is allowed for NEXT_PUBLIC_ variables in Next.js client components */}
       <Map
         key={center.lat + ',' + center.lng}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -121,8 +158,8 @@ function AllPropertiesMap() {
 
 export default function AllLocationsPage() {
   // Fetch properties
-  const [properties, setProperties] = useState<any[]>([]);
-  const [rooms, setRooms] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -131,19 +168,19 @@ export default function AllLocationsPage() {
       // Fetch properties
       const propertiesRes = await fetch('/api/cloudbeds-properties');
       const propertiesData = await propertiesRes.json();
-      let allProperties: any[] = [];
+      const allProperties: Property[] = [];
       if (propertiesData.success) {
         for (const property of propertiesData.properties) {
           const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
           const detailsData = await detailsRes.json();
           if (detailsData.success && detailsData.hotel) {
             const hotel = detailsData.hotel;
-            const allPhotos: any[] = [];
+            const allPhotos: { url: string; caption?: string }[] = [];
             if (hotel.propertyImage && hotel.propertyImage[0]) {
               allPhotos.push({ url: hotel.propertyImage[0].image, caption: 'Main Property Image' });
             }
             if (hotel.propertyAdditionalPhotos) {
-              allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: any) => ({ url: photo.image, caption: '' })));
+              allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: { image: string }) => ({ url: photo.image, caption: '' })));
             }
             const address = hotel.propertyAddress;
             const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
@@ -160,7 +197,7 @@ export default function AllLocationsPage() {
       setProperties(allProperties);
 
       // Fetch rooms
-      let allRooms: any[] = [];
+      const allRooms: Room[] = [];
       if (propertiesData.success) {
         for (const property of propertiesData.properties) {
           const roomsRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
@@ -170,19 +207,19 @@ export default function AllLocationsPage() {
             const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
             const ratesRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
             const ratesData = await ratesRes.json();
-            const rateMap: any = {};
+            const rateMap: Record<string, number> = {};
             if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-              ratesData.ratePlans.forEach((rate: any) => {
+              (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
                 if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
                   rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
                 }
               });
             }
-            const transformedRooms = roomsData.roomTypes.map((room: any) => ({
+            const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
               roomTypeID: room.roomTypeID,
               roomTypeName: room.roomTypeName,
               propertyName: property.propertyName,
-              roomTypePhotos: room.roomTypePhotos || [],
+              roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
               rate: rateMap[room.roomTypeID],
             }));
             allRooms.push(...transformedRooms);
@@ -208,7 +245,7 @@ export default function AllLocationsPage() {
                 {loading ? (
                   [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
                 ) : (
-                  properties.map((property: any) => (
+                  properties.map((property) => (
                     <PropertyCard
                       key={property.propertyId}
                       propertyName={property.propertyName}
@@ -226,12 +263,12 @@ export default function AllLocationsPage() {
                 {loading ? (
                   [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
                 ) : (
-                  rooms.map((room: any) => (
+                  rooms.map((room) => (
                     <RoomCard
                       key={room.roomTypeID}
                       roomName={room.roomTypeName}
                       propertyName={room.propertyName}
-                      photos={room.roomTypePhotos.map((url: any) => ({ url, caption: '' }))}
+                      photos={room.roomTypePhotos}
                       rate={room.rate}
                     />
                   ))
