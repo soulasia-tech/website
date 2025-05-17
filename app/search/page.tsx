@@ -48,6 +48,7 @@ function SearchResults() {
   const endDate = searchParams.get('endDate');
   const adults = searchParams.get('adults');
   const children = searchParams.get('children');
+  const propertyIdParam = searchParams.get('propertyId');
 
   // Create initial search params object for BookingWidget
   const initialSearchParams = {
@@ -60,12 +61,12 @@ function SearchResults() {
 
   useEffect(() => {
     // Validate search parameters
-    if (!city || !startDate || !endDate || !adults || !children) {
+    if ((!city && !propertyIdParam) || !startDate || !endDate || !adults || !children) {
       router.push('/');
       return;
     }
 
-    // Fetch all properties in the selected city
+    // Fetch all properties in the selected city or by propertyId
     const fetchPropertiesAndRooms = async () => {
       setPropertyLoading(true);
       setLoading(true);
@@ -82,22 +83,26 @@ function SearchResults() {
           setError('Failed to load properties');
           return;
         }
-        // Filter properties by city
-        const cityProperties = propData.properties.filter((p: { city: string }) => p.city === city);
-        if (cityProperties.length === 0) {
+        let filteredProperties;
+        if (propertyIdParam) {
+          filteredProperties = propData.properties.filter((p: { propertyId: string }) => p.propertyId === propertyIdParam);
+        } else {
+          filteredProperties = propData.properties.filter((p: { city: string }) => p.city === city);
+        }
+        if (filteredProperties.length === 0) {
           setProperty(null);
           setResults([]);
           setRates({});
           setPropertyLoading(false);
           setLoading(false);
-          setError('No properties found in this city');
+          setError(propertyIdParam ? 'No property found for this ID' : 'No properties found in this city');
           return;
         }
-        setProperty({ propertyId: '', propertyName: city }); // For header display
-        // Fetch rooms and rates for all properties in parallel
+        setProperty(propertyIdParam ? { propertyId: propertyIdParam, propertyName: filteredProperties[0].propertyName } : { propertyId: '', propertyName: city });
+        // Fetch rooms and rates for all filtered properties in parallel
         const allRooms: RoomResult[] = [];
         const allRates: { [roomTypeID: string]: number } = {};
-        await Promise.all(cityProperties.map(async (property: { propertyId: string; propertyName: string; city: string }) => {
+        await Promise.all(filteredProperties.map(async (property: { propertyId: string; propertyName: string; city: string }) => {
           // Fetch room types
           const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
           const roomData = await roomRes.json();
@@ -153,7 +158,7 @@ function SearchResults() {
       }
     };
     fetchPropertiesAndRooms();
-  }, [city, startDate, endDate, adults, children, router]);
+  }, [city, propertyIdParam, startDate, endDate, adults, children, router]);
 
   useEffect(() => {
     if (!selectedRoomImages) return;

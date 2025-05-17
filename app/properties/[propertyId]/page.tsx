@@ -1,9 +1,12 @@
 "use client";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Map, { Marker } from 'react-map-gl';
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
 
 const propertyImages = [
   // Blank/placeholder images
@@ -22,6 +25,7 @@ export default function PropertiesPage() {
   const propertyId = params.propertyId || "270917";
   const [carouselIndex, setCarouselIndex] = useState(0);
   const total = propertyImages.length;
+  const router = useRouter();
 
   // Get static map position
   const mapPosition = propertyLocationMap[propertyId as string];
@@ -40,6 +44,24 @@ export default function PropertiesPage() {
   };
   const handleNext = () => {
     setCarouselIndex((prev) => (prev + 1) % total);
+  };
+
+  // Booking widget state
+  const [checkIn, setCheckIn] = useState<Date | undefined>();
+  const [checkOut, setCheckOut] = useState<Date | undefined>();
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+
+  const handleBookNow = () => {
+    if (!checkIn || !checkOut) return;
+    const params = new URLSearchParams({
+      propertyId: propertyId.toString(),
+      startDate: checkIn.toISOString().slice(0, 10),
+      endDate: checkOut.toISOString().slice(0, 10),
+      adults: adults.toString(),
+      children: children.toString(),
+    });
+    router.push(`/search?${params.toString()}`);
   };
 
   return (
@@ -161,9 +183,39 @@ export default function PropertiesPage() {
           {/* Right: Sticky Booking Widget */}
           <div className="w-full md:w-[340px] flex-shrink-0 md:pl-4">
             <div className="md:sticky md:top-24">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg px-6 py-4 shadow-sm">
-                <div className="text-lg font-semibold text-gray-800 mb-2">Booking Widget</div>
-                <div className="text-gray-400 text-sm">(Coming soon)</div>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-6 py-6 shadow-sm flex flex-col gap-4">
+                <div className="text-lg font-semibold text-gray-800 mb-2">Book your stay</div>
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+                    <DatePicker value={checkIn} onChange={setCheckIn} placeholder="Select date" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                    <DatePicker value={checkOut} onChange={setCheckOut} placeholder="Select date" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Adults</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={adults}
+                      onChange={e => setAdults(Number(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Children</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={children}
+                      onChange={e => setChildren(Number(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+                  <Button className="mt-2 w-full" onClick={handleBookNow}>Book Now</Button>
+                </div>
               </div>
             </div>
           </div>
