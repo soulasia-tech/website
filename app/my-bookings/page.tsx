@@ -5,6 +5,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Info } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface BookingDetailsModalProps {
   booking: Booking | null;
@@ -128,7 +132,6 @@ export default function MyBookingsPage() {
   const [error, setError] = useState<BookingError | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [cloudbedsDetailsMap, setCloudbedsDetailsMap] = useState<Record<string, CloudbedsReservationDetails>>({});
-  const [loadingDetails, setLoadingDetails] = useState(false);
   
   const fetchBookings = useCallback(async () => {
     try {
@@ -158,7 +161,6 @@ export default function MyBookingsPage() {
   // Fetch Cloudbeds details for all bookings
   useEffect(() => {
     const fetchAllCloudbedsDetails = async () => {
-      setLoadingDetails(true);
       const detailsMap: Record<string, CloudbedsReservationDetails> = {};
       await Promise.all(
         bookings.map(async (booking) => {
@@ -174,7 +176,6 @@ export default function MyBookingsPage() {
         })
       );
       setCloudbedsDetailsMap(detailsMap);
-      setLoadingDetails(false);
     };
     if (bookings.length > 0) {
       fetchAllCloudbedsDetails();
@@ -202,51 +203,42 @@ export default function MyBookingsPage() {
           )}
 
           {!error && bookings.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Room
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Check In
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Check Out
-                    </th>
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {bookings.map((booking) => {
-                    const cb = cloudbedsDetailsMap[booking.id];
-                    return (
-                      <tr 
-                        key={booking.id}
-                        onClick={() => setSelectedBooking(booking)}
-                        className="cursor-pointer hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.assigned?.[0]?.roomName || 'Room info unavailable'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.startDate || formatDate(booking.check_in)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.endDate || formatDate(booking.check_out)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {loadingDetails && <div className="text-center py-4 text-gray-500">Loading booking details...</div>}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {bookings.map((booking) => {
+                const cb = cloudbedsDetailsMap[booking.id];
+                const imageUrl = "/placeholder-property.jpg";
+                return (
+                  <div 
+                    key={booking.id}
+                    onClick={() => setSelectedBooking(booking)}
+                    className="cursor-pointer bg-white rounded-xl shadow hover:shadow-md transition p-6 flex flex-col gap-4 border border-gray-100 hover:border-primary/30"
+                  >
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden mb-2 bg-gray-100">
+                      <Image
+                        src={imageUrl}
+                        alt="Room preview"
+                        fill
+                        className="object-cover w-full h-full"
+                        style={{ minHeight: 120 }}
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                      <span className={`absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-full ${
+                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {booking.status}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1">
+                      <div className="font-semibold text-lg truncate">{cb?.assigned?.[0]?.roomName || 'Room info unavailable'}</div>
+                      <div className="text-gray-500 text-sm">{cb?.startDate || formatDate(booking.check_in)} - {cb?.endDate || formatDate(booking.check_out)}</div>
+                      <div className="text-gray-500 text-sm">Guests: {booking.number_of_guests}</div>
+                      <div className="text-gray-900 font-bold mt-1">{cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -257,6 +249,17 @@ export default function MyBookingsPage() {
         isOpen={!!selectedBooking}
         onClose={() => setSelectedBooking(null)}
       />
+      <div className="mt-12 flex flex-col items-center gap-6">
+        <Button asChild size="lg">
+          <Link href="/">Book Your Next Trip</Link>
+        </Button>
+        <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">
+          <Info className="w-6 h-6 text-blue-500 flex-shrink-0" />
+          <div className="text-blue-900 text-base font-medium">
+            If you want to modify your booking, please refer to your confirmation email or <a href="/contact-us" className="underline text-blue-700 hover:text-blue-900">contact support</a>.
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 
