@@ -32,16 +32,19 @@ export function PropertiesSection() {
           throw new Error('Failed to load properties')
         }
 
-        // Then, fetch details for each property
+        // Then, fetch details for each property in parallel
+        const detailsPromises = propertiesData.properties.map((property: any) =>
+          fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
+        )
+        const detailsData = await Promise.all(detailsPromises)
+
+        // Combine property data
         const allProperties: Property[] = []
-        for (const property of propertiesData.properties) {
-          // Get property details including photos
-          const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`)
-          const detailsData = await detailsRes.json()
-          
-          if (detailsData.success && detailsData.hotel) {
-            const hotel = detailsData.hotel
-            
+        for (let i = 0; i < detailsData.length; i++) {
+          const details = detailsData[i]
+          const property = propertiesData.properties[i]
+          if (details.success && details.hotel) {
+            const hotel = details.hotel
             // Combine main property image and additional photos
             const allPhotos = []
             if (hotel.propertyImage && hotel.propertyImage[0]) {
@@ -56,7 +59,6 @@ export function PropertiesSection() {
                 caption: ''
               })))
             }
-
             // Get location from address
             const address = hotel.propertyAddress
             const location = address ? [
@@ -64,7 +66,6 @@ export function PropertiesSection() {
               address.propertyState,
               address.propertyCountry
             ].filter(Boolean).join(', ') : ''
-
             // Transform property data
             const transformedProperty: Property = {
               propertyId: property.propertyId,
@@ -76,7 +77,6 @@ export function PropertiesSection() {
             allProperties.push(transformedProperty)
           }
         }
-
         setProperties(allProperties)
       } catch (err) {
         console.error('Error fetching properties:', err)
@@ -85,7 +85,6 @@ export function PropertiesSection() {
         setLoading(false)
       }
     }
-
     fetchProperties()
   }, [])
 
