@@ -20,6 +20,13 @@ interface CloudbedsRoomType {
   roomTypePhotos: string[]
 }
 
+type CloudbedsPropertyListItem = {
+  propertyId: string;
+  propertyName?: string;
+  price_per_day?: number;
+  // Add other fields if needed
+};
+
 export function RoomsSection() {
   const [rooms, setRooms] = useState<RoomType[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,7 +44,7 @@ export function RoomsSection() {
         }
 
         // Then, fetch rooms for each property in parallel
-        const roomTypePromises = propertiesData.properties.map((property: any) =>
+        const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
         )
         const roomsDataArr = await Promise.all(roomTypePromises)
@@ -45,7 +52,7 @@ export function RoomsSection() {
         // Fetch rates for all properties in parallel
         const startDate = format(new Date(), 'yyyy-MM-dd')
         const endDate = format(addDays(new Date(), 5), 'yyyy-MM-dd')
-        const ratePlanPromises = propertiesData.properties.map((property: any) =>
+        const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
         )
         const ratesDataArr = await Promise.all(ratePlanPromises)
@@ -53,7 +60,7 @@ export function RoomsSection() {
         // Combine room and rate data
         const allRooms: RoomType[] = []
         for (let i = 0; i < propertiesData.properties.length; i++) {
-          const property = propertiesData.properties[i]
+          const property = propertiesData.properties[i] as CloudbedsPropertyListItem
           const roomsData = roomsDataArr[i]
           const ratesData = ratesDataArr[i]
           // Create a map of room type ID to lowest rate

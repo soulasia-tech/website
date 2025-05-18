@@ -16,6 +16,13 @@ interface Property {
   }[]
 }
 
+type CloudbedsPropertyListItem = {
+  propertyId: string;
+  propertyName?: string;
+  price_per_day?: number;
+  // Add other fields if needed
+};
+
 export function PropertiesSection() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,7 +40,7 @@ export function PropertiesSection() {
         }
 
         // Then, fetch details for each property in parallel
-        const detailsPromises = propertiesData.properties.map((property: any) =>
+        const detailsPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
         )
         const detailsData = await Promise.all(detailsPromises)
@@ -42,7 +49,7 @@ export function PropertiesSection() {
         const allProperties: Property[] = []
         for (let i = 0; i < detailsData.length; i++) {
           const details = detailsData[i]
-          const property = propertiesData.properties[i]
+          const property = propertiesData.properties[i] as CloudbedsPropertyListItem
           if (details.success && details.hotel) {
             const hotel = details.hotel
             // Combine main property image and additional photos

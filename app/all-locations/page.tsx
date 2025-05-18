@@ -33,6 +33,34 @@ interface RatePlan {
   totalRate: number;
 }
 
+type CloudbedsPropertyListItem = {
+  propertyId: string;
+  propertyName?: string;
+  price_per_day?: number;
+  // Add other fields if needed
+};
+
+type CloudbedsPropertyDetailsResponse = {
+  success: boolean;
+  hotel?: {
+    propertyName?: string;
+    propertyAddress?: {
+      propertyAddress1?: string;
+      propertyCity?: string;
+      propertyState?: string;
+      propertyPostalCode?: string;
+      propertyCountry?: string;
+    };
+    // ...other fields as needed
+  };
+};
+
+type NominatimGeocodeResult = {
+  lat: string;
+  lon: string;
+  // ...other fields as needed
+};
+
 function AllPropertiesMap() {
   const [propertyMarkers, setPropertyMarkers] = useState<PropertyMarker[]>([]);
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
@@ -54,12 +82,12 @@ function AllPropertiesMap() {
       const data = await res.json();
       if (!data.success) return;
       // Parallel fetch property details
-      const detailsPromises = data.properties.map((property: any) =>
+      const detailsPromises = data.properties.map((property: CloudbedsPropertyListItem) =>
         fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
       );
       const detailsData = await Promise.all(detailsPromises);
       // Prepare geocoding promises
-      const geocodePromises = detailsData.map((detailsData: any) => {
+      const geocodePromises = detailsData.map((detailsData: CloudbedsPropertyDetailsResponse) => {
         if (detailsData.success && detailsData.hotel && detailsData.hotel.propertyAddress) {
           const address = detailsData.hotel.propertyAddress;
           const addressString = [
@@ -71,14 +99,14 @@ function AllPropertiesMap() {
           ].filter(Boolean).join(", ");
           return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`)
             .then(res => res.json())
-            .then(geoData => ({ geoData, detailsData, addressString }));
+            .then((geoData: NominatimGeocodeResult[]) => ({ geoData, detailsData, addressString }));
         }
         return Promise.resolve(null);
       });
       const geocodeResults = await Promise.all(geocodePromises);
       const markers: PropertyMarker[] = [];
       for (const result of geocodeResults) {
-        if (result && result.geoData && result.geoData.length > 0) {
+        if (result && result.geoData && result.geoData.length > 0 && result.detailsData.hotel) {
           const lat = parseFloat(result.geoData[0].lat);
           const lng = parseFloat(result.geoData[0].lon);
           if (
@@ -176,13 +204,13 @@ export default function AllLocationsPage() {
       const allProperties: Property[] = [];
       if (propertiesData.success) {
         // Parallel fetch property details
-        const detailsPromises = propertiesData.properties.map((property: any) =>
+        const detailsPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
         );
         const detailsData = await Promise.all(detailsPromises);
         for (let i = 0; i < detailsData.length; i++) {
           const details = detailsData[i];
-          const property = propertiesData.properties[i];
+          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
           if (details.success && details.hotel) {
             const hotel = details.hotel;
             const allPhotos: { url: string; caption?: string }[] = [];
@@ -209,19 +237,19 @@ export default function AllLocationsPage() {
       const allRooms: Room[] = [];
       if (propertiesData.success) {
         // Parallel fetch room types for all properties
-        const roomTypePromises = propertiesData.properties.map((property: any) =>
+        const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
         );
         const roomsDataArr = await Promise.all(roomTypePromises);
         // Parallel fetch rates for all properties
         const startDate = new Date().toISOString().slice(0, 10);
         const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-        const ratePlanPromises = propertiesData.properties.map((property: any) =>
+        const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
         );
         const ratesDataArr = await Promise.all(ratePlanPromises);
         for (let i = 0; i < propertiesData.properties.length; i++) {
-          const property = propertiesData.properties[i];
+          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
           const roomsData = roomsDataArr[i];
           const ratesData = ratesDataArr[i];
           const rateMap: Record<string, number> = {};
