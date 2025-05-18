@@ -80,14 +80,14 @@ function AllPropertiesMap() {
       setLoading(true);
       const res = await fetch('/api/cloudbeds-properties');
       const data = await res.json();
-      if (!data.success) return;
-      // Parallel fetch property details
-      const detailsPromises = data.properties.map((property: CloudbedsPropertyListItem) =>
-        fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
-      );
-      const detailsData = await Promise.all(detailsPromises);
-      // Prepare geocoding promises
-      const geocodePromises = detailsData.map((detailsData: CloudbedsPropertyDetailsResponse) => {
+      if (!data.success) {
+        setLoading(false);
+        return;
+      }
+      // Progressive property markers
+      const propertyDetailsPromises = data.properties.map(async (property: CloudbedsPropertyListItem) => {
+        const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
+        const detailsData: CloudbedsPropertyDetailsResponse = await detailsRes.json();
         if (detailsData.success && detailsData.hotel && detailsData.hotel.propertyAddress) {
           const address = detailsData.hotel.propertyAddress;
           const addressString = [
@@ -97,39 +97,35 @@ function AllPropertiesMap() {
             address.propertyPostalCode,
             address.propertyCountry
           ].filter(Boolean).join(", ");
-          return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`)
-            .then(res => res.json())
-            .then((geoData: NominatimGeocodeResult[]) => ({ geoData, detailsData, addressString }));
-        }
-        return Promise.resolve(null);
-      });
-      const geocodeResults = await Promise.all(geocodePromises);
-      const markers: PropertyMarker[] = [];
-      for (const result of geocodeResults) {
-        if (result && result.geoData && result.geoData.length > 0 && result.detailsData.hotel) {
-          const lat = parseFloat(result.geoData[0].lat);
-          const lng = parseFloat(result.geoData[0].lon);
-          if (
-            lat >= MALAYSIA_BOUNDS.minLat && lat <= MALAYSIA_BOUNDS.maxLat &&
-            lng >= MALAYSIA_BOUNDS.minLng && lng <= MALAYSIA_BOUNDS.maxLng
-          ) {
-            markers.push({
-              lat,
-              lng,
-              name: result.detailsData.hotel.propertyName || 'Property',
-              address: result.addressString,
-            });
+          // Geocode
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`);
+          const geoData: NominatimGeocodeResult[] = await geoRes.json();
+          if (geoData && geoData.length > 0) {
+            const lat = parseFloat(geoData[0].lat);
+            const lng = parseFloat(geoData[0].lon);
+            if (
+              lat >= MALAYSIA_BOUNDS.minLat && lat <= MALAYSIA_BOUNDS.maxLat &&
+              lng >= MALAYSIA_BOUNDS.minLng && lng <= MALAYSIA_BOUNDS.maxLng
+            ) {
+              const marker = {
+                lat,
+                lng,
+                name: detailsData.hotel.propertyName || 'Property',
+                address: addressString,
+              };
+              setPropertyMarkers(prev => {
+                const updated = [...prev, marker];
+                // Center map to average of all markers so far
+                const avgLat = updated.reduce((sum, m) => sum + m.lat, 0) / updated.length;
+                const avgLng = updated.reduce((sum, m) => sum + m.lng, 0) / updated.length;
+                setCenter({ lat: avgLat, lng: avgLng });
+                return updated;
+              });
+            }
           }
         }
-      }
-      setPropertyMarkers(markers);
-      if (markers.length > 0) {
-        const avgLat = markers.reduce((sum, m) => sum + m.lat, 0) / markers.length;
-        const avgLng = markers.reduce((sum, m) => sum + m.lng, 0) / markers.length;
-        setCenter({ lat: avgLat, lng: avgLng });
-      } else {
-        setCenter(null);
-      }
+      });
+      await Promise.all(propertyDetailsPromises);
       setLoading(false);
     };
     fetchAllProperties();
@@ -201,16 +197,12 @@ export default function AllLocationsPage() {
       // Fetch properties
       const propertiesRes = await fetch('/api/cloudbeds-properties');
       const propertiesData = await propertiesRes.json();
-      const allProperties: Property[] = [];
       if (propertiesData.success) {
-        // Parallel fetch property details
-        const detailsPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
-          fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
-        );
-        const detailsData = await Promise.all(detailsPromises);
-        for (let i = 0; i < detailsData.length; i++) {
-          const details = detailsData[i];
-          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
+        // Progressive property details
+        const propertiesArr: Property[] = [];
+        await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
+          const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
+          const details = await detailsRes.json();
           if (details.success && details.hotel) {
             const hotel = details.hotel;
             const allPhotos: { url: string; caption?: string }[] = [];
@@ -222,45 +214,37 @@ export default function AllLocationsPage() {
             }
             const address = hotel.propertyAddress;
             const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
-            allProperties.push({
+            const prop: Property = {
               propertyId: property.propertyId,
               propertyName: hotel.propertyName,
               location,
               photos: allPhotos,
               pricePerDay: property.price_per_day,
-            });
+            };
+            propertiesArr.push(prop);
+            setProperties([...propertiesArr]);
           }
-        }
+        }));
       }
-      setProperties(allProperties);
-      // Fetch rooms
-      const allRooms: Room[] = [];
+      // Fetch rooms progressively
       if (propertiesData.success) {
-        // Parallel fetch room types for all properties
-        const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
-          fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
-        );
-        const roomsDataArr = await Promise.all(roomTypePromises);
-        // Parallel fetch rates for all properties
-        const startDate = new Date().toISOString().slice(0, 10);
-        const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-        const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
-          fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
-        );
-        const ratesDataArr = await Promise.all(ratePlanPromises);
-        for (let i = 0; i < propertiesData.properties.length; i++) {
-          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
-          const roomsData = roomsDataArr[i];
-          const ratesData = ratesDataArr[i];
-          const rateMap: Record<string, number> = {};
-          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-            (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
-              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
-              }
-            });
-          }
+        const roomsArr: Room[] = [];
+        await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
+          const roomsRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
+          const roomsData = await roomsRes.json();
           if (roomsData.success && roomsData.roomTypes) {
+            const startDate = new Date().toISOString().slice(0, 10);
+            const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+            const ratesRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
+            const ratesData = await ratesRes.json();
+            const rateMap: Record<string, number> = {};
+            if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+              (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
+                if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+                  rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+                }
+              });
+            }
             const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
               roomTypeID: room.roomTypeID,
               roomTypeName: room.roomTypeName,
@@ -268,11 +252,11 @@ export default function AllLocationsPage() {
               roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
               rate: rateMap[room.roomTypeID],
             }));
-            allRooms.push(...transformedRooms);
+            roomsArr.push(...transformedRooms);
+            setRooms([...roomsArr]);
           }
-        }
+        }));
       }
-      setRooms(allRooms);
       setLoading(false);
     }
     fetchData();
