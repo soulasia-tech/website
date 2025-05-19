@@ -9,6 +9,9 @@ import { Locations } from "@/components/blocks/locations"
 import { RoomsSection } from "@/components/rooms-section"
 import { allLocationsCache, CachedProperties, CachedRooms, CachedRates } from "@/lib/allLocationsCache"
 import { useEffect } from "react"
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
+import { RoomCard } from "@/components/room-card"
+import { useState } from "react"
 
 // Animation variants
 const fadeIn = {
@@ -132,24 +135,24 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 1 }}
               className="flex flex-wrap justify-center gap-4 mt-8"
             >
-              {["Premium Locations", "24/7 Support", "Luxury Amenities", "Best Price Guarantee"].map(
-                (feature, index) => (
-                  <div
-                    key={index}
-                    className="bg-white px-4 py-2 rounded-full text-sm text-gray-600 border border-gray-200 shadow-sm"
-                  >
-                    {feature}
-                  </div>
-                ),
-              )}
+              {[
+                "Premium Locations",
+                "24/7 Support",
+                "Luxury Amenities",
+                "Best Price Guarantee",
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-white px-4 py-2 rounded-full text-sm text-gray-600 border border-gray-200 shadow-sm"
+                >
+                  {feature}
+                </div>
+              ))}
             </motion.div>
           </div>
         </section>
 
-        {/* Locations Section */}
-        <Locations />
-
-        {/* Value Proposition Section */}
+        {/* Value Proposition Section - moved up */}
         <section className="py-24 bg-gray-50">
           <div className="container px-4 mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -217,6 +220,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Locations Section */}
+        <Locations />
 
         {/* Amenities Section */}
         <section className="py-24">
@@ -350,7 +356,7 @@ export default function Home() {
         <section className="py-24 bg-gray-50">
           <div className="container px-4 mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Featured Apartments</h2>
-            <RoomsSection />
+            <FeaturedApartmentsCarousel />
           </div>
         </section>
 
@@ -363,4 +369,98 @@ export default function Home() {
       </main>
     </div>
   )
+}
+
+// Featured Apartments Carousel
+function FeaturedApartmentsCarousel() {
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch rooms logic (copy from RoomsSection, but only setRooms)
+    const fetchRooms = async () => {
+      try {
+        const propertiesRes = await fetch('/api/cloudbeds-properties');
+        const propertiesData = await propertiesRes.json();
+        if (!propertiesData.success) throw new Error('Failed to load properties');
+        const roomTypePromises = propertiesData.properties.map((property: any) =>
+          fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
+        );
+        const roomsDataArr = await Promise.all(roomTypePromises);
+        const startDate = new Date().toISOString().slice(0, 10);
+        const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const ratePlanPromises = propertiesData.properties.map((property: any) =>
+          fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
+        );
+        const ratesDataArr = await Promise.all(ratePlanPromises);
+        const allRooms: any[] = [];
+        for (let i = 0; i < propertiesData.properties.length; i++) {
+          const property = propertiesData.properties[i];
+          const roomsData = roomsDataArr[i];
+          const ratesData = ratesDataArr[i];
+          const rateMap: Record<string, number> = {};
+          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+            ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
+              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+              }
+            });
+          }
+          if (roomsData.success && roomsData.roomTypes) {
+            const transformedRooms = roomsData.roomTypes.map((room: any) => ({
+              roomTypeID: room.roomTypeID,
+              roomTypeName: room.roomTypeName,
+              propertyName: property.propertyName || "",
+              roomTypePhotos: room.roomTypePhotos || [],
+              rate: rateMap[room.roomTypeID],
+            }));
+            allRooms.push(...transformedRooms);
+          }
+        }
+        setRooms(allRooms);
+      } catch (err) {
+        setError('Failed to fetch rooms');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRooms();
+  }, []);
+
+  if (loading) {
+    return <div className="h-80 flex items-center justify-center">Loading...</div>;
+  }
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
+
+  return (
+    <Carousel>
+      <CarouselContent>
+        {rooms.map((room) => (
+          <CarouselItem key={room.roomTypeID} className="max-w-[352px] pl-[22px] lg:max-w-[396px]">
+            <RoomCard
+              roomName={room.roomTypeName}
+              propertyName={room.propertyName}
+              photos={room.roomTypePhotos.map((url: string) => ({ url, caption: '' }))}
+              rate={room.rate}
+            />
+          </CarouselItem>
+        ))}
+        {/* CTA Card */}
+        <CarouselItem className="max-w-[352px] pl-[22px] lg:max-w-[396px] flex items-center justify-center">
+          <div className="w-full h-full flex flex-col items-center justify-center bg-blue-600 text-white rounded-xl shadow-lg p-8 cursor-pointer hover:bg-blue-700 transition" onClick={() => {
+            if (typeof window !== 'undefined') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}>
+            <div className="text-3xl font-bold mb-4">Book Now</div>
+            <div className="mb-6 text-lg">Ready for your soulful stay?</div>
+            <button className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full shadow hover:bg-gray-100 transition">Go to Booking</button>
+          </div>
+        </CarouselItem>
+      </CarouselContent>
+    </Carousel>
+  );
 }
