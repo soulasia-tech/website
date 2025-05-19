@@ -293,11 +293,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Centered Globe Section */}
-        <section className="flex w-full min-h-[400px] items-center justify-center bg-white">
-          <GlobeDemo />
-        </section>
-
         {/* Gallery Section */}
         <section className="py-24">
           <div className="container px-4 mx-auto">
@@ -321,18 +316,8 @@ export default function Home() {
               variants={staggerContainer}
               className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[600px]"
             >
-              <motion.div variants={fadeIn} className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
-                  alt="Petronas Twin Towers"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute bottom-0 left-0 p-6">
-                    <h3 className="text-xl font-bold text-white">Petronas Twin Towers</h3>
-                  </div>
-                </div>
+              <motion.div variants={fadeIn} className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden bg-white flex items-center justify-center">
+                <GlobeDemo />
               </motion.div>
               <motion.div variants={fadeIn} className="col-span-2 row-span-1 relative rounded-2xl overflow-hidden">
                 <Image
