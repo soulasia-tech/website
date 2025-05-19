@@ -199,40 +199,40 @@ export default function PropertiesPage() {
             </section>
           </div>
           {/* Right: Sticky Booking Widget */}
-          <div className="w-full md:w-[340px] flex-shrink-0 md:pl-4">
+          <div className="w-full md:w-[400px] flex-shrink-0 md:pl-4">
             <div className="md:sticky md:top-24">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg px-6 py-6 shadow-sm flex flex-col gap-4">
-                <div className="text-lg font-semibold text-gray-800 mb-2">Book your stay</div>
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 max-w-full flex flex-col gap-2 px-4 py-6">
+                <div className="text-lg font-semibold text-gray-900 mb-2 px-2">Book this property</div>
+                <div className="flex flex-col gap-1">
+                  <div className="px-2 py-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Check-in</label>
                     <DatePicker value={checkIn} onChange={setCheckIn} placeholder="Select date" />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                  <div className="px-2 py-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Check-out</label>
                     <DatePicker value={checkOut} onChange={setCheckOut} placeholder="Select date" />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Adults</label>
+                  <div className="px-2 py-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Adults</label>
                     <Input
                       type="number"
                       min={1}
                       value={adults}
                       onChange={e => setAdults(Number(e.target.value))}
-                      className="w-full"
+                      className="w-full rounded-full border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 px-4 py-2"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Children</label>
+                  <div className="px-2 py-1">
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Children</label>
                     <Input
                       type="number"
                       min={0}
                       value={children}
                       onChange={e => setChildren(Number(e.target.value))}
-                      className="w-full"
+                      className="w-full rounded-full border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 px-4 py-2"
                     />
                   </div>
-                  <Button className="mt-2 w-full" onClick={handleBookNow}>Book Now</Button>
+                  <Button className="mt-4 w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg text-base font-semibold" onClick={handleBookNow}>Book Now</Button>
                 </div>
               </div>
             </div>
