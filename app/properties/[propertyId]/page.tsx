@@ -7,23 +7,27 @@ import Map, { Marker } from 'react-map-gl';
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
-
-const propertyImages = [
-  // Blank/placeholder images
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=1200&q=80",
-];
+import { motion, AnimatePresence } from "framer-motion";
 
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
   '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
 };
 
+// Use real Scarletz image as placeholder 5 times
+const propertyImages = [
+  "/properties/Scarletz/DSC01330.jpg",
+  "/properties/Scarletz/DSC01330.jpg",
+  "/properties/Scarletz/DSC01330.jpg",
+  "/properties/Scarletz/DSC01330.jpg",
+  "/properties/Scarletz/DSC01330.jpg",
+];
+
 export default function PropertiesPage() {
   const params = useParams();
   const propertyId = params.propertyId || "270917";
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
   const total = propertyImages.length;
   const router = useRouter();
 
@@ -31,6 +35,15 @@ export default function PropertiesPage() {
   const mapPosition = propertyLocationMap[propertyId as string];
 
   // Carousel logic
+  const handlePrev = () => {
+    setDirection(-1);
+    setCarouselIndex((prev) => (prev - 1 + total) % total);
+  };
+  const handleNext = () => {
+    setDirection(1);
+    setCarouselIndex((prev) => (prev + 1) % total);
+  };
+
   const getVisibleImages = () => {
     if (total < 2) return propertyImages;
     const first = carouselIndex % total;
@@ -38,13 +51,6 @@ export default function PropertiesPage() {
     return [propertyImages[first], propertyImages[second]];
   };
   const visibleImages = getVisibleImages();
-
-  const handlePrev = () => {
-    setCarouselIndex((prev) => (prev - 1 + total) % total);
-  };
-  const handleNext = () => {
-    setCarouselIndex((prev) => (prev + 1) % total);
-  };
 
   // Booking widget state
   const [checkIn, setCheckIn] = useState<Date | undefined>();
@@ -68,26 +74,38 @@ export default function PropertiesPage() {
     <div className="flex flex-col min-h-screen bg-white">
       <main className="flex-1">
         {/* Hero Section: Carousel with two images */}
-        <section className="relative w-full bg-gray-100">
-          <div className="w-full max-w-6xl mx-auto px-4">
+        <section className="relative w-full bg-gray-100 px-2 md:px-4">
+          <div className="w-full">
             <div className="relative w-full aspect-[16/7] rounded-b-2xl overflow-hidden flex items-center">
-              {/* Carousel images */}
-              <div className="flex w-full h-full gap-4">
-                {visibleImages.map((src, idx) => (
-                  <div
-                    key={idx}
-                    className="relative w-1/2 h-full rounded-2xl overflow-hidden"
+              {/* Carousel with two images and smooth animation */}
+              <div className="relative w-full h-full">
+                <AnimatePresence initial={false} custom={direction}>
+                  <motion.div
+                    key={carouselIndex}
+                    custom={direction}
+                    initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: direction > 0 ? -300 : 300, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="flex w-full h-full gap-4 absolute top-0 left-0"
                   >
-                    <Image
-                      src={src}
-                      alt={`Property image ${idx + 1}`}
-                      fill
-                      className="object-cover object-center"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      priority={carouselIndex === 0 && idx === 0}
-                    />
-                  </div>
-                ))}
+                    {visibleImages.map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="relative h-full w-1/2 min-w-0 rounded-2xl overflow-hidden"
+                      >
+                        <Image
+                          src={src}
+                          alt={`Property image ${carouselIndex + idx + 1}`}
+                          fill
+                          className="object-cover object-center"
+                          sizes="50vw"
+                          priority={carouselIndex === 0 && idx === 0}
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
               </div>
               {/* Carousel navigation arrows */}
               <button
