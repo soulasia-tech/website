@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
 import { PropertyCard } from '@/components/property-card';
 import { RoomCard } from '@/components/room-card';
+import { allLocationsCache } from "@/lib/allLocationsCache";
 
 interface PropertyMarker {
   lat: number;
@@ -78,9 +79,16 @@ function AllPropertiesMap() {
   useEffect(() => {
     const fetchAllProperties = async () => {
       setLoading(true);
-      const res = await fetch('/api/cloudbeds-properties');
-      const data = await res.json();
-      if (!data.success) {
+      let data = allLocationsCache.properties;
+      if (!data) {
+        const res = await fetch('/api/cloudbeds-properties');
+        const fetched = await res.json();
+        if (fetched) {
+          allLocationsCache.setProperties(fetched);
+          data = fetched;
+        }
+      }
+      if (!data || !data.success) {
         setLoading(false);
         return;
       }
@@ -194,68 +202,91 @@ export default function AllLocationsPage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      // Fetch properties
-      const propertiesRes = await fetch('/api/cloudbeds-properties');
-      const propertiesData = await propertiesRes.json();
-      if (propertiesData.success) {
-        // Progressive property details
-        const propertiesArr: Property[] = [];
-        await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
-          const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
-          const details = await detailsRes.json();
-          if (details.success && details.hotel) {
-            const hotel = details.hotel;
-            const allPhotos: { url: string; caption?: string }[] = [];
-            if (hotel.propertyImage && hotel.propertyImage[0]) {
-              allPhotos.push({ url: hotel.propertyImage[0].image, caption: 'Main Property Image' });
-            }
-            if (hotel.propertyAdditionalPhotos) {
-              allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: { image: string }) => ({ url: photo.image, caption: '' })));
-            }
-            const address = hotel.propertyAddress;
-            const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
-            const prop: Property = {
-              propertyId: property.propertyId,
-              propertyName: hotel.propertyName,
-              location,
-              photos: allPhotos,
-              pricePerDay: property.price_per_day,
-            };
-            propertiesArr.push(prop);
-            setProperties([...propertiesArr]);
-          }
-        }));
+      // Fetch properties (from cache if available)
+      let propertiesData = allLocationsCache.properties;
+      if (!propertiesData) {
+        const propertiesRes = await fetch('/api/cloudbeds-properties');
+        const fetched = await propertiesRes.json();
+        if (fetched) {
+          allLocationsCache.setProperties(fetched);
+          propertiesData = fetched;
+        }
       }
-      // Fetch rooms progressively
+      if (!propertiesData || !propertiesData.success) {
+        setLoading(false);
+        return;
+      }
+      const propertiesArr: Property[] = [];
+      // Progressive property details
+      await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
+        const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
+        const details = await detailsRes.json();
+        if (details.success && details.hotel) {
+          const hotel = details.hotel;
+          const allPhotos: { url: string; caption?: string }[] = [];
+          if (hotel.propertyImage && hotel.propertyImage[0]) {
+            allPhotos.push({ url: hotel.propertyImage[0].image, caption: 'Main Property Image' });
+          }
+          if (hotel.propertyAdditionalPhotos) {
+            allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: { image: string }) => ({ url: photo.image, caption: '' })));
+          }
+          const address = hotel.propertyAddress;
+          const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
+          const prop: Property = {
+            propertyId: property.propertyId,
+            propertyName: hotel.propertyName,
+            location,
+            photos: allPhotos,
+            pricePerDay: property.price_per_day,
+          };
+          propertiesArr.push(prop);
+          setProperties([...propertiesArr]);
+        }
+      }));
+      // Fetch rooms progressively (from cache if available)
       if (propertiesData.success) {
+        let roomsDataArr = allLocationsCache.rooms;
+        let ratesDataArr = allLocationsCache.rates;
+        if (!roomsDataArr || !ratesDataArr) {
+          // Fetch if not cached
+          const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
+            fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
+          );
+          roomsDataArr = await Promise.all(roomTypePromises);
+          allLocationsCache.setRooms(roomsDataArr);
+          const startDate = new Date().toISOString().slice(0, 10);
+          const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+          const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
+            fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
+          );
+          ratesDataArr = await Promise.all(ratePlanPromises);
+          allLocationsCache.setRates(ratesDataArr);
+        }
         const roomsArr: Room[] = [];
-        await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
-          const roomsRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
-          const roomsData = await roomsRes.json();
+        for (let i = 0; i < propertiesData.properties.length; i++) {
+          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
+          const roomsData = roomsDataArr[i];
+          const ratesData = ratesDataArr[i];
+          const rateMap: Record<string, number> = {};
+          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+            (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
+              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+              }
+            });
+          }
           if (roomsData.success && roomsData.roomTypes) {
-            const startDate = new Date().toISOString().slice(0, 10);
-            const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-            const ratesRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
-            const ratesData = await ratesRes.json();
-            const rateMap: Record<string, number> = {};
-            if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-              (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
-                if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                  rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
-                }
-              });
-            }
             const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
               roomTypeID: room.roomTypeID,
               roomTypeName: room.roomTypeName,
-              propertyName: property.propertyName,
+              propertyName: property.propertyName || "",
               roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
               rate: rateMap[room.roomTypeID],
             }));
             roomsArr.push(...transformedRooms);
             setRooms([...roomsArr]);
           }
-        }));
+        }
       }
       setLoading(false);
     }
