@@ -6,6 +6,7 @@ import { BookingWidget } from "@/components/booking-widget"
 import { Toaster } from "sonner"
 import { CustomerReviews } from "@/components/customer-reviews"
 import { Locations } from "@/components/blocks/locations"
+import { RoomsSection } from "@/components/rooms-section"
 
 // Animation variants
 const fadeIn = {
@@ -314,6 +315,14 @@ export default function Home() {
                 </div>
               </motion.div>
             </motion.div>
+          </div>
+        </section>
+
+        {/* Featured Apartments Section */}
+        <section className="py-24 bg-gray-50">
+          <div className="container px-4 mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Featured Apartments</h2>
+            <RoomsSection />
           </div>
         </section>
 
