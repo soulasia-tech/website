@@ -11,6 +11,7 @@ import { useEffect, useState } from "react"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import { RoomCard } from "@/components/room-card"
 import { Key, Smile, MapPin, Coffee, Bed, Leaf } from "lucide-react"
+import { GlobeDemo } from "@/components/ui/demo"
 
 // Animation variants
 const fadeIn = {
@@ -290,6 +291,11 @@ export default function Home() {
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
             </p>
           </div>
+        </section>
+
+        {/* Centered Globe Section */}
+        <section className="flex w-full min-h-[400px] items-center justify-center bg-white">
+          <GlobeDemo />
         </section>
 
         {/* Gallery Section */}
