@@ -50,11 +50,11 @@ export function RoomsSection() {
         const roomsDataArr = await Promise.all(roomTypePromises)
 
         // Fetch rates for all properties in parallel
-        const startDate = format(new Date(), 'yyyy-MM-dd')
-        const endDate = format(addDays(new Date(), 5), 'yyyy-MM-dd')
+            const startDate = format(new Date(), 'yyyy-MM-dd')
+            const endDate = format(addDays(new Date(), 5), 'yyyy-MM-dd')
         const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
-        )
+            )
         const ratesDataArr = await Promise.all(ratePlanPromises)
 
         // Combine room and rate data
@@ -63,16 +63,16 @@ export function RoomsSection() {
           const property = propertiesData.properties[i] as CloudbedsPropertyListItem
           const roomsData = roomsDataArr[i]
           const ratesData = ratesDataArr[i]
-          // Create a map of room type ID to lowest rate
-          const rateMap: { [roomTypeID: string]: number } = {}
-          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-            ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
-              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                rateMap[rate.roomTypeID] = Math.round(rate.totalRate)
-              }
-            })
-          }
-          // Transform room data to match our interface
+            // Create a map of room type ID to lowest rate
+            const rateMap: { [roomTypeID: string]: number } = {}
+            if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+              ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
+                if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+                  rateMap[rate.roomTypeID] = Math.round(rate.totalRate)
+                }
+              })
+            }
+            // Transform room data to match our interface
           if (roomsData.success && roomsData.roomTypes) {
             const transformedRooms = roomsData.roomTypes.map((room: CloudbedsRoomType) => ({
               roomTypeID: room.roomTypeID,

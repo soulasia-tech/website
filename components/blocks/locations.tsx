@@ -1,18 +1,17 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import {
   Carousel,
-  CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
 
 export interface LocationsItem {
   id: string;
+  propertyId: string;
   title: string;
   description: string;
   href: string;
@@ -28,37 +27,39 @@ export interface LocationsProps {
 const data = [
   {
     id: "location-1",
-    title: "Bukit Bintang",
+    propertyId: "270917",
+    title: "Scarletz",
     description:
-      "The heart of Kuala Lumpur's shopping and entertainment district, perfect for urban explorers.",
-    href: "#",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+      "Premium serviced apartments at Scarletz, Kuala Lumpur. Modern comfort in the heart of the city.",
+    href: "/properties/270917",
+    image: "/properties/Scarletz/DSC01330.jpg",
   },
   {
     id: "location-2",
-    title: "KLCC",
+    propertyId: "vortex-id",
+    title: "Vortex",
     description:
-      "Stay steps away from the iconic Petronas Twin Towers and KLCC Park, ideal for families and business travelers.",
-    href: "#",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
+      "Modern serviced apartments at Vortex, Kuala Lumpur. Experience city living with stunning views.",
+    href: "/properties/vortex-id",
+    image: "/properties/Vortex/54c2879c_z copy 2.jpg",
   },
   {
     id: "location-3",
+    propertyId: "bangsar-id",
     title: "Bangsar",
     description:
       "Trendy neighborhood known for its cafes, nightlife, and local culture. Great for long stays.",
-    href: "#",
+    href: "/properties/bangsar-id",
     image:
       "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "location-4",
+    propertyId: "montkiara-id",
     title: "Mont Kiara",
     description:
       "Upscale area popular with expats, featuring international schools and luxury amenities.",
-    href: "#",
+    href: "/properties/montkiara-id",
     image:
       "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
   },
@@ -69,23 +70,6 @@ const Locations = ({
   description = "Explore our premium serviced apartments in Kuala Lumpur's most sought-after neighborhoods.",
   items = data,
 }: LocationsProps) => {
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    if (!carouselApi) {
-      return;
-    }
-    const updateSelection = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    };
-    updateSelection();
-    carouselApi.on("select", updateSelection);
-    return () => {
-      carouselApi.off("select", updateSelection);
-    };
-  }, [carouselApi]);
-
   return (
     <section className="py-32">
       <div className="container mx-auto">
@@ -100,7 +84,6 @@ const Locations = ({
       </div>
       <div className="w-full">
         <Carousel
-          setApi={setCarouselApi}
           opts={{
             breakpoints: {
               "(max-width: 768px)": {
@@ -144,18 +127,6 @@ const Locations = ({
             ))}
           </CarouselContent>
         </Carousel>
-        <div className="mt-8 flex justify-center gap-2">
-          {items.map((_, index) => (
-            <button
-              key={index}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                currentSlide === index ? "bg-primary" : "bg-primary/20"
-              }`}
-              onClick={() => carouselApi?.scrollTo(index)}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
       </div>
     </section>
   );
