@@ -117,7 +117,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 {searchParams.startDate ? format(new Date(searchParams.startDate), "MMM d, yyyy") : "Pick a date"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 min-w-[340px]" align="start">
               <DayPicker
                 mode="single"
                 selected={searchParams.startDate ? new Date(searchParams.startDate) : undefined}
@@ -137,32 +137,51 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 fromMonth={new Date()}
                 defaultMonth={new Date()}
                 classNames={{
-                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  month: "space-y-4",
-                  caption: "flex justify-center pt-1 relative items-center",
+                  root: "",
+                  chevron: "",
+                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                  day_button: "",
                   caption_label: "text-sm font-medium",
+                  dropdowns: "",
+                  dropdown: "",
+                  dropdown_root: "",
+                  footer: "",
+                  month_grid: "w-full border-collapse space-y-1",
+                  month_caption: "flex justify-center pt-1 relative items-center",
+                  months_dropdown: "",
+                  month: "space-y-4",
+                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                   nav: "space-x-1 flex items-center",
-                  nav_button: cn(
-                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-                  ),
-                  nav_button_previous: "absolute left-1",
-                  nav_button_next: "absolute right-1",
-                  table: "w-full border-collapse space-y-1",
-                  head_row: "flex",
-                  head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                  row: "flex w-full mt-2",
-                  cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                  day: cn(
-                    "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-                  ),
-                  day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  day_today: "bg-accent text-accent-foreground",
-                  day_outside: "text-muted-foreground opacity-50",
-                  day_disabled: "text-muted-foreground opacity-50",
-                  day_range_middle:
-                    "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  day_hidden: "invisible",
+                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  button_next: "absolute right-1",
+                  button_previous: "absolute left-1",
+                  week: "flex w-full mt-2",
+                  weeks: "",
+                  weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                  weekdays: "flex",
+                  week_number: "",
+                  week_number_header: "",
+                  years_dropdown: "",
+                  // DayFlag
+                  disabled: "text-muted-foreground opacity-50",
+                  hidden: "invisible",
+                  outside: "text-muted-foreground opacity-50",
+                  focused: "",
+                  today: "bg-accent text-accent-foreground",
+                  // SelectionState
+                  range_end: "",
+                  range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                  range_start: "",
+                  selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                  // Animation
+                  weeks_before_enter: "",
+                  weeks_before_exit: "",
+                  weeks_after_enter: "",
+                  weeks_after_exit: "",
+                  caption_after_enter: "",
+                  caption_after_exit: "",
+                  caption_before_enter: "",
+                  caption_before_exit: "",
                 }}
                 showOutsideDays={false}
               />
@@ -186,7 +205,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 {searchParams.endDate ? format(new Date(searchParams.endDate), "MMM d, yyyy") : "Pick a date"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 min-w-[340px]" align="start">
               <DayPicker
                 mode="single"
                 selected={searchParams.endDate ? new Date(searchParams.endDate) : undefined}
@@ -203,32 +222,51 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 fromMonth={searchParams.startDate ? new Date(searchParams.startDate) : new Date()}
                 defaultMonth={searchParams.startDate ? new Date(searchParams.startDate) : new Date()}
                 classNames={{
-                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  month: "space-y-4",
-                  caption: "flex justify-center pt-1 relative items-center",
+                  root: "",
+                  chevron: "",
+                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                  day_button: "",
                   caption_label: "text-sm font-medium",
+                  dropdowns: "",
+                  dropdown: "",
+                  dropdown_root: "",
+                  footer: "",
+                  month_grid: "w-full border-collapse space-y-1",
+                  month_caption: "flex justify-center pt-1 relative items-center",
+                  months_dropdown: "",
+                  month: "space-y-4",
+                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                   nav: "space-x-1 flex items-center",
-                  nav_button: cn(
-                    "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-                  ),
-                  nav_button_previous: "absolute left-1",
-                  nav_button_next: "absolute right-1",
-                  table: "w-full border-collapse space-y-1",
-                  head_row: "flex",
-                  head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                  row: "flex w-full mt-2",
-                  cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                  day: cn(
-                    "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
-                  ),
-                  day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  day_today: "bg-accent text-accent-foreground",
-                  day_outside: "text-muted-foreground opacity-50",
-                  day_disabled: "text-muted-foreground opacity-50",
-                  day_range_middle:
-                    "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  day_hidden: "invisible",
+                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  button_next: "absolute right-1",
+                  button_previous: "absolute left-1",
+                  week: "flex w-full mt-2",
+                  weeks: "",
+                  weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                  weekdays: "flex",
+                  week_number: "",
+                  week_number_header: "",
+                  years_dropdown: "",
+                  // DayFlag
+                  disabled: "text-muted-foreground opacity-50",
+                  hidden: "invisible",
+                  outside: "text-muted-foreground opacity-50",
+                  focused: "",
+                  today: "bg-accent text-accent-foreground",
+                  // SelectionState
+                  range_end: "",
+                  range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                  range_start: "",
+                  selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                  // Animation
+                  weeks_before_enter: "",
+                  weeks_before_exit: "",
+                  weeks_after_enter: "",
+                  weeks_after_exit: "",
+                  caption_after_enter: "",
+                  caption_after_exit: "",
+                  caption_before_enter: "",
+                  caption_before_exit: "",
                 }}
                 showOutsideDays={false}
               />

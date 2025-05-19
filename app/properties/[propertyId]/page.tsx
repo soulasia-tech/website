@@ -206,11 +206,111 @@ export default function PropertiesPage() {
                 <div className="flex flex-col gap-1">
                   <div className="px-2 py-1">
                     <label className="block text-sm font-medium text-gray-800 mb-1">Check-in</label>
-                    <DatePicker value={checkIn} onChange={setCheckIn} placeholder="Select date" />
+                    <DatePicker 
+                      value={checkIn} 
+                      onChange={setCheckIn} 
+                      placeholder="Select date"
+                      classNames={{
+                        root: "",
+                        chevron: "",
+                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                        day_button: "",
+                        caption_label: "text-sm font-medium",
+                        dropdowns: "",
+                        dropdown: "",
+                        dropdown_root: "",
+                        footer: "",
+                        month_grid: "w-full border-collapse space-y-1",
+                        month_caption: "flex justify-center pt-1 relative items-center",
+                        months_dropdown: "",
+                        month: "space-y-4",
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        nav: "space-x-1 flex items-center",
+                        button_next: "absolute right-1",
+                        button_previous: "absolute left-1",
+                        week: "flex w-full mt-2",
+                        weeks: "",
+                        weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                        weekdays: "flex",
+                        week_number: "",
+                        week_number_header: "",
+                        years_dropdown: "",
+                        // DayFlag
+                        disabled: "text-muted-foreground opacity-50",
+                        hidden: "invisible",
+                        outside: "text-muted-foreground opacity-50",
+                        focused: "",
+                        today: "bg-accent text-accent-foreground",
+                        // SelectionState
+                        range_end: "",
+                        range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        range_start: "",
+                        selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        // Animation
+                        weeks_before_enter: "",
+                        weeks_before_exit: "",
+                        weeks_after_enter: "",
+                        weeks_after_exit: "",
+                        caption_after_enter: "",
+                        caption_after_exit: "",
+                        caption_before_enter: "",
+                        caption_before_exit: "",
+                      }}
+                    />
                   </div>
                   <div className="px-2 py-1">
                     <label className="block text-sm font-medium text-gray-800 mb-1">Check-out</label>
-                    <DatePicker value={checkOut} onChange={setCheckOut} placeholder="Select date" />
+                    <DatePicker 
+                      value={checkOut} 
+                      onChange={setCheckOut} 
+                      placeholder="Select date"
+                      classNames={{
+                        root: "",
+                        chevron: "",
+                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                        day_button: "",
+                        caption_label: "text-sm font-medium",
+                        dropdowns: "",
+                        dropdown: "",
+                        dropdown_root: "",
+                        footer: "",
+                        month_grid: "w-full border-collapse space-y-1",
+                        month_caption: "flex justify-center pt-1 relative items-center",
+                        months_dropdown: "",
+                        month: "space-y-4",
+                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                        nav: "space-x-1 flex items-center",
+                        button_next: "absolute right-1",
+                        button_previous: "absolute left-1",
+                        week: "flex w-full mt-2",
+                        weeks: "",
+                        weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                        weekdays: "flex",
+                        week_number: "",
+                        week_number_header: "",
+                        years_dropdown: "",
+                        // DayFlag
+                        disabled: "text-muted-foreground opacity-50",
+                        hidden: "invisible",
+                        outside: "text-muted-foreground opacity-50",
+                        focused: "",
+                        today: "bg-accent text-accent-foreground",
+                        // SelectionState
+                        range_end: "",
+                        range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        range_start: "",
+                        selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        // Animation
+                        weeks_before_enter: "",
+                        weeks_before_exit: "",
+                        weeks_after_enter: "",
+                        weeks_after_exit: "",
+                        caption_after_enter: "",
+                        caption_after_exit: "",
+                        caption_before_enter: "",
+                        caption_before_exit: "",
+                      }}
+                    />
                   </div>
                   <div className="px-2 py-1">
                     <label className="block text-sm font-medium text-gray-800 mb-1">Adults</label>

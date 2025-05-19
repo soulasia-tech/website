@@ -3,6 +3,7 @@
 import * as React from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
+import { ClassNames } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -17,9 +18,10 @@ interface DatePickerProps {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
   placeholder?: string;
+  classNames?: ClassNames;
 }
 
-export function DatePicker({ value, onChange, placeholder }: DatePickerProps) {
+export function DatePicker({ value, onChange, placeholder, classNames }: DatePickerProps) {
   const [internalDate, setInternalDate] = React.useState<Date>();
   const date = value !== undefined ? value : internalDate;
   const setDate = onChange || setInternalDate;
@@ -44,6 +46,7 @@ export function DatePicker({ value, onChange, placeholder }: DatePickerProps) {
           selected={date}
           onSelect={setDate}
           initialFocus
+          classNames={classNames}
         />
       </PopoverContent>
     </Popover>

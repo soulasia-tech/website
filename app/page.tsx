@@ -273,7 +273,7 @@ export default function Home() {
                         setCurrentSlide(idx);
                       }}
                       aria-label={`Go to slide ${idx + 1}`}
-                      className={`w-5 h-5 rounded-full transition-colors duration-200 ${currentSlide === idx ? 'bg-gray-500' : 'bg-gray-300'}`}
+                      className={`w-3 h-3 rounded-full transition-colors duration-200 ${currentSlide === idx ? 'bg-gray-500' : 'bg-gray-300'}`}
                       style={{ outline: 'none', border: 'none' }}
                     />
                   ))}
