@@ -331,12 +331,12 @@ export default function Home() {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[600px]"
+              className="flex flex-col gap-4 md:grid md:grid-cols-4 h-auto md:h-[600px]"
             >
-              <motion.div variants={fadeIn} className="col-span-2 row-span-2 relative rounded-2xl overflow-hidden bg-white flex items-center justify-center">
+              <motion.div variants={fadeIn} className="relative rounded-2xl overflow-hidden bg-white flex items-center justify-center w-full aspect-[16/9] md:col-span-2 md:row-span-2 md:aspect-auto">
                 <GlobeDemo />
               </motion.div>
-              <motion.div variants={fadeIn} className="col-span-2 row-span-1 relative rounded-2xl overflow-hidden">
+              <motion.div variants={fadeIn} className="relative rounded-2xl overflow-hidden w-full aspect-[16/9] md:col-span-2 md:row-span-1 md:aspect-auto">
                 <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KL Tower"
@@ -349,7 +349,7 @@ export default function Home() {
                   </div>
                 </div>
               </motion.div>
-              <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
+              <motion.div variants={fadeIn} className="relative rounded-2xl overflow-hidden w-full aspect-[16/9] md:col-span-1 md:row-span-1 md:aspect-auto">
                 <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="Batu Caves"
@@ -362,7 +362,7 @@ export default function Home() {
                   </div>
                 </div>
               </motion.div>
-              <motion.div variants={fadeIn} className="col-span-1 row-span-1 relative rounded-2xl overflow-hidden">
+              <motion.div variants={fadeIn} className="relative rounded-2xl overflow-hidden w-full aspect-[16/9] md:col-span-1 md:row-span-1 md:aspect-auto">
                 <Image
                   src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?q=80&w=1528&auto=format&fit=crop"
                   alt="KLCC Park"

@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Map, { Marker } from 'react-map-gl';
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,15 @@ export default function PropertiesPage() {
   // Get static map position
   const mapPosition = propertyLocationMap[propertyId as string];
 
+  // Responsive: show 1 image on mobile, 2 on desktop
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Carousel logic
   const handlePrev = () => {
     setDirection(-1);
@@ -59,13 +68,18 @@ export default function PropertiesPage() {
     setCarouselIndex((prev) => (prev + 1) % total);
   };
 
-  const getVisibleImages = () => {
-    if (total < 2) return propertyImages;
-    const first = carouselIndex % total;
-    const second = (carouselIndex + 1) % total;
-    return [propertyImages[first], propertyImages[second]];
+  const getVisibleImages = (): string[] => {
+    if (!Array.isArray(propertyImages) || total < 1) return [];
+    if (isMobile) {
+      return [propertyImages[carouselIndex % total]];
+    } else {
+      if (total < 2) return propertyImages;
+      const idx1 = carouselIndex % total;
+      const idx2 = (carouselIndex + 1) % total;
+      return [propertyImages[idx1], propertyImages[idx2]];
+    }
   };
-  const visibleImages = getVisibleImages();
+  const visibleImages: string[] = getVisibleImages();
 
   // Booking widget state
   const [date, setDate] = useState<DateRange | undefined>(undefined);
@@ -106,17 +120,21 @@ export default function PropertiesPage() {
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                     className="flex w-full h-full gap-4 absolute top-0 left-0"
                   >
-                    {visibleImages.map((src, idx) => (
+                    {visibleImages.map((src: string, idx: number) => (
                       <div
                         key={idx}
-                        className="relative h-full w-1/2 min-w-0 rounded-2xl overflow-hidden"
+                        className={
+                          isMobile
+                            ? "relative h-full w-full min-w-0 rounded-2xl overflow-hidden"
+                            : "relative h-full w-1/2 min-w-0 rounded-2xl overflow-hidden"
+                        }
                       >
                         <Image
                           src={src}
                           alt={`Property image ${carouselIndex + idx + 1}`}
                           fill
                           className="object-cover object-center"
-                          sizes="50vw"
+                          sizes={isMobile ? "100vw" : "50vw"}
                           priority={carouselIndex === 0 && idx === 0}
                         />
                       </div>
