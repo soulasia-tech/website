@@ -57,11 +57,15 @@ function Calendar({
   )
 
   const defaultComponents = {
-    Chevron: (props: any) => {
-      if (props.orientation === "left") {
-        return <ChevronLeft size={16} strokeWidth={2} {...props} aria-hidden="true" />
+    Chevron: (props: { className?: string; size?: number; disabled?: boolean; orientation?: "left" | "right" | "up" | "down" }): React.JSX.Element => {
+      const { orientation, ...rest } = props;
+      if (orientation === "left") {
+        return <ChevronLeft size={16} strokeWidth={2} {...rest} aria-hidden="true" />;
       }
-      return <ChevronRight size={16} strokeWidth={2} {...props} aria-hidden="true" />
+      if (orientation === "right") {
+        return <ChevronRight size={16} strokeWidth={2} {...rest} aria-hidden="true" />;
+      }
+      return <span />;
     },
   }
 
