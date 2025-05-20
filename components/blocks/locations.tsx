@@ -45,23 +45,21 @@ const data = [
   },
   {
     id: "location-3",
-    propertyId: "bangsar-id",
-    title: "Bangsar",
+    propertyId: "188-id",
+    title: "188 Suites",
     description:
-      "Trendy neighborhood known for its cafes, nightlife, and local culture. Great for long stays.",
-    href: "/properties/bangsar-id",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
+      "Luxury serviced apartments at 188 Suites, Kuala Lumpur. Enjoy premium amenities and comfort.",
+    href: "/properties/188-id",
+    image: "/properties/188/DSC06377.jpg",
   },
   {
     id: "location-4",
-    propertyId: "montkiara-id",
-    title: "Mont Kiara",
+    propertyId: "mercu-id",
+    title: "Mercu Summer Suites",
     description:
-      "Upscale area popular with expats, featuring international schools and luxury amenities.",
-    href: "/properties/montkiara-id",
-    image:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+      "Elegant serviced apartments at Mercu Summer Suites, Kuala Lumpur. Perfect for a relaxing stay.",
+    href: "/properties/mercu-id",
+    image: "/properties/Mercu/DSC02384.jpg",
   },
 ];
 
@@ -96,7 +94,7 @@ const Locations = ({
             {items.map((item) => (
               <CarouselItem
                 key={item.id}
-                className="max-w-[352px] pl-[22px] lg:max-w-[396px]"
+                className="max-w-[352px] pl-[22px] lg:max-w-[396px] transition-transform duration-300 hover:scale-105 shadow-lg"
               >
                 <a href={item.href} className="group rounded-xl">
                   <div className="group relative h-full min-h-[27rem] max-w-full overflow-hidden rounded-xl md:aspect-[5/4] lg:aspect-[16/9]">
@@ -108,15 +106,15 @@ const Locations = ({
                       sizes="(max-width: 768px) 100vw, 360px"
                       priority={false}
                     />
-                    <div className="absolute inset-0 h-full bg-[linear-gradient(hsl(var(--primary)/0),hsl(var(--primary)/0.4),hsl(var(--primary)/0.8)_100%)] mix-blend-multiply" />
-                    <div className="absolute inset-x-0 bottom-0 flex flex-col items-start p-6 text-primary-foreground md:p-8">
-                      <div className="mb-2 pt-4 text-xl font-semibold md:mb-3 md:pt-4 lg:pt-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 group-hover:from-black/90 group-hover:via-black/60 opacity-80" />
+                    <div className="absolute inset-x-0 bottom-0 flex flex-col items-start p-6 text-primary-foreground md:p-8 z-10">
+                      <div className="mb-2 pt-4 text-xl font-semibold md:mb-3 md:pt-4 lg:pt-4 drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>
                         {item.title}
                       </div>
-                      <div className="mb-8 line-clamp-2 md:mb-12 lg:mb-9">
+                      <div className="mb-8 line-clamp-2 md:mb-12 lg:mb-9 drop-shadow" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
                         {item.description}
                       </div>
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm font-semibold">
                         Read more{" "}
                         <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                       </div>

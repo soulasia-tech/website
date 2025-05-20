@@ -122,7 +122,7 @@ export default function Home() {
       <Toaster />
       <main className="flex-1 pt-0">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-white py-24">
+        <section className="relative overflow-hidden bg-white py-32 min-h-[70vh] flex items-center">
           {/* Decorative Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -right-20 -top-20 w-[400px] h-[400px] rounded-full bg-gray-50" />
