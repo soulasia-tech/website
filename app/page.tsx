@@ -10,8 +10,9 @@ import { allLocationsCache, CachedProperties, CachedRooms, CachedRates } from "@
 import { useEffect, useState } from "react"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import { RoomCard } from "@/components/room-card"
-import { Key, Smile, MapPin, Coffee, Bed, Leaf } from "lucide-react"
+import { Key, Smile, MapPin, Coffee, Bed, Leaf, ArrowRight } from "lucide-react"
 import { GlobeDemo } from "@/components/ui/demo"
+import Link from "next/link"
 
 // Animation variants
 const fadeIn = {
@@ -287,9 +288,25 @@ export default function Home() {
         <section className="py-24 bg-white">
           <div className="container px-4 mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Ready for a Soulful Stay?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8">
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
             </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/all-locations" className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                View All Locations
+                <ArrowRight className="ml-2 size-5" />
+              </Link>
+              <button 
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+              >
+                Book Now
+              </button>
+            </div>
           </div>
         </section>
 
