@@ -3,12 +3,23 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Search, CalendarIcon, Users } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { format, addDays } from "date-fns"
+import { Search, Users, CalendarIcon, Loader2 } from "lucide-react"
+import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { DayPicker } from "react-day-picker"
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { DateRange } from "react-day-picker"
 
 interface BookingWidgetProps {
   initialSearchParams?: {
@@ -24,18 +35,21 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     city: initialSearchParams?.city || '',
-    startDate: initialSearchParams?.startDate || '',
-    endDate: initialSearchParams?.endDate || '',
     adults: initialSearchParams?.adults || '2',
     children: initialSearchParams?.children || '0',
   })
+  const [date, setDate] = useState<DateRange | undefined>(() => {
+    if (initialSearchParams?.startDate && initialSearchParams?.endDate) {
+      return {
+        from: new Date(initialSearchParams.startDate),
+        to: new Date(initialSearchParams.endDate),
+      }
+    }
+    return undefined
+  })
   const [cities, setCities] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
-
-  // Add disabled dates logic
-  const disabledDays = {
-    before: new Date(),
-  }
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -44,7 +58,6 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         const res = await fetch('/api/cloudbeds-properties')
         const data = await res.json()
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
-          // Get unique cities as string[]
           const uniqueCities: string[] = Array.from(new Set(data.properties.map((p: { city: string }) => String(p.city))))
           setCities(uniqueCities)
           if (!initialSearchParams?.city) {
@@ -63,13 +76,14 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchParams.city || !searchParams.startDate || !searchParams.endDate) {
+    if (!searchParams.city || !date?.from || !date?.to) {
       return
     }
+    setSubmitting(true)
     const queryString = new URLSearchParams({
       city: searchParams.city,
-      startDate: searchParams.startDate,
-      endDate: searchParams.endDate,
+      startDate: format(date.from, 'yyyy-MM-dd'),
+      endDate: format(date.to, 'yyyy-MM-dd'),
       adults: searchParams.adults,
       children: searchParams.children,
     }).toString()
@@ -81,241 +95,105 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
       <form onSubmit={handleSearch} className="flex items-center divide-x divide-gray-200">
         {/* City */}
         <div className="relative flex-[2] min-w-[240px] pl-8 pr-4 py-3">
-          <label className="block text-sm font-medium text-gray-800">City</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild disabled={loading}>
-              <Button variant="ghost" className="w-full justify-start p-0 font-normal">
-                {searchParams.city || 'Select a city'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[240px]">
+          <label className="block text-sm font-medium text-gray-800 mb-1">City</label>
+          <Select
+            value={searchParams.city}
+            onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, city: value }))}
+            disabled={loading}
+          >
+            <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+              <SelectValue placeholder="Select a city" />
+            </SelectTrigger>
+            <SelectContent>
               {cities.map((city) => (
-                <DropdownMenuItem
-                  key={city}
-                  onClick={() => setSearchParams(prev => ({ ...prev, city }))}
-                >
+                <SelectItem key={city} value={city}>
                   {city}
-                </DropdownMenuItem>
+                </SelectItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Check in */}
-        <div className="relative flex-1 px-6 py-3">
-          <label className="block text-sm font-medium text-gray-800">Check in</label>
+        {/* Date Range Picker */}
+        <div className="relative flex-[2] min-w-[260px] px-6 py-3">
+          <label className="block text-sm font-medium text-gray-800 mb-1">Dates</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start p-0 font-normal",
-                  !searchParams.startDate && "text-gray-400"
+                  "w-full justify-start p-0 font-normal text-left",
+                  !date?.from && "text-gray-400"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {searchParams.startDate ? format(new Date(searchParams.startDate), "MMM d, yyyy") : "Pick a date"}
+                {date?.from && date?.to
+                  ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
+                  : <span>Pick dates</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 min-w-[340px]" align="start">
-              <DayPicker
-                mode="single"
-                selected={searchParams.startDate ? new Date(searchParams.startDate) : undefined}
-                onSelect={(date) => {
-                  if (date) {
-                    const formattedDate = format(date, 'yyyy-MM-dd')
-                    setSearchParams(prev => ({ 
-                      ...prev, 
-                      startDate: formattedDate,
-                      endDate: prev.endDate && new Date(prev.endDate) <= date ? 
-                        format(addDays(date, 1), 'yyyy-MM-dd') : 
-                        prev.endDate
-                    }))
-                  }
-                }}
-                disabled={disabledDays}
-                fromMonth={new Date()}
-                defaultMonth={new Date()}
-                classNames={{
-                  root: "",
-                  chevron: "",
-                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                  day_button: "",
-                  caption_label: "text-sm font-medium",
-                  dropdowns: "",
-                  dropdown: "",
-                  dropdown_root: "",
-                  footer: "",
-                  month_grid: "w-full border-collapse space-y-1",
-                  month_caption: "flex justify-center pt-1 relative items-center",
-                  months_dropdown: "",
-                  month: "space-y-4",
-                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  nav: "space-x-1 flex items-center",
-                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                  button_next: "absolute right-1",
-                  button_previous: "absolute left-1",
-                  week: "flex w-full mt-2",
-                  weeks: "",
-                  weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-                  weekdays: "flex",
-                  week_number: "",
-                  week_number_header: "",
-                  years_dropdown: "",
-                  // DayFlag
-                  disabled: "text-muted-foreground opacity-50",
-                  hidden: "invisible",
-                  outside: "text-muted-foreground opacity-50",
-                  focused: "",
-                  today: "bg-accent text-accent-foreground",
-                  // SelectionState
-                  range_end: "",
-                  range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  range_start: "",
-                  selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  // Animation
-                  weeks_before_enter: "",
-                  weeks_before_exit: "",
-                  weeks_after_enter: "",
-                  weeks_after_exit: "",
-                  caption_after_enter: "",
-                  caption_after_exit: "",
-                  caption_before_enter: "",
-                  caption_before_exit: "",
-                }}
-                showOutsideDays={false}
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="range"
+                selected={date}
+                onSelect={setDate}
+                numberOfMonths={1}
+                initialFocus
+                className="rounded-lg border border-border p-2"
+                disabled={{ before: new Date() }}
               />
             </PopoverContent>
           </Popover>
         </div>
 
-        {/* Check out */}
+        {/* Adults */}
         <div className="relative flex-1 px-6 py-3">
-          <label className="block text-sm font-medium text-gray-800">Check out</label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start p-0 font-normal",
-                  !searchParams.endDate && "text-gray-400"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {searchParams.endDate ? format(new Date(searchParams.endDate), "MMM d, yyyy") : "Pick a date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 min-w-[340px]" align="start">
-              <DayPicker
-                mode="single"
-                selected={searchParams.endDate ? new Date(searchParams.endDate) : undefined}
-                onSelect={(date) => {
-                  if (date) {
-                    const formattedDate = format(date, 'yyyy-MM-dd')
-                    setSearchParams(prev => ({ ...prev, endDate: formattedDate }))
-                  }
-                }}
-                disabled={{
-                  ...disabledDays,
-                  before: searchParams.startDate ? addDays(new Date(searchParams.startDate), 1) : new Date()
-                }}
-                fromMonth={searchParams.startDate ? new Date(searchParams.startDate) : new Date()}
-                defaultMonth={searchParams.startDate ? new Date(searchParams.startDate) : new Date()}
-                classNames={{
-                  root: "",
-                  chevron: "",
-                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                  day_button: "",
-                  caption_label: "text-sm font-medium",
-                  dropdowns: "",
-                  dropdown: "",
-                  dropdown_root: "",
-                  footer: "",
-                  month_grid: "w-full border-collapse space-y-1",
-                  month_caption: "flex justify-center pt-1 relative items-center",
-                  months_dropdown: "",
-                  month: "space-y-4",
-                  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  nav: "space-x-1 flex items-center",
-                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                  button_next: "absolute right-1",
-                  button_previous: "absolute left-1",
-                  week: "flex w-full mt-2",
-                  weeks: "",
-                  weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-                  weekdays: "flex",
-                  week_number: "",
-                  week_number_header: "",
-                  years_dropdown: "",
-                  // DayFlag
-                  disabled: "text-muted-foreground opacity-50",
-                  hidden: "invisible",
-                  outside: "text-muted-foreground opacity-50",
-                  focused: "",
-                  today: "bg-accent text-accent-foreground",
-                  // SelectionState
-                  range_end: "",
-                  range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  range_start: "",
-                  selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  // Animation
-                  weeks_before_enter: "",
-                  weeks_before_exit: "",
-                  weeks_after_enter: "",
-                  weeks_after_exit: "",
-                  caption_after_enter: "",
-                  caption_after_exit: "",
-                  caption_before_enter: "",
-                  caption_before_exit: "",
-                }}
-                showOutsideDays={false}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        {/* Who */}
-        <div className="relative flex-1 px-6 py-3">
-          <label className="block text-sm font-medium text-gray-800">Adults</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start p-0 font-normal">
-                <Users className="mr-2 h-4 w-4" />
-                {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
+          <label className="block text-sm font-medium text-gray-800 mb-1">Adults</label>
+          <Select
+            value={searchParams.adults}
+            onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, adults: value }))}
+          >
+            <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+              <SelectValue>
+                <div className="flex items-center">
+                  <Users className="mr-2 h-4 w-4" />
+                  {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
               {[1, 2, 3, 4, 5, 6].map((num) => (
-                <DropdownMenuItem
-                  key={num}
-                  onClick={() => setSearchParams(prev => ({ ...prev, adults: num.toString() }))}
-                >
+                <SelectItem key={num} value={num.toString()}>
                   {num} {num === 1 ? 'adult' : 'adults'}
-                </DropdownMenuItem>
+                </SelectItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* Children */}
         <div className="relative flex-1 px-6 py-3">
-          <label className="block text-sm font-medium text-gray-800">Children</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start p-0 font-normal">
-                <Users className="mr-2 h-4 w-4" />
-                {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
+          <label className="block text-sm font-medium text-gray-800 mb-1">Children</label>
+          <Select
+            value={searchParams.children}
+            onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, children: value }))}
+          >
+            <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+              <SelectValue>
+                <div className="flex items-center">
+                  <Users className="mr-2 h-4 w-4" />
+                  {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
               {[0, 1, 2, 3, 4].map((num) => (
-                <DropdownMenuItem
-                  key={num}
-                  onClick={() => setSearchParams(prev => ({ ...prev, children: num.toString() }))}
-                >
+                <SelectItem key={num} value={num.toString()}>
                   {num} {num === 1 ? 'child' : 'children'}
-                </DropdownMenuItem>
+                </SelectItem>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Search Button */}
@@ -324,8 +202,13 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
             type="submit" 
             size="icon"
             className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            disabled={submitting}
           >
-            <Search className="w-5 h-5" />
+            {submitting ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Search className="w-5 h-5" />
+            )}
           </Button>
         </div>
       </form>
