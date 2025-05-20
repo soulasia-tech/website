@@ -294,57 +294,63 @@ export default function AllLocationsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">All Locations</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left: Properties and Rooms in 2-column grid, edge-to-edge */}
-          <div className="flex flex-col gap-8">
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">Properties</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {loading ? (
-                  [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
-                ) : (
-                  properties.map((property) => (
-                    <PropertyCard
-                      key={property.propertyId}
-                      propertyName={property.propertyName}
-                      location={property.location}
-                      photos={property.photos}
-                      pricePerDay={property.pricePerDay}
-                    />
-                  ))
-                )}
+    <>
+      {/* Hero Section */}
+      <section className="relative w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-[70vh] py-32 flex flex-col items-center justify-center text-center mb-8">
+        <h1 className="text-5xl md:text-6xl font-bold text-blue-900 mb-4 animate-fade-in-up">SoulAsia Locations</h1>
+        <p className="text-lg md:text-2xl text-blue-700 max-w-2xl mx-auto animate-fade-in-up delay-100">Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
+      </section>
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Left: Properties and Rooms in 2-column grid, edge-to-edge */}
+            <div className="flex flex-col gap-8">
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Properties</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {loading ? (
+                    [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
+                  ) : (
+                    properties.map((property) => (
+                      <PropertyCard
+                        key={property.propertyId}
+                        propertyName={property.propertyName}
+                        location={property.location}
+                        photos={property.photos}
+                        pricePerDay={property.pricePerDay}
+                      />
+                    ))
+                  )}
+                </div>
+              </section>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Rooms</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {loading ? (
+                    [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
+                  ) : (
+                    rooms.map((room) => (
+                      <RoomCard
+                        key={room.roomTypeID}
+                        roomName={room.roomTypeName}
+                        propertyName={room.propertyName}
+                        photos={room.roomTypePhotos}
+                        rate={room.rate}
+                      />
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
+            {/* Right: Map */}
+            <div className="h-full flex items-start">
+              <div className="sticky top-8 w-full" style={{ maxHeight: '80vh' }}>
+                <AllPropertiesMap />
               </div>
-            </section>
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">Rooms</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {loading ? (
-                  [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
-                ) : (
-                  rooms.map((room) => (
-                    <RoomCard
-                      key={room.roomTypeID}
-                      roomName={room.roomTypeName}
-                      propertyName={room.propertyName}
-                      photos={room.roomTypePhotos}
-                      rate={room.rate}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-          </div>
-          {/* Right: Map */}
-          <div className="h-full flex items-start">
-            <div className="sticky top-8 w-full" style={{ maxHeight: '80vh' }}>
-              <AllPropertiesMap />
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 } 
