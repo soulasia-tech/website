@@ -233,7 +233,7 @@ export default function Home() {
           <div className="container mx-auto flex flex-col md:flex-row gap-12 items-center">
             {/* Text Column */}
             <div className="flex-[0.8] w-full max-w-md mb-8 md:mb-0">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 uppercase text-gray-900">Standard in Every Property</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Standard in every property</h2>
               <p className="text-gray-700 text-lg">
                 You can always count on the same quality when you stay with Soulasia, no matter the location. Some things are customized, but others—like contactless access, fast WiFi, and 24/7 support—are always the same. Enjoy thoughtfully curated amenities, seamless technology, and a welcoming atmosphere—no matter where you stay.
               </p>

@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Card } from "@/components/ui/card";
-import { User } from '@supabase/supabase-js';
+import Link from "next/link";
 import { PropertyInformation } from '@/components/property-information';
 
 interface Booking {
@@ -30,7 +30,6 @@ function ConfirmationContent() {
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
   const [booking, setBooking] = useState<Booking | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -134,9 +133,9 @@ function ConfirmationContent() {
         });
         // If user is logged in, insert booking into Supabase
         let userIdToUse = null;
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          userIdToUse = user.id;
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          userIdToUse = data.user.id;
         } else if (bookingPayload.userId) {
           userIdToUse = bookingPayload.userId;
         }
@@ -169,10 +168,6 @@ function ConfirmationContent() {
     
     const fetchData = async () => {
       try {
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-
         if (!bookingId) {
           // If no bookingId, we'll just show a generic success message
           setLoading(false);
@@ -219,14 +214,42 @@ function ConfirmationContent() {
   }, [searchParams, supabase]);
 
   if (loading) {
+    // Use guest name if available in localStorage or searchParams
+    let guestName = '';
+    if (typeof window !== 'undefined') {
+      const bookingToken = searchParams.get('bookingToken');
+      if (bookingToken) {
+        const localData = localStorage.getItem(`booking_${bookingToken}`);
+        if (localData) {
+          try {
+            const bookingPayload = JSON.parse(localData);
+            guestName = bookingPayload.bookingData?.firstName || '';
+          } catch {}
+        }
+      } else {
+        guestName = searchParams.get('firstName') || '';
+      }
+    }
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <Card className="bg-white rounded-xl p-6 shadow-sm">
+            <h1 className="text-2xl font-bold text-green-700 mb-4">
+              Thank you{guestName ? `, ${guestName}` : ''}! Your booking is confirmed.
+            </h1>
+            <p className="mb-4 text-gray-700">Loading your booking details…</p>
             <div className="animate-pulse space-y-4">
               <div className="h-8 bg-gray-200 rounded w-1/4"></div>
               <div className="h-4 bg-gray-200 rounded w-3/4"></div>
               <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div className="mt-8 space-y-2">
+              <p className="text-gray-600">Check your inbox for booking confirmation and further details.</p>
+              <p className="text-gray-600">Need help? Contact us at <a href="mailto:info@soulasia.com.my" className="underline">info@soulasia.com.my</a></p>
+              <p className="text-gray-600">We are looking forward to welcoming you!</p>
+            </div>
+            <div className="mt-8">
+              <Link href="/" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full transition">Want to plan your next trip? Book now</Link>
             </div>
           </Card>
         </div>
@@ -249,12 +272,24 @@ function ConfirmationContent() {
 
   // Show generic success message if no booking details
   if (!booking) {
+    // Use guest name if available
+    const guestName = searchParams.get('firstName') || '';
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
           <Card className="bg-white rounded-xl p-6 shadow-sm">
-            <h1 className="text-2xl font-bold text-green-600 mb-4">Booking Successful!</h1>
-            <p className="mb-6">Your booking has been confirmed. You will receive a confirmation email shortly.</p>
+            <h1 className="text-2xl font-bold text-green-700 mb-4">
+              Thank you{guestName ? `, ${guestName}` : ''}! Your booking is confirmed.
+            </h1>
+            <p className="mb-4 text-gray-700">Your booking has been confirmed. You will receive a confirmation email shortly.</p>
+            <div className="mt-8 space-y-2">
+              <p className="text-gray-600">Check your inbox for booking confirmation and further details.</p>
+              <p className="text-gray-600">Need help? Contact us at <a href="mailto:info@soulasia.com.my" className="underline">info@soulasia.com.my</a></p>
+              <p className="text-gray-600">We are looking forward to welcoming you!</p>
+            </div>
+            <div className="mt-8">
+              <Link href="/" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full transition">Want to plan your next trip? Book now</Link>
+            </div>
           </Card>
         </div>
       </div>
@@ -265,14 +300,14 @@ function ConfirmationContent() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <Card className="bg-white rounded-xl p-6 shadow-sm">
-          <h1 className="text-2xl font-bold mb-6">Booking Confirmed!</h1>
-          
+          <h1 className="text-2xl font-bold text-green-700 mb-6">
+            Thank you{booking.guest_first_name ? `, ${booking.guest_first_name}` : ''}! Your booking is confirmed.
+          </h1>
           <div className="space-y-4">
             <p>Your booking reference: <span className="font-mono">{booking.id}</span></p>
             <p>Check-in: {new Date(booking.check_in).toLocaleDateString()}</p>
             <p>Check-out: {new Date(booking.check_out).toLocaleDateString()}</p>
             <p>Total price: MYR {booking.total_price?.toFixed(2)}</p>
-            
             {/* Show guest info for guest bookings */}
             {!booking.user_id && (
               <div className="pt-4 border-t">
@@ -282,14 +317,14 @@ function ConfirmationContent() {
               </div>
             )}
           </div>
-
-          {/* Show verification message if account was just created */}
-          {!user && booking.user_id && (
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-              <h2 className="text-lg font-semibold mb-2">Check Your Email</h2>
-              <p>Please check your email to verify your account. Once verified, you can sign in to manage your bookings.</p>
-            </div>
-          )}
+          <div className="mt-8 space-y-2">
+            <p className="text-gray-600">Check your inbox for booking confirmation and further details.</p>
+            <p className="text-gray-600">Need help? Contact us at <a href="mailto:info@soulasia.com.my" className="underline">info@soulasia.com.my</a></p>
+            <p className="text-gray-600">We are looking forward to welcoming you!</p>
+          </div>
+          <div className="mt-8">
+            <Link href="/" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full transition">Want to plan your next trip? Book now</Link>
+          </div>
         </Card>
       </div>
       {/* Property Information Section (added at the bottom) */}
