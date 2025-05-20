@@ -194,15 +194,17 @@ function AllPropertiesMap() {
 }
 
 export default function AllLocationsPage() {
-  // Fetch properties
+  // Fetch properties and rooms independently of the map
   const [properties, setProperties] = useState<Property[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingRooms, setLoadingRooms] = useState(true);
+  const [loadingProperties, setLoadingProperties] = useState(true);
 
+  // Fetch properties (for cards)
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      // Fetch properties (from cache if available)
+    let isMounted = true;
+    async function fetchProperties() {
+      setLoadingProperties(true);
       let propertiesData = allLocationsCache.properties;
       if (!propertiesData) {
         const propertiesRes = await fetch('/api/cloudbeds-properties');
@@ -213,11 +215,10 @@ export default function AllLocationsPage() {
         }
       }
       if (!propertiesData || !propertiesData.success) {
-        setLoading(false);
+        setLoadingProperties(false);
         return;
       }
       const propertiesArr: Property[] = [];
-      // Progressive property details
       await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
         const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
         const details = await detailsRes.json();
@@ -240,57 +241,78 @@ export default function AllLocationsPage() {
             pricePerDay: property.price_per_day,
           };
           propertiesArr.push(prop);
-          setProperties([...propertiesArr]);
+          if (isMounted) setProperties([...propertiesArr]);
         }
       }));
-      // Fetch rooms progressively (from cache if available)
-      if (propertiesData.success) {
-        let roomsDataArr = allLocationsCache.rooms;
-        let ratesDataArr = allLocationsCache.rates;
-        if (!roomsDataArr || !ratesDataArr) {
-          // Fetch if not cached
-          const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
-            fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
-          );
-          roomsDataArr = await Promise.all(roomTypePromises);
-          allLocationsCache.setRooms(roomsDataArr);
-          const startDate = new Date().toISOString().slice(0, 10);
-          const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-          const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
-            fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
-          );
-          ratesDataArr = await Promise.all(ratePlanPromises);
-          allLocationsCache.setRates(ratesDataArr);
-        }
-        const roomsArr: Room[] = [];
-        for (let i = 0; i < propertiesData.properties.length; i++) {
-          const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
-          const roomsData = roomsDataArr[i];
-          const ratesData = ratesDataArr[i];
-          const rateMap: Record<string, number> = {};
-          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-            (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
-              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
-              }
-            });
-          }
-          if (roomsData.success && roomsData.roomTypes) {
-            const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
-              roomTypeID: room.roomTypeID,
-              roomTypeName: room.roomTypeName,
-              propertyName: property.propertyName || "",
-              roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
-              rate: rateMap[room.roomTypeID],
-            }));
-            roomsArr.push(...transformedRooms);
-            setRooms([...roomsArr]);
-          }
+      setLoadingProperties(false);
+    }
+    fetchProperties();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Fetch rooms (for cards)
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchRooms() {
+      setLoadingRooms(true);
+      let propertiesData = allLocationsCache.properties;
+      if (!propertiesData) {
+        const propertiesRes = await fetch('/api/cloudbeds-properties');
+        const fetched = await propertiesRes.json();
+        if (fetched) {
+          allLocationsCache.setProperties(fetched);
+          propertiesData = fetched;
         }
       }
-      setLoading(false);
+      if (!propertiesData || !propertiesData.success) {
+        setLoadingRooms(false);
+        return;
+      }
+      let roomsDataArr = allLocationsCache.rooms;
+      let ratesDataArr = allLocationsCache.rates;
+      if (!roomsDataArr || !ratesDataArr) {
+        const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
+          fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
+        );
+        roomsDataArr = await Promise.all(roomTypePromises);
+        allLocationsCache.setRooms(roomsDataArr);
+        const startDate = new Date().toISOString().slice(0, 10);
+        const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
+          fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
+        );
+        ratesDataArr = await Promise.all(ratePlanPromises);
+        allLocationsCache.setRates(ratesDataArr);
+      }
+      const roomsArr: Room[] = [];
+      for (let i = 0; i < propertiesData.properties.length; i++) {
+        const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
+        const roomsData = roomsDataArr[i];
+        const ratesData = ratesDataArr[i];
+        const rateMap: Record<string, number> = {};
+        if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+          (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
+            if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+              rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+            }
+          });
+        }
+        if (roomsData.success && roomsData.roomTypes) {
+          const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
+            roomTypeID: room.roomTypeID,
+            roomTypeName: room.roomTypeName,
+            propertyName: property.propertyName || "",
+            roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
+            rate: rateMap[room.roomTypeID],
+          }));
+          roomsArr.push(...transformedRooms);
+          if (isMounted) setRooms([...roomsArr]);
+        }
+      }
+      setLoadingRooms(false);
     }
-    fetchData();
+    fetchRooms();
+    return () => { isMounted = false; };
   }, []);
 
   return (
@@ -308,7 +330,7 @@ export default function AllLocationsPage() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">Properties</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {loading ? (
+                  {(loadingProperties) ? (
                     [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
                   ) : (
                     properties.map((property) => (
@@ -326,7 +348,7 @@ export default function AllLocationsPage() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">Rooms</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {loading ? (
+                  {(loadingRooms) ? (
                     [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
                   ) : (
                     rooms.map((room) => (
@@ -342,7 +364,7 @@ export default function AllLocationsPage() {
                 </div>
               </section>
             </div>
-            {/* Right: Map */}
+            {/* Right: Map (loads in parallel, not blocking cards) */}
             <div className="h-full flex items-start">
               <div className="sticky top-8 w-full" style={{ maxHeight: '80vh' }}>
                 <AllPropertiesMap />
