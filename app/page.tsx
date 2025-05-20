@@ -253,7 +253,7 @@ export default function Home() {
                       exit="exit"
                       className="w-full"
                     >
-                      <div className="grid grid-cols-3 grid-rows-2 w-full gap-8">
+                      <div className="grid grid-cols-1 grid-rows-6 md:grid-cols-3 md:grid-rows-2 w-full gap-8">
                         {(currentSlide === 0 ? standardsSlide1 : standardsSlide2).map(feature => (
                           <div key={feature.title} className="flex flex-col items-center text-center">
                             {feature.icon}
