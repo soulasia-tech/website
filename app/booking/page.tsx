@@ -11,8 +11,6 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { PropertyInformation } from '@/components/property-information';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -20,6 +18,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BookingFormData {
   firstName: string;
@@ -599,63 +598,41 @@ function BookingForm() {
                   {/* Estimated Arrival Time */}
                   <div>
                     <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className={cn(
-                            "form-control flex items-center justify-between w-full text-left",
-                            !bookingData.estimatedArrivalTime && "text-gray-400"
-                          )}
-                        >
-                          {bookingData.estimatedArrivalTime || "Select time (optional)"}
-                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                    <Select
+                      value={bookingData.estimatedArrivalTime || ''}
+                      onValueChange={(value: string) => setBookingData(prev => ({ ...prev, estimatedArrivalTime: value }))}
+                    >
+                      <SelectTrigger className={cn("w-full text-left", !bookingData.estimatedArrivalTime && "text-gray-400")}> 
+                        <SelectValue placeholder="Select time (optional)" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 overflow-y-auto">
                         {ARRIVAL_TIMES.map(time => (
-                          <DropdownMenuItem
-                            key={time}
-                            onSelect={() => setBookingData(prev => ({ ...prev, estimatedArrivalTime: time }))}
-                            className="flex items-center justify-between"
-                          >
-                            <span>{time}</span>
-                            {bookingData.estimatedArrivalTime === time && <Check className="h-4 w-4 text-green-600" />}
-                          </DropdownMenuItem>
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
                         ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Country */}
                   <div>
                     <label className="block text-sm font-medium mb-1">Country</label>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className={cn(
-                            "form-control flex items-center justify-between w-full text-left",
-                            !bookingData.country && "text-gray-400"
-                          )}
-                        >
-                          {COUNTRIES.find(c => c.code === bookingData.country)?.name || "Select country"}
-                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full max-h-60 overflow-y-auto">
+                    <Select
+                      value={bookingData.country || ''}
+                      onValueChange={(value: string) => setBookingData(prev => ({ ...prev, country: value }))}
+                    >
+                      <SelectTrigger className={cn("w-full text-left", !bookingData.country && "text-gray-400")}> 
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 overflow-y-auto">
                         {COUNTRIES.map(country => (
-                          <DropdownMenuItem
-                            key={country.code}
-                            onSelect={() => setBookingData(prev => ({ ...prev, country: country.code }))}
-                            className="flex items-center justify-between"
-                          >
-                            <span>{country.name}</span>
-                            {bookingData.country === country.code && <Check className="h-4 w-4 text-green-600" />}
-                          </DropdownMenuItem>
+                          <SelectItem key={country.code} value={country.code}>
+                            {country.name}
+                          </SelectItem>
                         ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Add account creation section for non-authenticated users */}

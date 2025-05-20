@@ -250,7 +250,7 @@ export default function MyBookingsPage() {
         onClose={() => setSelectedBooking(null)}
       />
       <div className="mt-12 flex flex-col items-center gap-6">
-        <Button asChild size="lg">
+        <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg px-8 py-4 text-base font-semibold">
           <Link href="/">Book Your Next Trip</Link>
         </Button>
         <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">

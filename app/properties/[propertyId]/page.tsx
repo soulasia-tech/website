@@ -5,9 +5,24 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Map, { Marker } from 'react-map-gl';
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import { Calendar } from "@/components/ui/calendar";
+import { Search, Users, CalendarIcon, Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DateRange } from "react-day-picker";
 
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
@@ -53,19 +68,21 @@ export default function PropertiesPage() {
   const visibleImages = getVisibleImages();
 
   // Booking widget state
-  const [checkIn, setCheckIn] = useState<Date | undefined>();
-  const [checkOut, setCheckOut] = useState<Date | undefined>();
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
+  const [adults, setAdults] = useState('2');
+  const [children, setChildren] = useState('0');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleBookNow = () => {
-    if (!checkIn || !checkOut) return;
+  const handleBookNow = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date?.from || !date?.to) return;
+    setSubmitting(true);
     const params = new URLSearchParams({
       propertyId: propertyId.toString(),
-      startDate: checkIn.toISOString().slice(0, 10),
-      endDate: checkOut.toISOString().slice(0, 10),
-      adults: adults.toString(),
-      children: children.toString(),
+      startDate: format(date.from, 'yyyy-MM-dd'),
+      endDate: format(date.to, 'yyyy-MM-dd'),
+      adults,
+      children,
     });
     router.push(`/search?${params.toString()}`);
   };
@@ -203,137 +220,96 @@ export default function PropertiesPage() {
             <div className="md:sticky md:top-24">
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 max-w-full flex flex-col gap-2 px-4 py-6">
                 <div className="text-lg font-semibold text-gray-900 mb-2 px-2">Book this property</div>
-                <div className="flex flex-col gap-1">
+                <form className="flex flex-col gap-1" onSubmit={handleBookNow}>
                   <div className="px-2 py-1">
-                    <label className="block text-sm font-medium text-gray-800 mb-1">Check-in</label>
-                    <DatePicker 
-                      value={checkIn} 
-                      onChange={setCheckIn} 
-                      placeholder="Select date"
-                      classNames={{
-                        root: "",
-                        chevron: "",
-                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                        day_button: "",
-                        caption_label: "text-sm font-medium",
-                        dropdowns: "",
-                        dropdown: "",
-                        dropdown_root: "",
-                        footer: "",
-                        month_grid: "w-full border-collapse space-y-1",
-                        month_caption: "flex justify-center pt-1 relative items-center",
-                        months_dropdown: "",
-                        month: "space-y-4",
-                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                        nav: "space-x-1 flex items-center",
-                        button_next: "absolute right-1",
-                        button_previous: "absolute left-1",
-                        week: "flex w-full mt-2",
-                        weeks: "",
-                        weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-                        weekdays: "flex",
-                        week_number: "",
-                        week_number_header: "",
-                        years_dropdown: "",
-                        // DayFlag
-                        disabled: "text-muted-foreground opacity-50",
-                        hidden: "invisible",
-                        outside: "text-muted-foreground opacity-50",
-                        focused: "",
-                        today: "bg-accent text-accent-foreground",
-                        // SelectionState
-                        range_end: "",
-                        range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                        range_start: "",
-                        selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                        // Animation
-                        weeks_before_enter: "",
-                        weeks_before_exit: "",
-                        weeks_after_enter: "",
-                        weeks_after_exit: "",
-                        caption_after_enter: "",
-                        caption_after_exit: "",
-                        caption_before_enter: "",
-                        caption_before_exit: "",
-                      }}
-                    />
-                  </div>
-                  <div className="px-2 py-1">
-                    <label className="block text-sm font-medium text-gray-800 mb-1">Check-out</label>
-                    <DatePicker 
-                      value={checkOut} 
-                      onChange={setCheckOut} 
-                      placeholder="Select date"
-                      classNames={{
-                        root: "",
-                        chevron: "",
-                        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                        day_button: "",
-                        caption_label: "text-sm font-medium",
-                        dropdowns: "",
-                        dropdown: "",
-                        dropdown_root: "",
-                        footer: "",
-                        month_grid: "w-full border-collapse space-y-1",
-                        month_caption: "flex justify-center pt-1 relative items-center",
-                        months_dropdown: "",
-                        month: "space-y-4",
-                        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                        nav: "space-x-1 flex items-center",
-                        button_next: "absolute right-1",
-                        button_previous: "absolute left-1",
-                        week: "flex w-full mt-2",
-                        weeks: "",
-                        weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-                        weekdays: "flex",
-                        week_number: "",
-                        week_number_header: "",
-                        years_dropdown: "",
-                        // DayFlag
-                        disabled: "text-muted-foreground opacity-50",
-                        hidden: "invisible",
-                        outside: "text-muted-foreground opacity-50",
-                        focused: "",
-                        today: "bg-accent text-accent-foreground",
-                        // SelectionState
-                        range_end: "",
-                        range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                        range_start: "",
-                        selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                        // Animation
-                        weeks_before_enter: "",
-                        weeks_before_exit: "",
-                        weeks_after_enter: "",
-                        weeks_after_exit: "",
-                        caption_after_enter: "",
-                        caption_after_exit: "",
-                        caption_before_enter: "",
-                        caption_before_exit: "",
-                      }}
-                    />
+                    <label className="block text-sm font-medium text-gray-800 mb-1">Dates</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start p-0 font-normal text-left",
+                            !date?.from && "text-gray-400"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date?.from && date?.to
+                            ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
+                            : <span>Pick dates</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="range"
+                          selected={date}
+                          onSelect={setDate}
+                          numberOfMonths={1}
+                          initialFocus
+                          className="rounded-lg border border-border p-2"
+                          disabled={{ before: new Date() }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="px-2 py-1">
                     <label className="block text-sm font-medium text-gray-800 mb-1">Adults</label>
-                    <Input
-                      type="number"
-                      min={1}
+                    <Select
                       value={adults}
-                      onChange={e => setAdults(Number(e.target.value))}
-                      className="w-full rounded-full border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 px-4 py-2"
-                    />
+                      onValueChange={(value: string) => setAdults(value)}
+                    >
+                      <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+                        <SelectValue>
+                          <div className="flex items-center">
+                            <Users className="mr-2 h-4 w-4" />
+                            {adults} {parseInt(adults) === 1 ? 'adult' : 'adults'}
+                          </div>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} {num === 1 ? 'adult' : 'adults'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="px-2 py-1">
                     <label className="block text-sm font-medium text-gray-800 mb-1">Children</label>
-                    <Input
-                      type="number"
-                      min={0}
+                    <Select
                       value={children}
-                      onChange={e => setChildren(Number(e.target.value))}
-                      className="w-full rounded-full border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 px-4 py-2"
-                    />
+                      onValueChange={(value: string) => setChildren(value)}
+                    >
+                      <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+                        <SelectValue>
+                          <div className="flex items-center">
+                            <Users className="mr-2 h-4 w-4" />
+                            {children} {parseInt(children) === 1 ? 'child' : 'children'}
+                          </div>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 1, 2, 3, 4].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} {num === 1 ? 'child' : 'children'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Button className="mt-4 w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg text-base font-semibold" onClick={handleBookNow}>Book Now</Button>
-                </div>
+                  <Button
+                    type="submit"
+                    className="mt-4 w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg text-base font-semibold"
+                    disabled={submitting}
+                  >
+                    {submitting ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Search className="w-5 h-5" />
+                    )}
+                    <span className="ml-2">Book Now</span>
+                  </Button>
+                </form>
               </div>
             </div>
           </div>

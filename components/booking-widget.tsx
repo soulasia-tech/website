@@ -197,17 +197,17 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         </div>
 
         {/* Search Button */}
-        <div className="pr-2 pl-4 py-2">
+        <div className="flex items-center justify-center h-full px-4">
           <Button 
             type="submit" 
             size="icon"
-            className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            className="h-16 w-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center"
             disabled={submitting}
           >
             {submitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin" />
             ) : (
-              <Search className="w-5 h-5" />
+              <Search className="w-6 h-6" />
             )}
           </Button>
         </div>

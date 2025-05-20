@@ -13,6 +13,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
+import { Loader2 } from "lucide-react";
 
 interface RoomResult {
   id: string;
@@ -41,6 +42,7 @@ function SearchResults() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const swiperRef = useRef<SwiperType | null>(null);
   const swiperInitialized = useRef(false);
+  const [buttonLoading, setButtonLoading] = useState<string | null>(null);
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -184,6 +186,7 @@ function SearchResults() {
   }, [carouselIndex, selectedRoomImages]);
 
   const handleBookNow = (roomId: string, propertyId: string) => {
+    setButtonLoading(roomId);
     router.push(`/booking?roomId=${roomId}&startDate=${startDate}&endDate=${endDate}&propertyId=${propertyId}&adults=${adults}&children=${children}`);
   };
 
@@ -280,22 +283,28 @@ function SearchResults() {
                   </div>
                   <div className="flex items-center justify-between mt-4 pt-4 border-t">
                     <div>
-                      <p className="text-2xl font-bold">
-                        {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
-                      </p>
-                      <p className="text-gray-600">per night</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold">
+                          {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
+                        </span>
+                        <span className="text-gray-600 text-base">per night</span>
+                      </div>
                       <p className="text-lg font-medium mt-1">
                         {rates[room.id] !== undefined ? `MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
                       </p>
                     </div>
                     <Button 
                       onClick={() => handleBookNow(room.id, room.propertyId)}
-                      disabled={!room.available}
+                      disabled={!room.available || buttonLoading === room.id}
                       size="lg"
                       variant="outline"
                       className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
                     >
-                      Book Now
+                      {buttonLoading === room.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        'Book Now'
+                      )}
                     </Button>
                   </div>
                 </div>
