@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import Head from "next/head";
+import Script from "next/script";
 
 // Initialize Inter font with all weights we'll need
 const inter = Inter({ 
@@ -32,16 +32,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
-      <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK"></script>
-        <script dangerouslySetInnerHTML={{ __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-Z11PKVB3LK');
-        `}} />
-      </head>
+      <head />
       <body className={`min-h-full flex flex-col bg-gray-50 text-gray-900 antialiased`}>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-Z11PKVB3LK');
+          `}
+        </Script>
         <Navbar />
         <main className="flex-grow pt-[72px]">
         {children}

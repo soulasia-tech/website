@@ -19,6 +19,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { calculateTotalGuests } from '@/lib/guest-utils';
 
 interface BookingFormData {
   firstName: string;
@@ -327,7 +328,8 @@ function BookingForm() {
       if (numberOfNights <= 0) {
         throw new Error('Invalid date selection');
       }
-      if (bookingData.adults + bookingData.children > (room.maxGuests || 0)) {
+      const totalGuests = calculateTotalGuests(bookingData.adults, bookingData.children);
+      if (totalGuests > (room.maxGuests || 0)) {
         throw new Error(`Maximum ${room.maxGuests} guests allowed for this room`);
       }
 

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
+import { calculateTotalGuests } from '@/lib/guest-utils';
 
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
@@ -91,12 +92,14 @@ export default function PropertiesPage() {
     e.preventDefault();
     if (!date?.from || !date?.to) return;
     setSubmitting(true);
+    const totalGuests = calculateTotalGuests(Number(adults), Number(children));
     const params = new URLSearchParams({
       propertyId: propertyId.toString(),
       startDate: format(date.from, 'yyyy-MM-dd'),
       endDate: format(date.to, 'yyyy-MM-dd'),
       adults,
       children,
+      guests: totalGuests.toString(),
     });
     router.push(`/search?${params.toString()}`);
   };

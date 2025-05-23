@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { calculateTotalGuests } from './guest-utils';
 
 const CLOUDBEDS_API_BASE = 'https://hotels.cloudbeds.com/api/v1.2';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -121,6 +122,7 @@ export interface BookingData {
   rateId: string;
   phone?: string;
   estimatedArrivalTime?: string;
+  children?: number;
 }
 
 export async function createReservation(bookingData: BookingData) {
@@ -138,7 +140,8 @@ export async function createReservation(bookingData: BookingData) {
     quantity: '1',
     roomRateID: bookingData.rateId,
   }];
-  const adults = Array.from({ length: bookingData.guests }).map(() => ({
+  const totalGuests = calculateTotalGuests(Number(bookingData.guests ?? 0), Number(bookingData.children ?? 0));
+  const adults = Array.from({ length: totalGuests }).map(() => ({
     roomTypeID: bookingData.roomId,
     roomID: `${bookingData.roomId}-1`,
     quantity: '1',

@@ -14,6 +14,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { Loader2 } from "lucide-react";
+import { calculateTotalGuests } from '@/lib/guest-utils';
 
 interface RoomResult {
   id: string;
@@ -193,7 +194,7 @@ function SearchResults() {
   // Parse adults and children as integers, default to 2 adults, 0 children
   const numAdults = adults ? parseInt(adults, 10) : 2;
   const numChildren = children ? parseInt(children, 10) : 0;
-  const totalGuests = numAdults + numChildren;
+  const totalGuests = calculateTotalGuests(numAdults, numChildren);
   // Filter rooms based on both rate and guest capacity
   const filteredRooms = results.filter(
     room => rates[room.id] !== undefined && room.maxGuests >= totalGuests
@@ -320,7 +321,6 @@ function SearchResults() {
               onClick={() => {
                 setSelectedRoomImages(null);
                 setCarouselIndex(0);
-                swiperInitialized.current = false;
               }}
               tabIndex={-1}
               aria-modal="true"

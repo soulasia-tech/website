@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DateRange } from "react-day-picker"
+import { calculateTotalGuests } from '@/lib/guest-utils'
 
 interface BookingWidgetProps {
   initialSearchParams?: {
@@ -96,12 +97,14 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
       return
     }
     setSubmitting(true)
+    const totalGuests = calculateTotalGuests(Number(searchParams.adults), Number(searchParams.children));
     const queryString = new URLSearchParams({
       city: searchParams.city,
       startDate: format(date.from, 'yyyy-MM-dd'),
       endDate: format(date.to, 'yyyy-MM-dd'),
       adults: searchParams.adults,
       children: searchParams.children,
+      guests: totalGuests.toString(),
     }).toString()
     router.push(`/search?${queryString}`)
   }
