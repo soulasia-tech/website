@@ -17,12 +17,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "SoulAsia",
   description: "SoulAsia - Your Gateway to Authentic Asian Experiences",
-  // Add more metadata for SEO
   openGraph: {
     title: 'SoulAsia',
     description: 'Your Gateway to Authentic Asian Experiences',
     type: 'website',
   },
+  icons: {
+    icon: [
+      { url: '/Brand/favicon.svg', type: 'image/svg+xml' }
+    ]
+  }
 };
 
 export default function RootLayout({

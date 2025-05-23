@@ -36,11 +36,11 @@ const data = [
   },
   {
     id: "location-2",
-    propertyId: "vortex-id",
+    propertyId: "19928",
     title: "Vortex",
     description:
       "Modern serviced apartments at Vortex, Kuala Lumpur. Experience city living with stunning views.",
-    href: "/properties/vortex-id",
+    href: "/properties/19928",
     image: "/properties/Vortex/54c2879c_z copy 2.jpg",
   },
   {

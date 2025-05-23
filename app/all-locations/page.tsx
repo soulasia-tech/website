@@ -5,6 +5,7 @@ import Map, { Marker, Popup } from 'react-map-gl';
 import { PropertyCard } from '@/components/property-card';
 import { RoomCard } from '@/components/room-card';
 import { allLocationsCache } from "@/lib/allLocationsCache";
+import Image from "next/image"
 
 interface PropertyMarker {
   lat: number;
@@ -318,9 +319,22 @@ export default function AllLocationsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative w-full bg-gradient-to-br from-blue-50 to-blue-100 min-h-[70vh] py-32 flex flex-col items-center justify-center text-center mb-8">
-        <h1 className="text-5xl md:text-6xl font-bold text-blue-900 mb-4 animate-fade-in-up">SoulAsia Locations</h1>
-        <p className="text-lg md:text-2xl text-blue-700 max-w-2xl mx-auto animate-fade-in-up delay-100">Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
+      <section className="relative w-full min-h-[70vh] py-32 flex flex-col items-center justify-center text-center mb-8 overflow-hidden">
+        <div className="absolute inset-0 w-full h-full z-0">
+          <Image
+            src="/media-assets/asset1.jpg"
+            alt="SoulAsia Hero Background"
+            fill
+            priority
+            className="object-cover object-center"
+            style={{ opacity: 0.5 }}
+          />
+        </div>
+        <div className="absolute inset-0 bg-black/60 z-10" />
+        <div className="relative z-20">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">SoulAsia Locations</h1>
+          <p className="text-lg md:text-2xl text-white max-w-2xl mx-auto animate-fade-in-up delay-100">Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
+        </div>
       </section>
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">

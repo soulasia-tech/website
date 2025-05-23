@@ -28,27 +28,42 @@ import { calculateTotalGuests } from '@/lib/guest-utils';
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
   '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
+  '19928': { lat: 3.1579, lng: 101.7075 }, // Vortex KLCC (example coordinates)
 };
 
-// Use real Scarletz image as placeholder 5 times
-const propertyImages = [
-  "/properties/Scarletz/DSC01330.jpg",
-  "/properties/Scarletz/DSC01330.jpg",
-  "/properties/Scarletz/DSC01330.jpg",
-  "/properties/Scarletz/DSC01330.jpg",
-  "/properties/Scarletz/DSC01330.jpg",
-];
+// Images for each property
+const propertyImagesMap: Record<string, string[]> = {
+  '270917': [
+    "/properties/Scarletz/DSC01327.jpg",
+    "/properties/Scarletz/DSC01330.jpg",
+    "/properties/Scarletz/DSC01351.jpg",
+    "/properties/Scarletz/DSC01369.jpg",
+    "/properties/Scarletz/DSC01531.jpg",
+  ],
+  '19928': [
+    "/properties/Vortex/54c2879c_z copy 2.jpg",
+    "/properties/Vortex/136238147.jpg",
+    "/properties/Vortex/1692538_17102617240058359604.jpg",
+    "/properties/Vortex/2332762_17082017030055533594.jpg",
+    "/properties/Vortex/vortex_external.JPG",
+    "/properties/Vortex/vortex_photo_gym_fitness.jpg",
+    "/properties/Vortex/2332762_17082017030055533596.jpg",
+  ],
+};
 
 export default function PropertiesPage() {
   const params = useParams();
   const propertyId = params.propertyId || "270917";
+  const isVortex = propertyId === "19928";
+  const propertyImages = propertyImagesMap[String(propertyId)] || propertyImagesMap['270917'];
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
   const total = propertyImages.length;
   const router = useRouter();
 
-  // Get static map position
-  const mapPosition = propertyLocationMap[propertyId as string];
+  // State for dynamic map position (for 19928)
+  const [dynamicMapPosition, setDynamicMapPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const mapPosition = isVortex && dynamicMapPosition ? dynamicMapPosition : propertyLocationMap[String(propertyId)];
 
   // Responsive: show 1 image on mobile, 2 on desktop
   const [isMobile, setIsMobile] = useState(false);
@@ -103,6 +118,36 @@ export default function PropertiesPage() {
     });
     router.push(`/search?${params.toString()}`);
   };
+
+  // Fetch and geocode location for Vortex (19928)
+  useEffect(() => {
+    if (!isVortex) return;
+    async function fetchAndGeocode() {
+      try {
+        const res = await fetch(`/api/cloudbeds/property?propertyId=19928`);
+        const data = await res.json();
+        if (data.success && data.hotel && data.hotel.propertyAddress) {
+          const address = data.hotel.propertyAddress;
+          const addressString = [
+            address.propertyAddress1,
+            address.propertyCity,
+            address.propertyState,
+            address.propertyPostalCode,
+            address.propertyCountry
+          ].filter(Boolean).join(", ");
+          // Geocode
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`);
+          const geoData = await geoRes.json();
+          if (geoData && geoData.length > 0) {
+            setDynamicMapPosition({ lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon) });
+          }
+        }
+      } catch {
+        // fallback to static
+      }
+    }
+    fetchAndGeocode();
+  }, [isVortex]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -170,7 +215,7 @@ export default function PropertiesPage() {
           <div className="flex-1 min-w-0">
             <div className="mb-8">
               <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
-                Scarletz KLCC Apartments by Soulasia
+                {isVortex ? 'Vortex KLCC Apartments' : 'Scarletz KLCC Apartments by Soulasia'}
                 <span className="ml-2 text-base font-normal text-gray-400">(ID: {propertyId})</span>
               </h1>
               <div className="flex flex-wrap gap-4 text-gray-600 text-base mb-2">
@@ -183,13 +228,26 @@ export default function PropertiesPage() {
             <section className="mb-12">
               <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">About this property</h2>
               <div className="text-gray-700 text-lg leading-relaxed space-y-6">
-                <p>Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you&apos;re close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor provides fast internet and panoramic views, ideal for productivity.</p>
+                <p>
+                  {isVortex
+                    ? "Welcome to Vortex KLCC Apartments, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you're close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space provides fast internet and panoramic views, ideal for productivity."
+                    : "Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you're close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor provides fast internet and panoramic views, ideal for productivity."}
+                </p>
                 <p><strong>Co-working Space</strong><br />
-                Head up to the 44th floor and discover our modern co-working space, designed to inspire creativity and productivity. This bright, stylish area offers a comfortable environment for focused work or collaborative projects, perfect for freelancers, remote workers, or those seeking a change of scenery. What&apos;s more, access to this space is included in your rent, providing flexibility and convenience to work on your schedule. Enjoy panoramic views and fast internet, making it an ideal spot to boost your productivity and connect with like-minded professionals.</p>
+                {isVortex
+                  ? "Discover our modern co-working space, designed to inspire creativity and productivity. This bright, stylish area offers a comfortable environment for focused work or collaborative projects, perfect for freelancers, remote workers, or those seeking a change of scenery. Enjoy panoramic views and fast internet, making it an ideal spot to boost your productivity and connect with like-minded professionals."
+                  : "Head up to the 44th floor and discover our modern co-working space, designed to inspire creativity and productivity. This bright, stylish area offers a comfortable environment for focused work or collaborative projects, perfect for freelancers, remote workers, or those seeking a change of scenery. What's more, access to this space is included in your rent, providing flexibility and convenience to work on your schedule. Enjoy panoramic views and fast internet, making it an ideal spot to boost your productivity and connect with like-minded professionals."}
+                </p>
                 <p><strong>Water Filter</strong><br />
-                In Scarletz KLCC by Soulasia convenience and comfort are top priorities. That&apos;s why each apartment is equipped with Cuckoo water filters, providing you with clean and refreshing water right from your tap. Not only does this save you time and energy, but it also eliminates the need to carry heavy water bottles. Enjoy the ease and sustainability of having filtered water on hand whenever you need it.</p>
+                {isVortex
+                  ? "In Vortex KLCC, convenience and comfort are top priorities. That's why each apartment is equipped with water filters, providing you with clean and refreshing water right from your tap. Not only does this save you time and energy, but it also eliminates the need to carry heavy water bottles. Enjoy the ease and sustainability of having filtered water on hand whenever you need it."
+                  : "In Scarletz KLCC by Soulasia convenience and comfort are top priorities. That's why each apartment is equipped with Cuckoo water filters, providing you with clean and refreshing water right from your tap. Not only does this save you time and energy, but it also eliminates the need to carry heavy water bottles. Enjoy the ease and sustainability of having filtered water on hand whenever you need it."}
+                </p>
                 <p><strong>Wi-Fi</strong><br />
-                Take a dip in the breathtaking rooftop swimming pool and enjoy panoramic city views. It&apos;s the perfect place to unwind and relax. Stay active at the state-of-the-art gym, featuring a wide variety of equipment to help you reach your fitness goals. On the ground floor, you&apos;ll find a handy convenience store for all your everyday essentials, making life just a little bit easier. Stop by the cozy coffee booth for your morning brew or a relaxing chat with friends. At Scarletz KLCC, you&apos;ll find everything you need for a comfortable and enjoyable stay.</p>
+                {isVortex
+                  ? "Take a dip in the breathtaking rooftop swimming pool and enjoy panoramic city views. It's the perfect place to unwind and relax. Stay active at the state-of-the-art gym, featuring a wide variety of equipment to help you reach your fitness goals. On the ground floor, you'll find a handy convenience store for all your everyday essentials, making life just a little bit easier. At Vortex KLCC, you'll find everything you need for a comfortable and enjoyable stay."
+                  : "Take a dip in the breathtaking rooftop swimming pool and enjoy panoramic city views. It's the perfect place to unwind and relax. Stay active at the state-of-the-art gym, featuring a wide variety of equipment to help you reach your fitness goals. On the ground floor, you'll find a handy convenience store for all your everyday essentials, making life just a little bit easier. Stop by the cozy coffee booth for your morning brew or a relaxing chat with friends. At Scarletz KLCC, you'll find everything you need for a comfortable and enjoyable stay."}
+                </p>
               </div>
             </section>
             {/* Amenities Section (placeholders) */}

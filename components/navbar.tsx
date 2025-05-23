@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter, usePathname } from 'next/navigation';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import Image from 'next/image';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,8 +70,8 @@ export function Navbar() {
       )}
     >
       <div className="container flex items-center justify-between px-4 mx-auto">
-        <Link href="/" className="flex items-center">
-          <span className="text-2xl font-bold text-blue-600">soulasia</span>
+        <Link href="/" className="flex items-center" aria-label="SoulAsia Home">
+          <Image src="/Brand/logo.svg" alt="SoulAsia Logo" width={140} height={32} priority />
         </Link>
         
         <div className="flex items-center gap-2">

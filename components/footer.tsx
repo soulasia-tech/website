@@ -2,14 +2,17 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import Image from 'next/image'
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-white pt-16 pb-8">
+    <footer className="text-white pt-16 pb-8" style={{ backgroundColor: '#112362' }}>
       <div className="container px-4 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
-            <h3 className="text-xl font-bold mb-4">soulasia</h3>
+            <Link href="/" className="inline-block mb-4" aria-label="SoulAsia Home">
+              <Image src="/Brand/logo white.svg" alt="SoulAsia Logo White" width={140} height={32} priority />
+            </Link>
             <p className="text-gray-400 mb-6">
               Premium serviced apartments in Kuala Lumpur for short and extended stays.
             </p>

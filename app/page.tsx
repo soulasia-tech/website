@@ -285,10 +285,21 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 bg-white">
-          <div className="container px-4 mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Ready for a Soulful Stay?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto mb-8">
+        <section className="py-24 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 w-full h-full z-0">
+            <Image
+              src="/media-assets/asset2.JPG"
+              alt="SoulAsia CTA Background"
+              fill
+              priority
+              className="object-cover object-center"
+              style={{ opacity: 0.5 }}
+            />
+          </div>
+          <div className="absolute inset-0 bg-black/60 z-10" />
+          <div className="container px-4 mx-auto text-center relative z-20">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready for a Soulful Stay?</h2>
+            <p className="text-white max-w-2xl mx-auto mb-8">
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
