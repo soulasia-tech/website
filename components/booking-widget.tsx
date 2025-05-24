@@ -205,50 +205,50 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
         <div className="w-full md:flex-[2] md:px-6 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
           <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
             <div className="font-semibold text-xs text-gray-700 mb-2 md:hidden">Guests</div>
-            <label className="block text-xs font-medium text-gray-800 mb-1">Adults</label>
-            <Select
-              value={searchParams.adults}
-              onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, adults: value }))}
-            >
-              <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
-                <SelectValue>
-                  <div className="flex items-center">
-                    <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                    {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? 'adult' : 'adults'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <label className="block text-xs font-medium text-gray-800 mb-1">Adults</label>
+                <Select
+                  value={searchParams.adults}
+                  onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, adults: value }))}
+                >
+                  <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
+                    <SelectValue>
+                      <div className="flex items-center">
+                        <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
+                        {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} {num === 1 ? 'adult' : 'adults'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
           <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-            <label className="block text-xs font-medium text-gray-800 mb-1">Children</label>
-            <Select
-              value={searchParams.children}
-              onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, children: value }))}
-            >
-              <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
-                <SelectValue>
-                  <div className="flex items-center">
-                    <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                    {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {[0, 1, 2, 3, 4].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? 'child' : 'children'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <label className="block text-xs font-medium text-gray-800 mb-1">Children</label>
+                <Select
+                  value={searchParams.children}
+                  onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, children: value }))}
+                >
+                  <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
+                    <SelectValue>
+                      <div className="flex items-center">
+                        <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
+                        {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} {num === 1 ? 'child' : 'children'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
           </div>
         </div>
 

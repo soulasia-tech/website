@@ -277,7 +277,12 @@ export default function PropertiesPage() {
             <section className="mb-12">
               <h3 className="text-xl md:text-2xl font-bold mb-8 text-gray-900 text-center">Location</h3>
               <div className="w-full h-64 rounded-xl overflow-hidden shadow bg-white flex items-center justify-center">
-                {mapPosition ? (
+                {(
+                  // For Vortex, only show map after geocoding is done
+                  (isVortex && dynamicMapPosition) ||
+                  // For other properties, always show map
+                  (!isVortex && mapPosition)
+                ) ? (
                   <Map
                     mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
                     initialViewState={{ longitude: mapPosition.lng, latitude: mapPosition.lat, zoom: 15 }}
