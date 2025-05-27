@@ -64,10 +64,7 @@ export function Navbar() {
 
   return (
     <header
-      className={cn(
-        'fixed top-0 w-full transition-all duration-300 ease-in-out z-40',
-        isScrolled ? 'bg-white shadow-sm py-4' : 'bg-transparent py-6'
-      )}
+      className="fixed top-0 w-full z-40 bg-white py-4"
     >
       <div className="container flex items-center justify-between px-4 mx-auto">
         <Link href="/" className="flex items-center group" aria-label="Soulasia Home">
