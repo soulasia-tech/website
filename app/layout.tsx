@@ -15,10 +15,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SoulAsia",
-  description: "SoulAsia - Your Gateway to Authentic Asian Experiences",
+  title: "Soulasia | Soulful Stays, Memorable Days.",
+  description: "Soulasia - Your Gateway to Authentic Asian Experiences",
   openGraph: {
-    title: 'SoulAsia',
+    title: 'Soulasia',
     description: 'Your Gateway to Authentic Asian Experiences',
     type: 'website',
   },

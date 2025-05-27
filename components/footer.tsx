@@ -10,8 +10,8 @@ export function Footer() {
       <div className="container px-4 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           <div>
-            <Link href="/" className="inline-block mb-4" aria-label="SoulAsia Home">
-              <Image src="/Brand/logo white.svg" alt="SoulAsia Logo White" width={140} height={32} priority />
+            <Link href="/" className="inline-block mb-4" aria-label="Soulasia Home">
+              <Image src="/Brand/logo white.svg" alt="Soulasia Logo White" width={140} height={32} priority />
             </Link>
             <p className="text-gray-400 mb-6">
               Premium serviced apartments in Kuala Lumpur for short and extended stays.

@@ -381,8 +381,11 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Loading search results...</div>}>
-      <SearchResults />
-    </Suspense>
+    <>
+      <title>Soulasia | Search Results</title>
+      <Suspense fallback={<div>Loading search results...</div>}>
+        <SearchResults />
+      </Suspense>
+    </>
   );
 }

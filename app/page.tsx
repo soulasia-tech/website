@@ -123,12 +123,19 @@ export default function Home() {
       <Toaster />
       <main className="flex-1 pt-0">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-white py-32 min-h-[70vh] flex items-center">
+        <section className="relative overflow-hidden bg-white py-32 min-h-[85vh] flex items-center">
           {/* Decorative Elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -right-20 -top-20 w-[400px] h-[400px] rounded-full bg-gray-50" />
-            <div className="absolute left-20 bottom-20 w-[200px] h-[200px] rounded-full bg-gray-50" />
-            <div className="absolute left-1/2 top-1/4 w-[150px] h-[300px] -rotate-45 rounded-3xl bg-gray-50" />
+          <div className="absolute inset-0 w-full h-full z-0">
+            <Image
+              src="/media-assets/asset3.JPG"
+              alt="Soulasia Hero Background"
+              fill
+              priority
+              quality={80}
+              sizes="100vw"
+              className="object-cover"
+              style={{ opacity: 0.6, objectPosition: 'center 10%' }}
+            />
           </div>
 
           <div className="container relative z-10 flex flex-col items-center justify-center px-4 mx-auto text-center">

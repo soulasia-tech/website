@@ -83,18 +83,26 @@ const Locations = ({
       <div className="w-full">
         <Carousel
           opts={{
+            align: "start",
+            containScroll: "trimSnaps",
             breakpoints: {
-              "(max-width: 768px)": {
-                dragFree: true,
+              "(max-width: 640px)": {
+                slidesToScroll: 1,
+              },
+              "(min-width: 641px) and (max-width: 1023px)": {
+                slidesToScroll: 3,
+              },
+              "(min-width: 1024px)": {
+                slidesToScroll: 4,
               },
             },
           }}
         >
-          <CarouselContent className="ml-0 2xl:ml-[max(8rem,calc(50vw-700px))] 2xl:mr-[max(0rem,calc(50vw-700px))]">
+          <CarouselContent className="px-4">
             {items.map((item) => (
               <CarouselItem
                 key={item.id}
-                className="max-w-[352px] pl-[22px] lg:max-w-[396px] transition-transform duration-300 hover:scale-105 shadow-lg"
+                className="basis-full md:basis-1/3 lg:basis-1/4 shadow-lg"
               >
                 <a href={item.href} className="group rounded-xl">
                   <div className="group relative h-full min-h-[27rem] max-w-full overflow-hidden rounded-xl md:aspect-[5/4] lg:aspect-[16/9]">
@@ -102,7 +110,7 @@ const Locations = ({
                       src={item.image}
                       alt={item.title}
                       fill
-                      className="absolute h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                      className="absolute h-full w-full object-cover object-center"
                       sizes="(max-width: 768px) 100vw, 360px"
                       priority={false}
                     />
@@ -115,7 +123,7 @@ const Locations = ({
                         {item.description}
                       </div>
                       <div className="flex items-center text-sm font-semibold">
-                        Read more{" "}
+                        Book now{" "}
                         <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                       </div>
                     </div>

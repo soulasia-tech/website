@@ -1,3 +1,8 @@
 export default function ContactUsPage() {
-  return null;
+  return (
+    <>
+      <title>Soulasia | Contact Us</title>
+      {/* ...existing page content... */}
+    </>
+  );
 } 

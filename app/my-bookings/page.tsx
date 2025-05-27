@@ -187,79 +187,82 @@ export default function MyBookingsPage() {
   }, [fetchBookings]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold mb-6">My bookings</h1>
-      
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 py-5 sm:p-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-              {error.message}
-            </div>
-          )}
+    <>
+      <title>Soulasia | My Bookings</title>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-2xl font-bold mb-6">My bookings</h1>
+        
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-4 py-5 sm:p-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                {error.message}
+              </div>
+            )}
 
-          {!error && bookings.length === 0 && (
-            <p className="text-gray-600">You don&apos;t have any bookings yet.</p>
-          )}
+            {!error && bookings.length === 0 && (
+              <p className="text-gray-600">You don&apos;t have any bookings yet.</p>
+            )}
 
-          {!error && bookings.length > 0 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {bookings.map((booking) => {
-                const cb = cloudbedsDetailsMap[booking.id];
-                const imageUrl = "/placeholder-property.jpg";
-                return (
-                  <div 
-                    key={booking.id}
-                    onClick={() => setSelectedBooking(booking)}
-                    className="cursor-pointer bg-white rounded-xl shadow hover:shadow-md transition p-6 flex flex-col gap-4 border border-gray-100 hover:border-primary/30"
-                  >
-                    <div className="relative w-full h-40 rounded-lg overflow-hidden mb-2 bg-gray-100">
-                      <Image
-                        src={imageUrl}
-                        alt="Room preview"
-                        fill
-                        className="object-cover w-full h-full"
-                        style={{ minHeight: 120 }}
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                      <span className={`absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-full ${
-                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {booking.status}
-                      </span>
+            {!error && bookings.length > 0 && (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {bookings.map((booking) => {
+                  const cb = cloudbedsDetailsMap[booking.id];
+                  const imageUrl = "/placeholder-property.jpg";
+                  return (
+                    <div 
+                      key={booking.id}
+                      onClick={() => setSelectedBooking(booking)}
+                      className="cursor-pointer bg-white rounded-xl shadow hover:shadow-md transition p-6 flex flex-col gap-4 border border-gray-100 hover:border-primary/30"
+                    >
+                      <div className="relative w-full h-40 rounded-lg overflow-hidden mb-2 bg-gray-100">
+                        <Image
+                          src={imageUrl}
+                          alt="Room preview"
+                          fill
+                          className="object-cover w-full h-full"
+                          style={{ minHeight: 120 }}
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                        <span className={`absolute top-2 right-2 px-2 py-1 text-xs font-semibold rounded-full ${
+                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {booking.status}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1">
+                        <div className="font-semibold text-lg truncate">{cb?.assigned?.[0]?.roomName || 'Room info unavailable'}</div>
+                        <div className="text-gray-500 text-sm">{cb?.startDate || formatDate(booking.check_in)} - {cb?.endDate || formatDate(booking.check_out)}</div>
+                        <div className="text-gray-500 text-sm">Guests: {booking.number_of_guests}</div>
+                        <div className="text-gray-900 font-bold mt-1">{cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}</div>
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1 flex-1">
-                      <div className="font-semibold text-lg truncate">{cb?.assigned?.[0]?.roomName || 'Room info unavailable'}</div>
-                      <div className="text-gray-500 text-sm">{cb?.startDate || formatDate(booking.check_in)} - {cb?.endDate || formatDate(booking.check_out)}</div>
-                      <div className="text-gray-500 text-sm">Guests: {booking.number_of_guests}</div>
-                      <div className="text-gray-900 font-bold mt-1">{cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      <BookingDetailsModal
-        booking={selectedBooking}
-        isOpen={!!selectedBooking}
-        onClose={() => setSelectedBooking(null)}
-      />
-      <div className="mt-12 flex flex-col items-center gap-6">
-        <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg px-8 py-4 text-base font-semibold">
-          <Link href="/">Book Your Next Trip</Link>
-        </Button>
-        <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">
-          <Info className="w-6 h-6 text-blue-500 flex-shrink-0" />
-          <div className="text-blue-900 text-base font-medium">
-            If you want to modify your booking, please refer to your confirmation email or <a href="/contact-us" className="underline text-blue-700 hover:text-blue-900">contact support</a>.
+        <BookingDetailsModal
+          booking={selectedBooking}
+          isOpen={!!selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+        <div className="mt-12 flex flex-col items-center gap-6">
+          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg px-8 py-4 text-base font-semibold">
+            <Link href="/">Book Your Next Trip</Link>
+          </Button>
+          <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">
+            <Info className="w-6 h-6 text-blue-500 flex-shrink-0" />
+            <div className="text-blue-900 text-base font-medium">
+              If you want to modify your booking, please refer to your confirmation email or <a href="/contact-us" className="underline text-blue-700 hover:text-blue-900">contact support</a>.
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 } 

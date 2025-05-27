@@ -70,8 +70,8 @@ export function Navbar() {
       )}
     >
       <div className="container flex items-center justify-between px-4 mx-auto">
-        <Link href="/" className="flex items-center" aria-label="SoulAsia Home">
-          <Image src="/Brand/logo.svg" alt="SoulAsia Logo" width={140} height={32} priority />
+        <Link href="/" className="flex items-center" aria-label="Soulasia Home">
+          <Image src="/Brand/logo.svg" alt="Soulasia Logo" width={140} height={32} priority />
         </Link>
         
         <div className="flex items-center gap-2">

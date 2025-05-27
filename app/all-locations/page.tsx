@@ -14,27 +14,6 @@ interface PropertyMarker {
   address: string;
 }
 
-interface Property {
-  propertyId: string;
-  propertyName: string;
-  location: string;
-  photos: { url: string; caption?: string }[];
-  pricePerDay?: number;
-}
-
-interface Room {
-  roomTypeID: string;
-  roomTypeName: string;
-  propertyName: string;
-  roomTypePhotos: { url: string; caption?: string }[];
-  rate?: number;
-}
-
-interface RatePlan {
-  roomTypeID: string;
-  totalRate: number;
-}
-
 type CloudbedsPropertyListItem = {
   propertyId: string;
   propertyName?: string;
@@ -62,6 +41,23 @@ type NominatimGeocodeResult = {
   lon: string;
   // ...other fields as needed
 };
+
+// Add explicit interfaces for property and room
+interface Property {
+  propertyId: string;
+  propertyName: string;
+  location: string;
+  photos: { url: string; caption?: string }[];
+  pricePerDay?: number;
+}
+
+interface Room {
+  roomTypeID: string;
+  roomTypeName: string;
+  propertyName: string;
+  roomTypePhotos: { url: string; caption?: string }[];
+  rate?: number;
+}
 
 function AllPropertiesMap() {
   const [propertyMarkers, setPropertyMarkers] = useState<PropertyMarker[]>([]);
@@ -195,135 +191,118 @@ function AllPropertiesMap() {
 }
 
 export default function AllLocationsPage() {
-  // Fetch properties and rooms independently of the map
+  // Use explicit types for state
   const [properties, setProperties] = useState<Property[]>([]);
+  const [loadingProperties, setLoadingProperties] = useState(true);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
-  const [loadingProperties, setLoadingProperties] = useState(true);
 
-  // Fetch properties (for cards)
   useEffect(() => {
-    let isMounted = true;
-    async function fetchProperties() {
-      setLoadingProperties(true);
-      let propertiesData = allLocationsCache.properties;
-      if (!propertiesData) {
+    // Fetch properties
+    const fetchProperties = async () => {
+      try {
         const propertiesRes = await fetch('/api/cloudbeds-properties');
-        const fetched = await propertiesRes.json();
-        if (fetched) {
-          allLocationsCache.setProperties(fetched);
-          propertiesData = fetched;
+        const propertiesData = await propertiesRes.json();
+        if (!propertiesData.success) throw new Error('Failed to load properties');
+        // Fetch details for each property
+        const detailsPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
+          fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`).then(res => res.json())
+        );
+        const detailsData = await Promise.all(detailsPromises);
+        const allProperties: Property[] = [];
+        for (let i = 0; i < detailsData.length; i++) {
+          const details = detailsData[i];
+          const property = propertiesData.properties[i];
+          if (details.success && details.hotel) {
+            const hotel = details.hotel;
+            const allPhotos: { url: string; caption?: string }[] = [];
+            if (hotel.propertyImage && hotel.propertyImage[0]) {
+              allPhotos.push({ url: hotel.propertyImage[0].image, caption: 'Main Property Image' });
+            }
+            if (hotel.propertyAdditionalPhotos) {
+              allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: { image: string }) => ({ url: photo.image, caption: '' })));
+            }
+            const address = hotel.propertyAddress;
+            const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
+            allProperties.push({
+              propertyId: property.propertyId,
+              propertyName: hotel.propertyName,
+              location,
+              photos: allPhotos,
+              pricePerDay: property.price_per_day
+            });
+          }
         }
-      }
-      if (!propertiesData || !propertiesData.success) {
+        setProperties(allProperties);
+      } finally {
         setLoadingProperties(false);
-        return;
       }
-      const propertiesArr: Property[] = [];
-      await Promise.allSettled(propertiesData.properties.map(async (property: CloudbedsPropertyListItem) => {
-        const detailsRes = await fetch(`/api/cloudbeds/property?propertyId=${property.propertyId}`);
-        const details = await detailsRes.json();
-        if (details.success && details.hotel) {
-          const hotel = details.hotel;
-          const allPhotos: { url: string; caption?: string }[] = [];
-          if (hotel.propertyImage && hotel.propertyImage[0]) {
-            allPhotos.push({ url: hotel.propertyImage[0].image, caption: 'Main Property Image' });
-          }
-          if (hotel.propertyAdditionalPhotos) {
-            allPhotos.push(...hotel.propertyAdditionalPhotos.map((photo: { image: string }) => ({ url: photo.image, caption: '' })));
-          }
-          const address = hotel.propertyAddress;
-          const location = address ? [address.propertyCity, address.propertyState, address.propertyCountry].filter(Boolean).join(', ') : '';
-          const prop: Property = {
-            propertyId: property.propertyId,
-            propertyName: hotel.propertyName,
-            location,
-            photos: allPhotos,
-            pricePerDay: property.price_per_day,
-          };
-          propertiesArr.push(prop);
-          if (isMounted) setProperties([...propertiesArr]);
-        }
-      }));
-      setLoadingProperties(false);
-    }
+    };
     fetchProperties();
-    return () => { isMounted = false; };
   }, []);
 
-  // Fetch rooms (for cards)
   useEffect(() => {
-    let isMounted = true;
-    async function fetchRooms() {
-      setLoadingRooms(true);
-      let propertiesData = allLocationsCache.properties;
-      if (!propertiesData) {
+    // Fetch rooms
+    const fetchRooms = async () => {
+      try {
         const propertiesRes = await fetch('/api/cloudbeds-properties');
-        const fetched = await propertiesRes.json();
-        if (fetched) {
-          allLocationsCache.setProperties(fetched);
-          propertiesData = fetched;
-        }
-      }
-      if (!propertiesData || !propertiesData.success) {
-        setLoadingRooms(false);
-        return;
-      }
-      let roomsDataArr = allLocationsCache.rooms;
-      let ratesDataArr = allLocationsCache.rates;
-      if (!roomsDataArr || !ratesDataArr) {
+        const propertiesData = await propertiesRes.json();
+        if (!propertiesData.success) throw new Error('Failed to load properties');
         const roomTypePromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json())
         );
-        roomsDataArr = await Promise.all(roomTypePromises);
-        allLocationsCache.setRooms(roomsDataArr);
+        const roomsDataArr = await Promise.all(roomTypePromises);
         const startDate = new Date().toISOString().slice(0, 10);
         const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
         );
-        ratesDataArr = await Promise.all(ratePlanPromises);
-        allLocationsCache.setRates(ratesDataArr);
-      }
-      const roomsArr: Room[] = [];
-      for (let i = 0; i < propertiesData.properties.length; i++) {
-        const property = propertiesData.properties[i] as CloudbedsPropertyListItem;
-        const roomsData = roomsDataArr[i];
-        const ratesData = ratesDataArr[i];
-        const rateMap: Record<string, number> = {};
-        if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-          (ratesData.ratePlans as RatePlan[]).forEach((rate) => {
-            if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-              rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
-            }
-          });
+        const ratesDataArr = await Promise.all(ratePlanPromises);
+        const allRooms: Room[] = [];
+        for (let i = 0; i < propertiesData.properties.length; i++) {
+          const property = propertiesData.properties[i];
+          const roomsData = roomsDataArr[i];
+          const ratesData = ratesDataArr[i];
+          const rateMap: Record<string, number> = {};
+          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+            ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
+              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+              }
+            });
+          }
+          if (roomsData.success && roomsData.roomTypes) {
+            const transformedRooms: Room[] = roomsData.roomTypes.map((room: {
+              roomTypeID: string;
+              roomTypeName: string;
+              roomTypePhotos?: string[];
+            }) => ({
+              roomTypeID: room.roomTypeID,
+              roomTypeName: room.roomTypeName,
+              propertyName: property.propertyName,
+              roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
+              rate: rateMap[room.roomTypeID]
+            }));
+            allRooms.push(...transformedRooms);
+          }
         }
-        if (roomsData.success && roomsData.roomTypes) {
-          const transformedRooms = roomsData.roomTypes.map((room: { roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }) => ({
-            roomTypeID: room.roomTypeID,
-            roomTypeName: room.roomTypeName,
-            propertyName: property.propertyName || "",
-            roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: '' })),
-            rate: rateMap[room.roomTypeID],
-          }));
-          roomsArr.push(...transformedRooms);
-          if (isMounted) setRooms([...roomsArr]);
-        }
+        setRooms(allRooms);
+      } finally {
+        setLoadingRooms(false);
       }
-      setLoadingRooms(false);
-    }
+    };
     fetchRooms();
-    return () => { isMounted = false; };
   }, []);
 
   return (
     <>
+      <title>Soulasia | All Locations</title>
       {/* Hero Section */}
       <section className="relative w-full min-h-[70vh] py-32 flex flex-col items-center justify-center text-center mb-8 overflow-hidden">
         <div className="absolute inset-0 w-full h-full z-0">
           <Image
             src="/media-assets/asset1.jpg"
-            alt="SoulAsia Hero Background"
+            alt="Soulasia Hero Background"
             fill
             priority
             className="object-cover object-center"
@@ -332,7 +311,7 @@ export default function AllLocationsPage() {
         </div>
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="relative z-20">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">SoulAsia Locations</h1>
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">Soulasia Locations</h1>
           <p className="text-lg md:text-2xl text-white max-w-2xl mx-auto animate-fade-in-up delay-100">Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
         </div>
       </section>
