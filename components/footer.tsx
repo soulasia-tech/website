@@ -59,26 +59,6 @@ export function Footer() {
                   Terms & Conditions
                 </Link>
               </li>
-              <li>
-                <Link href="/contact-us" className="text-sm text-gray-400 hover:text-white">
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-           
-            <ul className="space-y-2">
-              <li>
-                <Link href="/for-owners" className="text-sm text-gray-400 hover:text-white">
-                  For Owners
-                </Link>
-              </li>
-              <li>
-                <Link href="/sustainability" className="text-sm text-gray-400 hover:text-white">
-                  Sustainability
-                </Link>
-              </li>
             </ul>
           </div>
         </div>

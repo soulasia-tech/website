@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -70,8 +70,15 @@ export function Navbar() {
       )}
     >
       <div className="container flex items-center justify-between px-4 mx-auto">
-        <Link href="/" className="flex items-center" aria-label="Soulasia Home">
-          <Image src="/Brand/logo.svg" alt="Soulasia Logo" width={140} height={32} priority />
+        <Link href="/" className="flex items-center group" aria-label="Soulasia Home">
+          <Image 
+            src="/Brand/logo.svg" 
+            alt="Soulasia Logo" 
+            width={140} 
+            height={32} 
+            priority 
+            className="transition-transform duration-200 group-hover:scale-105 group-hover:opacity-90 cursor-pointer"
+          />
         </Link>
         
         <div className="flex items-center gap-2">
@@ -84,7 +91,7 @@ export function Navbar() {
                   className="rounded-full"
                   aria-label="User menu"
                 >
-                  <User className="w-4 h-4" />
+                  <Menu className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -101,46 +108,79 @@ export function Navbar() {
                     My bookings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={handleSignOut}
-                  className="cursor-pointer"
-                >
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/for-owners" className="flex items-center cursor-pointer">
+                    For Owners
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/sustainability" className="flex items-center cursor-pointer">
+                    Sustainability
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/contact-us" className="flex items-center cursor-pointer">
+                    Contact Us
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="rounded-full"
-                  aria-label="User menu"
-                >
-                  <User className="w-4 h-4" />
+            <>
+              <Link href="/auth/sign-in">
+                <Button variant="outline" className="ml-2 font-semibold px-5 py-2">
+                  Log In
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span className="font-normal text-sm text-muted-foreground">Welcome to Soulasia</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/auth/sign-in" className="flex items-center cursor-pointer">
-                    Sign in
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/auth/sign-up" className="flex items-center cursor-pointer">
-                    Sign up
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </Link>
+              <Link href="/auth/sign-up">
+                <Button
+                  className="ml-2 font-semibold px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow"
+                  style={{ border: 'none' }}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="rounded-full ml-2"
+                    aria-label="Menu"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col">
+                      <span className="font-normal text-sm text-muted-foreground">Welcome to Soulasia</span>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/for-owners" className="flex items-center cursor-pointer">
+                      For Owners
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/sustainability" className="flex items-center cursor-pointer">
+                      Sustainability
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/contact-us" className="flex items-center cursor-pointer">
+                      Contact Us
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           )}
         </div>
       </div>
