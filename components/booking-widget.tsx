@@ -379,7 +379,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
           <Button 
             type="submit" 
             size="icon"
-            className="h-14 w-full md:h-16 md:w-16 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-xl flex items-center justify-center text-lg md:text-base font-bold"
+            className="h-14 w-full md:h-16 md:w-16 rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white shadow-xl flex items-center justify-center text-lg md:text-base font-bold"
             disabled={submitting}
             style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
           >
