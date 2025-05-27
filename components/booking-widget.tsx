@@ -246,9 +246,9 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
     <div
       ref={widgetRef}
       className={
-        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 max-w-6xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300 ` +
+        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 max-w-3xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300 ` +
         ((alwaysSticky || isSticky)
-          ? 'md:fixed md:top-[96px] md:inset-x-0 md:mx-auto md:w-[calc(100vw-64px)] md:lg:w-[1100px]'
+          ? 'md:fixed md:top-[96px] md:inset-x-0 md:mx-auto md:w-[900px]'
           : '')
       }
       style={
@@ -264,7 +264,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
         {/* City & Dates Group */}
         <div className="w-full md:flex-[2] md:px-8 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
           <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-            <label className="block text-xs font-semibold text-gray-700 mb-2 md:text-sm md:font-medium md:mb-1">City</label>
+            <label className="block text-xs md:text-sm font-semibold md:font-medium text-gray-700 mb-2 md:mb-1 text-left">City</label>
             <Select
               value={searchParams.city}
               onValueChange={handleCityChange}
@@ -288,7 +288,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
             </Select>
           </div>
           <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-            <label className="block text-xs font-semibold text-gray-700 mb-2 md:text-sm md:font-medium md:mb-1">Dates</label>
+            <label className="block text-xs md:text-sm font-semibold md:font-medium text-gray-700 mb-2 md:mb-1 text-left">Dates</label>
             <Popover
               open={datePopoverOpen}
               onOpenChange={handleDatePopoverOpenChange}
@@ -325,9 +325,9 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
 
         {/* Guests Group */}
         <div className="w-full md:flex-[2] md:px-6 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
-          <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-            <div className="font-semibold text-xs text-gray-700 mb-2 md:hidden">Guests</div>
-                <label className="block text-xs font-medium text-gray-800 mb-1">Adults</label>
+          <div className="flex-1 md:basis-32 md:max-w-[120px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+            <div className="font-semibold text-xs md:text-sm text-gray-700 mb-2 md:hidden text-left">Guests</div>
+                <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Adults</label>
                 <Select
                   value={searchParams.adults}
                   onValueChange={handleAdultsChange}
@@ -349,8 +349,8 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
                   </SelectContent>
                 </Select>
               </div>
-          <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-                <label className="block text-xs font-medium text-gray-800 mb-1">Children</label>
+          <div className="flex-1 md:basis-32 md:max-w-[120px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+                <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Children</label>
                 <Select
                   value={searchParams.children}
                   onValueChange={handleChildrenChange}

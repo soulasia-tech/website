@@ -138,8 +138,10 @@ export default function Home() {
               quality={80}
               sizes="100vw"
               className="object-cover"
-              style={{ opacity: 0.6, objectPosition: 'center 10%' }}
+              style={{ objectPosition: 'center 10%' }}
             />
+            {/* Overlay to darken the image further */}
+            <div className="absolute inset-0 bg-black/50" />
           </div>
 
           <div className="container relative z-10 flex flex-col items-center justify-center px-4 mx-auto text-center">
@@ -149,10 +151,10 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="max-w-3xl mb-8"
             >
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+              <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-lg">
                 Soulful Stays, Memorable Days
               </h1>
-              <p className="text-base text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl font-semibold text-white max-w-2xl mx-auto drop-shadow-md">
                 Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
               </p>
             </motion.div>
