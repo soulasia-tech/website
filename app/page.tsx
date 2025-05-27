@@ -127,7 +127,7 @@ export default function Home() {
           {/* Decorative Elements */}
           <div className="absolute inset-0 w-full h-full z-0">
             <Image
-              src="/media-assets/asset3.JPG"
+              src="/media-assets/asset3.jpg"
               alt="Soulasia Hero Background"
               fill
               priority
