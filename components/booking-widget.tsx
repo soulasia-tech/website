@@ -253,7 +253,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
       }
       style={
         hydrated && (alwaysSticky || isSticky) && typeof window !== 'undefined' && window.innerWidth >= 768
-          ? { boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }
+        ? { boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }
           : {}
       }
     >
