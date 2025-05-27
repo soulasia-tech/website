@@ -132,12 +132,13 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <>
-              <Link href="/auth/sign-in">
+              {/* Desktop: show buttons, Mobile: hide */}
+              <Link href="/auth/sign-in" className="hidden md:inline-block">
                 <Button variant="outline" className="ml-2 font-semibold px-5 py-2">
                   Log In
                 </Button>
               </Link>
-              <Link href="/auth/sign-up">
+              <Link href="/auth/sign-up" className="hidden md:inline-block">
                 <Button
                   className="ml-2 font-semibold px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow"
                   style={{ border: 'none' }}
@@ -157,6 +158,20 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  {/* Mobile only: Log In and Sign Up at the top of the menu */}
+                  <div className="block md:hidden">
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth/sign-in" className="flex items-center cursor-pointer w-full">
+                        Log In
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth/sign-up" className="flex items-center cursor-pointer w-full">
+                        Sign Up
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </div>
                   <DropdownMenuLabel>
                     <div className="flex flex-col">
                       <span className="font-normal text-sm text-muted-foreground">Welcome to Soulasia</span>

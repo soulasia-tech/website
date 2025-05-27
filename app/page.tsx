@@ -121,8 +121,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Toaster />
+      {/* Always-fixed Booking Widget at the top with placeholder */}
+      <div className="w-full bg-transparent z-30 mt-4 md:mt-0">
+        <BookingWidget alwaysSticky />
+      </div>
       <main className="flex-1 pt-0">
-        {/* Hero Section */}
+        {/* Hero Section (without BookingWidget) */}
         <section className="relative overflow-hidden bg-white py-32 min-h-[85vh] flex items-center">
           {/* Decorative Elements */}
           <div className="absolute inset-0 w-full h-full z-0">
@@ -151,16 +155,6 @@ export default function Home() {
               <p className="text-base text-gray-600 max-w-2xl mx-auto">
                 Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
               </p>
-            </motion.div>
-
-            {/* Booking Widget Container */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="w-full"
-            >
-              <BookingWidget />
             </motion.div>
           </div>
         </section>

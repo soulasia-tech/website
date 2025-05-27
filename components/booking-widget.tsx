@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Search, Users, CalendarIcon, Loader2 } from "lucide-react"
@@ -29,7 +29,8 @@ interface BookingWidgetProps {
     endDate: string;
     adults: string;
     children: string;
-  }
+  };
+  alwaysSticky?: boolean;
 }
 
 // Add a hook to detect mobile view
@@ -46,7 +47,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
+export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     city: initialSearchParams?.city || '',
@@ -67,6 +68,24 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
   const [submitting, setSubmitting] = useState(false)
   const isMobile = useIsMobile();
   const [isExpanded, setIsExpanded] = useState(false);
+  // Hydration fix: track if component is mounted on client
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+
+  // Add refs for step-by-step navigation
+  const cityRef = useRef<HTMLButtonElement | null>(null);
+  const dateButtonRef = useRef<HTMLButtonElement | null>(null);
+  const adultsRef = useRef<HTMLButtonElement | null>(null);
+  const childrenRef = useRef<HTMLButtonElement | null>(null);
+  // Track if city was changed by user
+  const [cityTouched, setCityTouched] = useState(false);
+  // Track if date picker popover is open
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+
+  // Sticky logic
+  const widgetRef = useRef<HTMLDivElement | null>(null);
+  const [isSticky, setIsSticky] = useState(false);
+  const [widgetTop, setWidgetTop] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -90,6 +109,43 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     }
     fetchProperties()
   }, [initialSearchParams?.city])
+
+  useEffect(() => {
+    if (alwaysSticky) {
+      setIsSticky(true);
+      return;
+    }
+    function handleScroll() {
+      if (!widgetRef.current) return;
+      const scrollY = window.scrollY || window.pageYOffset;
+      const navbarHeight = 72; // px, adjust if needed
+      // Get the widget's top relative to the document
+      const widgetOffsetTop = widgetTop !== null ? widgetTop : (widgetRef.current.offsetTop - navbarHeight);
+      if (widgetTop === null) setWidgetTop(widgetRef.current.offsetTop - navbarHeight);
+      // Only sticky on desktop/tablet
+      if (window.innerWidth >= 768) {
+        if (scrollY === 0) {
+          setIsSticky(false);
+          return;
+        }
+        if (scrollY >= widgetOffsetTop) {
+          setIsSticky(true);
+        } else {
+          setIsSticky(false);
+        }
+      } else {
+        setIsSticky(false);
+      }
+    }
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    // Set initial position
+    setTimeout(handleScroll, 100);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [widgetTop, alwaysSticky]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,10 +180,54 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
     return summary;
   };
 
+  // Focus next field after selection
+  function handleCityChange(value: string) {
+    setSearchParams(prev => ({ ...prev, city: value }));
+    if (cityTouched) {
+      setTimeout(() => {
+        dateButtonRef.current?.focus();
+        dateButtonRef.current?.click(); // open date picker
+      }, 100);
+    }
+  }
+
+  // Set cityTouched only on user interaction
+  function handleCityUserInteraction() {
+    setCityTouched(true);
+  }
+
+  function handleDateChange(newDate: DateRange | undefined) {
+    setDate(newDate);
+    // Do not auto-advance here; wait for popover to close
+  }
+
+  // When popover closes, if both dates are set, move to adults
+  function handleDatePopoverOpenChange(open: boolean) {
+    setDatePopoverOpen(open);
+    if (!open && date?.from && date?.to) {
+      setTimeout(() => {
+        adultsRef.current?.focus();
+        adultsRef.current?.click();
+      }, 100);
+    }
+  }
+
+  function handleAdultsChange(value: string) {
+    setSearchParams(prev => ({ ...prev, adults: value }));
+    setTimeout(() => {
+      childrenRef.current?.focus();
+      childrenRef.current?.click(); // open children select
+    }, 100);
+  }
+
+  function handleChildrenChange(value: string) {
+    setSearchParams(prev => ({ ...prev, children: value }));
+  }
+
   if (isMobile && !isExpanded) {
     return (
       <div
-        className="bg-white/80 rounded-2xl shadow-lg border border-gray-200 max-w-xl mx-auto px-4 py-4 flex items-center gap-4 cursor-pointer backdrop-blur-md"
+        className="mx-4 mb-2 mt-0 w-auto max-w-xl flex items-center gap-4 cursor-pointer backdrop-blur-md"
         onClick={() => setIsExpanded(true)}
         style={{ minHeight: 72 }}
       >
@@ -143,7 +243,20 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 max-w-6xl mx-auto px-2 md:px-0">
+    <div
+      ref={widgetRef}
+      className={
+        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 max-w-6xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300 ` +
+        ((alwaysSticky || isSticky)
+          ? 'md:fixed md:top-[96px] md:inset-x-0 md:mx-auto md:w-[calc(100vw-64px)] md:lg:w-[1100px]'
+          : '')
+      }
+      style={
+        hydrated && (alwaysSticky || isSticky) && typeof window !== 'undefined' && window.innerWidth >= 768
+          ? { boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }
+          : {}
+      }
+    >
       <form
         onSubmit={handleSearch}
         className="flex flex-col md:flex-row md:items-center md:divide-x md:divide-gray-200 gap-2 md:gap-0 w-full"
@@ -154,10 +267,15 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
             <label className="block text-xs font-semibold text-gray-700 mb-2 md:text-sm md:font-medium md:mb-1">City</label>
             <Select
               value={searchParams.city}
-              onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, city: value }))}
+              onValueChange={handleCityChange}
               disabled={loading}
             >
-              <SelectTrigger className="w-full border-0 p-0 h-auto font-normal">
+              <SelectTrigger
+                ref={cityRef}
+                className="w-full border-0 p-0 h-auto font-normal"
+                onClick={handleCityUserInteraction}
+                onFocus={handleCityUserInteraction}
+              >
                 <SelectValue placeholder="Select a city" />
               </SelectTrigger>
               <SelectContent>
@@ -171,9 +289,13 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
           </div>
           <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
             <label className="block text-xs font-semibold text-gray-700 mb-2 md:text-sm md:font-medium md:mb-1">Dates</label>
-            <Popover>
+            <Popover
+              open={datePopoverOpen}
+              onOpenChange={handleDatePopoverOpenChange}
+            >
               <PopoverTrigger asChild>
                 <Button
+                  ref={dateButtonRef}
                   variant="ghost"
                   className={cn(
                     "w-full justify-start p-0 font-normal text-left flex items-center gap-2",
@@ -190,7 +312,7 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 <Calendar
                   mode="range"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={handleDateChange}
                   numberOfMonths={1}
                   initialFocus
                   className="rounded-lg border border-border p-2"
@@ -208,9 +330,9 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 <label className="block text-xs font-medium text-gray-800 mb-1">Adults</label>
                 <Select
                   value={searchParams.adults}
-                  onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, adults: value }))}
+                  onValueChange={handleAdultsChange}
                 >
-                  <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
+                  <SelectTrigger ref={adultsRef} className="w-full border-0 p-0 h-auto font-normal flex items-center">
                     <SelectValue>
                       <div className="flex items-center">
                         <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
@@ -231,9 +353,9 @@ export function BookingWidget({ initialSearchParams }: BookingWidgetProps) {
                 <label className="block text-xs font-medium text-gray-800 mb-1">Children</label>
                 <Select
                   value={searchParams.children}
-                  onValueChange={(value: string) => setSearchParams(prev => ({ ...prev, children: value }))}
+                  onValueChange={handleChildrenChange}
                 >
-                  <SelectTrigger className="w-full border-0 p-0 h-auto font-normal flex items-center">
+                  <SelectTrigger ref={childrenRef} className="w-full border-0 p-0 h-auto font-normal flex items-center">
                     <SelectValue>
                       <div className="flex items-center">
                         <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
