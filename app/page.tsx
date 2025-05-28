@@ -516,10 +516,29 @@ function FeaturedApartmentsCarousel() {
   }
 
   return (
-    <Carousel>
-      <CarouselContent>
+    <Carousel
+      opts={{
+        align: "start",
+        containScroll: "trimSnaps",
+        breakpoints: {
+          "(max-width: 640px)": {
+            slidesToScroll: 1,
+          },
+          "(min-width: 641px) and (max-width: 1023px)": {
+            slidesToScroll: 2,
+          },
+          "(min-width: 1024px)": {
+            slidesToScroll: 4,
+          },
+        },
+      }}
+    >
+      <CarouselContent className="px-4">
         {rooms.map((room: Room) => (
-          <CarouselItem key={room.roomTypeID} className="max-w-[352px] pl-[22px] lg:max-w-[396px]">
+          <CarouselItem
+            key={room.roomTypeID}
+            className="basis-full md:basis-1/2 lg:basis-1/4 max-w-full"
+          >
             <RoomCard
               roomName={room.roomTypeName}
               propertyName={room.propertyName}
@@ -528,18 +547,6 @@ function FeaturedApartmentsCarousel() {
             />
           </CarouselItem>
         ))}
-        {/* CTA Card */}
-        <CarouselItem className="max-w-[352px] pl-[22px] lg:max-w-[396px] flex items-center justify-center">
-          <div className="w-full h-full flex flex-col items-center justify-center bg-blue-600 text-white rounded-xl shadow-lg p-8 cursor-pointer hover:bg-blue-700 transition" onClick={() => {
-            if (typeof window !== 'undefined') {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-          }}>
-            <div className="text-3xl font-bold mb-4">Book Now</div>
-            <div className="mb-6 text-lg">Ready for your soulful stay?</div>
-            <button className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-full shadow hover:bg-gray-100 transition">Go to Booking</button>
-          </div>
-        </CarouselItem>
       </CarouselContent>
     </Carousel>
   );

@@ -153,15 +153,27 @@ export function RoomsSection() {
 
   return (
     <section className="container mx-auto px-4 py-16">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {rooms.map((room) => (
-          <RoomCard
+      <div
+        className="
+          flex flex-row gap-x-6
+          xl:justify-between xl:overflow-x-visible xl:w-full
+          overflow-x-auto scrollbar-hide snap-x snap-mandatory
+          xl:px-0
+        "
+        style={{ paddingLeft: '0px', paddingRight: '0px' }}
+      >
+        {rooms.slice(0, 4).map((room) => (
+          <div
             key={room.roomTypeID}
-            roomName={room.roomTypeName}
-            propertyName={room.propertyName}
-            photos={room.roomTypePhotos.map(url => ({ url, caption: '' }))}
-            rate={room.rate}
-          />
+            className="flex-shrink-0 w-[280px] xl:w-[22vw] max-w-xs snap-center"
+          >
+            <RoomCard
+              roomName={room.roomTypeName}
+              propertyName={room.propertyName}
+              photos={room.roomTypePhotos.map(url => ({ url, caption: '' }))}
+              rate={room.rate}
+            />
+          </div>
         ))}
       </div>
     </section>
