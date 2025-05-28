@@ -388,7 +388,10 @@ export default function PropertiesPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="mt-4 w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg text-base font-semibold"
+                      className="mt-4 w-full h-12 rounded-full text-white shadow-lg text-base font-semibold"
+                      style={{ backgroundColor: '#0E3599', border: 'none' }}
+                      onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                      onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
                       disabled={submitting}
                     >
                       {submitting ? (

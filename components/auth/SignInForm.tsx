@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import React from 'react';
 
 export default function SignInForm() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,10 @@ export default function SignInForm() {
       setSuccess(message);
     }
   }, [searchParams]);
+
+  React.useEffect(() => {
+    document.title = 'Soulasia | Sign In';
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,9 +105,11 @@ export default function SignInForm() {
           />
         </div>
         <Button 
-          type="submit" 
-              variant="outline"
-              className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
+          type="submit"
+          className="w-full h-12 text-white"
+          style={{ backgroundColor: '#0E3599', border: 'none' }}
+          onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+          onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
           disabled={loading}
         >
           {loading ? "Signing in..." : "Sign In"}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,10 @@ function SignUpFormContent() {
     password: '',
     confirmPassword: ''
   });
+
+  useEffect(() => {
+    document.title = 'Soulasia | Sign Up';
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -207,9 +211,12 @@ function SignUpFormContent() {
             </div>
 
             <Button 
-              type="submit" 
+              type="submit"
               disabled={loading}
-              className="w-full"
+              className="w-full text-white"
+              style={{ backgroundColor: '#0E3599', border: 'none' }}
+              onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+              onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
             >
               {loading ? (
                 <div className="flex items-center justify-center">

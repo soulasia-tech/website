@@ -102,20 +102,20 @@ export default function Home() {
 
   // Define standards features as arrays of objects
   const standardsSlide1 = [
-    { title: "Stay Hassle-Free", desc: "24/7 keyless entry. No check-ins or outs.", icon: <Key className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Stay Hosted", desc: "Dedicated & local concierge available 24/7.", icon: <Smile className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Stay Local", desc: "Hand picked apartments in the trendiest districts.", icon: <MapPin className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Stay Nourished", desc: "Breakfast partners at nearby handpicked venues.", icon: <Coffee className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Stay Rested", desc: "Premium beds. Luxury pillows and duvets. Black out blinds.", icon: <Bed className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Stay Sustainable", desc: "All renewable energy. Smart recycling and minimizing waste.", icon: <Leaf className="w-10 h-10 mb-4 text-blue-600" /> },
+    { title: "Stay Hassle-Free", desc: "24/7 keyless entry. No check-ins or outs.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Stay Hosted", desc: "Dedicated & local concierge available 24/7.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Stay Local", desc: "Hand picked apartments in the trendiest districts.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Stay Nourished", desc: "Breakfast partners at nearby handpicked venues.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Stay Rested", desc: "Premium beds. Luxury pillows and duvets. Black out blinds.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Stay Sustainable", desc: "All renewable energy. Smart recycling and minimizing waste.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
   ];
   const standardsSlide2 = [
-    { title: "Prime Locations", desc: "Stay in the heart of the city, close to top attractions and dining.", icon: <MapPin className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Complimentary Coffee", desc: "Enjoy premium coffee and tea, always on the house.", icon: <Coffee className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Luxury Sleep", desc: "Sink into plush beds with high-quality linens and blackout curtains.", icon: <Bed className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Friendly Support", desc: "Our team is available 24/7 to make your stay seamless.", icon: <Smile className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Smart Access", desc: "Keyless entry for your convenience and security.", icon: <Key className="w-10 h-10 mb-4 text-blue-600" /> },
-    { title: "Eco-Friendly", desc: "Sustainable practices and amenities in every property.", icon: <Leaf className="w-10 h-10 mb-4 text-blue-600" /> },
+    { title: "Prime Locations", desc: "Stay in the heart of the city, close to top attractions and dining.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Complimentary Coffee", desc: "Enjoy premium coffee and tea, always on the house.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Luxury Sleep", desc: "Sink into plush beds with high-quality linens and blackout curtains.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Friendly Support", desc: "Our team is available 24/7 to make your stay seamless.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Smart Access", desc: "Keyless entry for your convenience and security.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+    { title: "Eco-Friendly", desc: "Sustainable practices and amenities in every property.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
   ];
 
   return (
@@ -342,7 +342,7 @@ export default function Home() {
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/all-locations" className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+              <Link href="/all-locations" className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium text-white transition-colors" style={{ backgroundColor: '#0E3599' }} onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')} onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}>
                 View All Locations
                 <ArrowRight className="ml-2 size-5" />
               </Link>
@@ -352,7 +352,8 @@ export default function Home() {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium bg-blue-50 hover:bg-blue-100 transition-colors"
+                style={{ color: '#0E3599' }}
               >
                 Book Now
               </button>

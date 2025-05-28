@@ -125,8 +125,10 @@ export function Navbar() {
               </Link>
               <Link href="/auth/sign-up" className="hidden md:inline-block">
                 <Button
-                  className="ml-2 font-semibold px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow"
-                  style={{ border: 'none' }}
+                  className="ml-2 font-semibold px-5 py-2 text-white shadow"
+                  style={{ backgroundColor: '#0E3599', border: 'none' }}
+                  onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                  onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
                 >
                   Sign Up
                 </Button>
