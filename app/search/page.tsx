@@ -212,7 +212,7 @@ function SearchResults() {
               <BookingWidget initialSearchParams={initialSearchParams} alwaysSticky />
             </div>
           </div>
-          <div className="animate-pulse space-y-8">
+          <div className="animate-pulse space-y-8 mt-32 md:mt-40">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
                 <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
