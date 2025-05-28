@@ -232,7 +232,7 @@ export default function PropertiesPage() {
               {/* Property Description */}
               <section className="mb-12">
                 <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">About this property</h2>
-                <div className="text-gray-700 text-lg leading-relaxed space-y-6">
+                <div className="text-gray-700 leading-relaxed space-y-6">
                   <p>
                     {isVortex
                       ? "Welcome to Vortex KLCC Apartments, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you're close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space provides fast internet and panoramic views, ideal for productivity."

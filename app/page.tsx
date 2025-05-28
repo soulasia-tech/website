@@ -154,7 +154,7 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-lg">
                 Soulful Stays, Memorable Days
               </h1>
-              <p className="text-lg md:text-xl font-semibold text-white max-w-2xl mx-auto drop-shadow-md">
+              <p className="text-lg md:text-xl font-semibold max-w-2xl mx-auto drop-shadow-md" style={{ color: '#fff' }}>
                 Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
               </p>
             </motion.div>
@@ -189,7 +189,7 @@ export default function Home() {
                     Think Like a <span className="text-[#0E3599]">Guest</span>,<br />
                     Act Like an <span className="text-[#0E3599]">Owner</span>
                   </h2>
-                  <p className="text-gray-600 mb-6 text-lg">
+                  <p className="text-gray-600 mb-6">
                     Our philosophy is centered around anticipating your needs before you even realize them. We&apos;ve designed
                     each space with the care and attention we would give our own homes.
                   </p>
@@ -274,7 +274,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
                 <span className="text-[#0E3599]">Standard</span> in every property
               </h2>
-              <p className="text-gray-700 text-lg">
+              <p className="text-gray-700">
                 You can always count on the same quality when you stay with Soulasia, no matter the location. Some things are customized, but others—like contactless access, fast WiFi, and 24/7 support—are always the same. Enjoy thoughtfully curated amenities, seamless technology, and a welcoming atmosphere—no matter where you stay.
               </p>
             </div>
@@ -338,7 +338,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/60 z-10" />
           <div className="container px-4 mx-auto text-center relative z-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready for a Soulful Stay?</h2>
-            <p className="text-white max-w-2xl mx-auto mb-8">
+            <p className="max-w-2xl mx-auto mb-8" style={{ color: '#fff' }}>
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -443,7 +443,18 @@ export default function Home() {
           <CustomerReviews />
         </section>
 
-    
+        {/* OTA Logos Section */}
+        <section className="py-16 bg-white border-t border-gray-100">
+          <div className="container px-4 mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-8">We are listed on</h2>
+            <div className="flex flex-wrap justify-center items-center gap-8">
+              <img src="/OTA/airbnb.png" alt="Airbnb" className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
+              <img src="/OTA/booking.png" alt="Booking.com" className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
+              <img src="/OTA/expedia.png" alt="Expedia" className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   )

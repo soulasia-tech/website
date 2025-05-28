@@ -13,7 +13,7 @@ export function Footer() {
             <Link href="/" className="inline-block mb-4" aria-label="Soulasia Home">
               <Image src="/Brand/logo white.svg" alt="Soulasia Logo White" width={140} height={32} priority />
             </Link>
-            <p className="text-gray-400 mb-6">
+            <p className="mb-6" style={{ color: '#fff' }}>
               Premium serviced apartments in Kuala Lumpur for short and extended stays.
             </p>
             <div className="flex space-x-4">
@@ -35,9 +35,9 @@ export function Footer() {
           </div>
           <div>
            
-            <p className="text-sm text-gray-400 mb-2">+60 3 21818729</p>
-            <p className="text-sm text-gray-400 mb-2">info@soulasia.com.my</p>
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm mb-2" style={{ color: '#fff' }}>+60 3 21818729</p>
+            <p className="text-sm mb-2" style={{ color: '#fff' }}>info@soulasia.com.my</p>
+            <p className="text-sm mb-2" style={{ color: '#fff' }}>
               B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia
             </p>
           </div>
@@ -63,10 +63,10 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-800 pt-8 text-center">
-          <p className="text-sm text-gray-500">© {new Date().getFullYear()} Soulasia. All rights reserved.</p>
-          <div className="mt-2 text-xs text-gray-600">
-            <p>Soulasia Management Sdn. Bhd.</p>
-            <p>Registration Number - 202301007902 (1501823-H)</p>
+          <p className="text-sm" style={{ color: '#fff' }}>© {new Date().getFullYear()} Soulasia. All rights reserved.</p>
+          <div className="mt-2 text-xs">
+            <p style={{ color: '#fff' }}>Soulasia Management Sdn. Bhd.</p>
+            <p style={{ color: '#fff' }}>Registration Number - 202301007902 (1501823-H)</p>
           </div>
         </div>
       </div>

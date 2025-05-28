@@ -6,7 +6,7 @@ export default function SustainabilityPage() {
       <title>Soulasia | Sustainability</title>
       <main className="max-w-3xl mx-auto py-12 px-4">
         <h1 className="text-3xl font-bold mb-6">Sustainable living in Malaysia</h1>
-        <p className="mb-8 text-lg text-gray-700">
+        <p className="mb-8 text-gray-700">
           At Soulasia, our commitment to sustainability is woven into every aspect of our operations.
         </p>
         <section className="space-y-6 mb-10">

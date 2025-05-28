@@ -4,7 +4,7 @@ export default function ForOwnersPage() {
       <title>Soulasia | For Property Owners</title>
       <main className="max-w-3xl mx-auto py-12 px-4">
         <h1 className="text-3xl font-bold mb-6">We treat our property owners as business partners.</h1>
-        <blockquote className="italic text-lg text-gray-700 mb-8 border-l-4 border-primary pl-4">
+        <blockquote className="italic text-gray-700 mb-8 border-l-4 border-primary pl-4">
           &quot;If you are one of our potential landlords, you&apos;re not just handing over your property—you&apos;re entering into a mutually beneficial relationship built on trust and integrity.&quot;
         </blockquote>
         <section className="mb-10">
