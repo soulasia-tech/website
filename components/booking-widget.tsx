@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Search, Users, CalendarIcon, Loader2 } from "lucide-react"
+import { Search, CalendarIcon, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
@@ -75,10 +75,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
   // Add refs for step-by-step navigation
   const cityRef = useRef<HTMLButtonElement | null>(null);
   const dateButtonRef = useRef<HTMLButtonElement | null>(null);
-  const adultsRef = useRef<HTMLButtonElement | null>(null);
-  const childrenRef = useRef<HTMLButtonElement | null>(null);
-  // Track if city was changed by user
-  const [cityTouched, setCityTouched] = useState(false);
   // Track if date picker popover is open
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
@@ -86,6 +82,10 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const [isSticky, setIsSticky] = useState(false);
   const [widgetTop, setWidgetTop] = useState<number | null>(null);
+
+  // Add new state for apartments
+  const [apartments, setApartments] = useState(1);
+  const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -180,46 +180,22 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
     return summary;
   };
 
-  // Focus next field after selection
+  // Restore original handleCityChange
   function handleCityChange(value: string) {
     setSearchParams(prev => ({ ...prev, city: value }));
-    if (cityTouched) {
-      setTimeout(() => {
-        dateButtonRef.current?.focus();
-        dateButtonRef.current?.click(); // open date picker
-      }, 100);
-    }
   }
 
-  // Set cityTouched only on user interaction
-  function handleCityUserInteraction() {
-    setCityTouched(true);
-  }
-
+  // Restore original handleDateChange
   function handleDateChange(newDate: DateRange | undefined) {
     setDate(newDate);
-    // Do not auto-advance here; wait for popover to close
   }
 
-  // When popover closes, if both dates are set, move to adults
-  function handleDatePopoverOpenChange(open: boolean) {
-    setDatePopoverOpen(open);
-    if (!open && date?.from && date?.to) {
-      setTimeout(() => {
-        adultsRef.current?.focus();
-        adultsRef.current?.click();
-      }, 100);
-    }
-  }
-
+  // Restore original handleAdultsChange
   function handleAdultsChange(value: string) {
     setSearchParams(prev => ({ ...prev, adults: value }));
-    setTimeout(() => {
-      childrenRef.current?.focus();
-      childrenRef.current?.click(); // open children select
-    }, 100);
   }
 
+  // Restore original handleChildrenChange
   function handleChildrenChange(value: string) {
     setSearchParams(prev => ({ ...prev, children: value }));
   }
@@ -273,8 +249,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
               <SelectTrigger
                 ref={cityRef}
                 className="w-full border-0 p-0 h-auto font-normal"
-                onClick={handleCityUserInteraction}
-                onFocus={handleCityUserInteraction}
               >
                 <SelectValue placeholder="Select a city" />
               </SelectTrigger>
@@ -287,18 +261,18 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
               </SelectContent>
             </Select>
           </div>
-          <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+          <div className="w-full md:w-[220px] md:max-w-[260px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
             <label className="block text-xs md:text-sm font-semibold md:font-medium text-gray-700 mb-2 md:mb-1 text-left">Dates</label>
             <Popover
               open={datePopoverOpen}
-              onOpenChange={handleDatePopoverOpenChange}
+              onOpenChange={setDatePopoverOpen}
             >
               <PopoverTrigger asChild>
                 <Button
                   ref={dateButtonRef}
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start p-0 font-normal text-left flex items-center gap-2",
+                    "w-full justify-start p-0 font-normal text-left flex items-center gap-2 truncate",
                     !date?.from && "text-gray-400"
                   )}
                 >
@@ -325,61 +299,64 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
 
         {/* Guests Group */}
         <div className="w-full md:flex-[2] md:px-6 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
-          <div className="flex-1 md:basis-32 md:max-w-[120px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-            <div className="font-semibold text-xs md:text-sm text-gray-700 mb-2 md:hidden text-left">Guests</div>
-                <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Adults</label>
-                <Select
-                  value={searchParams.adults}
-                  onValueChange={handleAdultsChange}
+          <div className="flex-1 md:basis-48 md:max-w-[200px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+            <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Add guests</label>
+            <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start p-0 font-normal text-left flex items-center gap-2"
                 >
-                  <SelectTrigger ref={adultsRef} className="w-full border-0 p-0 h-auto font-normal flex items-center">
-                    <SelectValue>
-                      <div className="flex items-center">
-                        <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                        {searchParams.adults} {parseInt(searchParams.adults) === 1 ? 'adult' : 'adults'}
-                      </div>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5, 6].map((num) => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {num} {num === 1 ? 'adult' : 'adults'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-          <div className="flex-1 md:basis-32 md:max-w-[120px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
-                <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Children</label>
-                <Select
-                  value={searchParams.children}
-                  onValueChange={handleChildrenChange}
-                >
-                  <SelectTrigger ref={childrenRef} className="w-full border-0 p-0 h-auto font-normal flex items-center">
-                    <SelectValue>
-                      <div className="flex items-center">
-                        <Users className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                        {searchParams.children} {parseInt(searchParams.children) === 1 ? 'child' : 'children'}
-                      </div>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[0, 1, 2, 3, 4].map((num) => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {num} {num === 1 ? 'child' : 'children'}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {`${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}, ${apartments} apartment${apartments === 1 ? '' : 's'}`}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Adults</div>
+                      <div className="text-xs text-gray-500">Ages 18 or above</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.adults) <= 1} onClick={() => handleAdultsChange((parseInt(searchParams.adults) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.adults}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleAdultsChange((parseInt(searchParams.adults) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Kids</div>
+                      <div className="text-xs text-gray-500">Ages 3-17</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.children) <= 0} onClick={() => handleChildrenChange((parseInt(searchParams.children) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.children}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleChildrenChange((parseInt(searchParams.children) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Apartments</div>
+                      <div className="text-xs text-gray-500">Number of apartments</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={apartments <= 1} onClick={() => setApartments(apartments - 1)}>-</Button>
+                      <span className="w-6 text-center">{apartments}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => setApartments(apartments + 1)}>+</Button>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Search Button */}
-        <div className="flex items-center justify-center h-full px-4 mt-4 md:mt-0 w-full md:w-auto md:flex-none">
+        <div className="flex items-center justify-center flex-none px-0 md:px-0 mx-1 md:mx-2">
           <Button 
             type="submit" 
             size="icon"
-            className="h-14 w-full md:h-16 md:w-16 rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white shadow-xl flex items-center justify-center text-lg md:text-base font-bold"
+            className="h-11 w-11 md:h-12 md:w-12 rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white shadow-xl flex items-center justify-center text-lg md:text-base font-bold"
             disabled={submitting}
             style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
           >
