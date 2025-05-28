@@ -209,17 +209,36 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
             <div
               className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
               ref={carouselRef}
-              style={{ scrollBehavior: 'smooth' }}
+              style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
             >
               {photos.map((photo, idx) => (
                 <div
                   key={idx}
-                  className="min-w-[260px] h-56 rounded-xl shadow bg-white overflow-hidden flex-shrink-0 cursor-pointer group"
+                  className="h-56 rounded-xl shadow bg-white overflow-hidden flex-shrink-0 cursor-pointer group"
+                  style={{
+                    minWidth: '100%',
+                    maxWidth: '100%',
+                    scrollSnapAlign: 'start',
+                  }}
                   onClick={() => setSelectedImage(photo.url)}
                   tabIndex={0}
                   aria-label="View image"
                 >
-                  <div className="relative w-full h-full">
+                  <style jsx>{`
+                    @media (min-width: 640px) {
+                      .property-carousel-item {
+                        min-width: calc((100% - 1rem) / 2);
+                        max-width: calc((100% - 1rem) / 2);
+                      }
+                    }
+                    @media (min-width: 1024px) {
+                      .property-carousel-item {
+                        min-width: calc((100% - 3rem) / 4);
+                        max-width: calc((100% - 3rem) / 4);
+                      }
+                    }
+                  `}</style>
+                  <div className="property-carousel-item relative w-full h-full">
                     <Image src={photo.url} alt={photo.caption || "Property photo"} fill className="object-cover rounded-xl group-hover:opacity-80 transition" />
                   </div>
                 </div>

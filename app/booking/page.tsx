@@ -481,298 +481,296 @@ function BookingForm() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Add Guests</h1>
-            <Button 
-              variant="outline"
-              onClick={() => {
-                // Use all current search params to reconstruct the search URL
-                const params = new URLSearchParams();
-                if (city) params.set('city', city);
-                if (searchParams.get('startDate')) params.set('startDate', searchParams.get('startDate')!);
-                if (searchParams.get('endDate')) params.set('endDate', searchParams.get('endDate')!);
-                if (searchParams.get('adults')) params.set('adults', searchParams.get('adults')!);
-                if (searchParams.get('children')) params.set('children', searchParams.get('children')!);
-                router.push(`/search?${params.toString()}`);
-              }}
-              className="flex items-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-              </svg>
-              Back to Search
-            </Button>
-          </div>
-          
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Booking Form */}
-            <div className="md:col-span-2">
-              <Card className="p-6">
-                {successMessage && (
-                  <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
-                    <p>{successMessage}</p>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
-                    <p>{error}</p>
-                  </div>
-                )}
-
-                {loadingMessage && (
-                  <div className="text-center p-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p className="text-gray-600">{loadingMessage}</p>
-                  </div>
-                )}
-
-                <form onSubmit={handleFormSubmit} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">First Name</label>
-                      <Input
-                        required
-                        value={bookingData.firstName}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, firstName: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Last Name</label>
-                      <Input
-                        required
-                        value={bookingData.lastName}
-                        onChange={(e) => setBookingData(prev => ({ ...prev, lastName: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Email</label>
-                    <Input
-                      type="email"
-                      required
-                      value={bookingData.email}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Check-in</label>
-                    <Input
-                      type="date"
-                      required
-                      value={bookingData.checkIn}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, checkIn: e.target.value }))}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Check-out</label>
-                    <Input
-                      type="date"
-                      required
-                      value={bookingData.checkOut}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, checkOut: e.target.value }))}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Number of adults</label>
-                      <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.adults}</div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Number of children</label>
-                      <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.children}</div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => {
-                    // Use all current search params to reconstruct the search URL
-                    const params = new URLSearchParams();
-                    searchParams.forEach((value, key) => {
-                      params.set(key, value);
-                    });
-                    router.push(`/search?${params.toString()}`);
-                  }}>go back to search</button>.</p>
-
-                  {/* Estimated Arrival Time */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
-                    <Select
-                      value={bookingData.estimatedArrivalTime || ''}
-                      onValueChange={(value: string) => setBookingData(prev => ({ ...prev, estimatedArrivalTime: value }))}
-                    >
-                      <SelectTrigger className={cn("w-full text-left", !bookingData.estimatedArrivalTime && "text-gray-400")}> 
-                        <SelectValue placeholder="Select time (optional)" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60 overflow-y-auto">
-                        {ARRIVAL_TIMES.map(time => (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Country */}
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Country</label>
-                    <Select
-                      value={bookingData.country || ''}
-                      onValueChange={(value: string) => setBookingData(prev => ({ ...prev, country: value }))}
-                    >
-                      <SelectTrigger className={cn("w-full text-left", !bookingData.country && "text-gray-400")}> 
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60 overflow-y-auto">
-                        {COUNTRIES.map(country => (
-                          <SelectItem key={country.code} value={country.code}>
-                            {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Add account creation section for non-authenticated users */}
-                  {!user && (
-                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-4">
-                        <input
-                          type="checkbox"
-                          id="createAccount"
-                          checked={bookingData.createAccount}
-                          onChange={(e) => setBookingData(prev => ({ 
-                            ...prev, 
-                            createAccount: e.target.checked,
-                            password: e.target.checked ? prev.password : '' 
-                          }))}
-                          className="h-4 w-4"
-                        />
-                        <label htmlFor="createAccount" className="text-sm font-medium">
-                          Create an account to manage your bookings
-                        </label>
-                      </div>
-                      {bookingData.createAccount && (
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium">Password</label>
-                          <Input
-                            type="password"
-                            value={bookingData.password}
-                            onChange={(e) => setBookingData(prev => ({ ...prev, password: e.target.value }))}
-                            required={bookingData.createAccount}
-                            placeholder="••••••••"
-                            minLength={6}
-                          />
-                          <p className="text-xs text-gray-500">
-                            Must be at least 6 characters long
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/*
-                  // --- Direct Booking Rate UI (commented out as per request) ---
-                  {ratePlans.length > 0 && !error && (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-1">Direct Booking Rate</label>
-                      <div className="flex items-center gap-3 p-2 rounded border border-gray-200 bg-gray-50">
-                        <span className="font-medium text-gray-900">{ratePlans[0].ratePlanNamePublic}</span>
-                        <span className="text-gray-600 text-sm">MYR {ratePlans[0].totalRate.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  )}
-                  */}
-
-                  <Button 
-                    type="submit" 
-                    disabled={submitting} 
-                    variant="outline"
-                    className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
-                  >
-                    {submitting ? (
-                      <div className="flex items-center justify-center">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        Processing...
-                      </div>
-                    ) : (
-                      'Continue to Payment'
-                    )}
-                  </Button>
-
-                  {!user && (
-                    <p className="text-sm text-gray-500 text-center mt-4">
-                      Already have an account?{' '}
-                      <Link href={`/auth/sign-in?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
-                        Sign in
-                      </Link>
-                    </p>
-                  )}
-                </form>
-              </Card>
-            </div>
-
-            {/* Booking Summary */}
-            <div>
-              <Card className="p-6 sticky top-6">
-                <h2 className="font-semibold mb-4">Booking Summary</h2>
-                
-                <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                  {room && room.roomTypePhotos && room.roomTypePhotos[0] ? (
-                    <Image
-                      src={`${room.roomTypePhotos[0]}?w=400&h=300&fit=crop`}
-                      alt={room.roomTypeName || ''}
-                      width={400}
-                      height={300}
-                      className="object-cover cursor-pointer"
-                      onClick={() => setCarouselOpen(true)}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No image</div>
-                  )}
-                </div>
-
-                <h3 className="font-medium mb-2">{room ? room.roomTypeName : ''}</h3>
-
-                <div className="space-y-2 text-sm">
-                  {price === null && (
-                    <div className="text-red-500 text-sm mb-2">No rates available for this room and date selection. Please try different dates or another room.</div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>Check-in</span>
-                    <span className="font-medium">{format(parseISO(bookingData.checkIn), 'MMM d, yyyy')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Check-out</span>
-                    <span className="font-medium">{format(parseISO(bookingData.checkOut), 'MMM d, yyyy')}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Number of nights</span>
-                    <span className="font-medium">{numberOfNights}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Price per night</span>
-                    <span className="font-medium">
-                      {perNightPrice !== null ? `MYR ${perNightPrice.toFixed(2)}` : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="pt-2 mt-2 border-t flex justify-between">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-semibold">
-                      {totalPrice !== null ? `MYR ${totalPrice.toFixed(2)}` : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-          {/* Property Information Section (added below booking form/summary) */}
-          {searchParams.get('propertyId') && <div className="mt-12"><PropertyInformation propertyId={searchParams.get('propertyId')!} /></div>}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Guest Contact details</h1>
+          <Button 
+            variant="outline"
+            onClick={() => {
+              // Use all current search params to reconstruct the search URL
+              const params = new URLSearchParams();
+              if (city) params.set('city', city);
+              if (searchParams.get('startDate')) params.set('startDate', searchParams.get('startDate')!);
+              if (searchParams.get('endDate')) params.set('endDate', searchParams.get('endDate')!);
+              if (searchParams.get('adults')) params.set('adults', searchParams.get('adults')!);
+              if (searchParams.get('children')) params.set('children', searchParams.get('children')!);
+              router.push(`/search?${params.toString()}`);
+            }}
+            className="flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Search
+          </Button>
         </div>
+        
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* Booking Form */}
+          <div className="md:col-span-2">
+            <Card className="p-6">
+              {successMessage && (
+                <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
+                  <p>{successMessage}</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
+                  <p>{error}</p>
+                </div>
+              )}
+
+              {loadingMessage && (
+                <div className="text-center p-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                  <p className="text-gray-600">{loadingMessage}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">First Name</label>
+                    <Input
+                      required
+                      value={bookingData.firstName}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, firstName: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Last Name</label>
+                    <Input
+                      required
+                      value={bookingData.lastName}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, lastName: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <Input
+                    type="email"
+                    required
+                    value={bookingData.email}
+                    onChange={(e) => setBookingData(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Check-in</label>
+                  <Input
+                    type="date"
+                    required
+                    value={bookingData.checkIn}
+                    onChange={(e) => setBookingData(prev => ({ ...prev, checkIn: e.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Check-out</label>
+                  <Input
+                    type="date"
+                    required
+                    value={bookingData.checkOut}
+                    onChange={(e) => setBookingData(prev => ({ ...prev, checkOut: e.target.value }))}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Number of adults</label>
+                    <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.adults}</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Number of children</label>
+                    <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.children}</div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => {
+                  // Use all current search params to reconstruct the search URL
+                  const params = new URLSearchParams();
+                  searchParams.forEach((value, key) => {
+                    params.set(key, value);
+                  });
+                  router.push(`/search?${params.toString()}`);
+                }}>go back to search</button>.</p>
+
+                {/* Estimated Arrival Time */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
+                  <Select
+                    value={bookingData.estimatedArrivalTime || ''}
+                    onValueChange={(value: string) => setBookingData(prev => ({ ...prev, estimatedArrivalTime: value }))}
+                  >
+                    <SelectTrigger className={cn("w-full text-left", !bookingData.estimatedArrivalTime && "text-gray-400")}> 
+                      <SelectValue placeholder="Select time (optional)" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 overflow-y-auto">
+                      {ARRIVAL_TIMES.map(time => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Country</label>
+                  <Select
+                    value={bookingData.country || ''}
+                    onValueChange={(value: string) => setBookingData(prev => ({ ...prev, country: value }))}
+                  >
+                    <SelectTrigger className={cn("w-full text-left", !bookingData.country && "text-gray-400")}> 
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60 overflow-y-auto">
+                      {COUNTRIES.map(country => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Add account creation section for non-authenticated users */}
+                {!user && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <input
+                        type="checkbox"
+                        id="createAccount"
+                        checked={bookingData.createAccount}
+                        onChange={(e) => setBookingData(prev => ({ 
+                          ...prev, 
+                          createAccount: e.target.checked,
+                          password: e.target.checked ? prev.password : '' 
+                        }))}
+                        className="h-4 w-4"
+                      />
+                      <label htmlFor="createAccount" className="text-sm font-medium">
+                        Create an account to manage your bookings
+                      </label>
+                    </div>
+                    {bookingData.createAccount && (
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium">Password</label>
+                        <Input
+                          type="password"
+                          value={bookingData.password}
+                          onChange={(e) => setBookingData(prev => ({ ...prev, password: e.target.value }))}
+                          required={bookingData.createAccount}
+                          placeholder="••••••••"
+                          minLength={6}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Must be at least 6 characters long
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/*
+                // --- Direct Booking Rate UI (commented out as per request) ---
+                {ratePlans.length > 0 && !error && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Direct Booking Rate</label>
+                    <div className="flex items-center gap-3 p-2 rounded border border-gray-200 bg-gray-50">
+                      <span className="font-medium text-gray-900">{ratePlans[0].ratePlanNamePublic}</span>
+                      <span className="text-gray-600 text-sm">MYR {ratePlans[0].totalRate.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+                */}
+
+                <Button 
+                  type="submit" 
+                  disabled={submitting} 
+                  variant="outline"
+                  className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
+                >
+                  {submitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    'Continue to Payment'
+                  )}
+                </Button>
+
+                {!user && (
+                  <p className="text-sm text-gray-500 text-center mt-4">
+                    Already have an account?{' '}
+                    <Link href={`/auth/sign-in?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`} className="text-blue-600 hover:underline">
+                      Sign in
+                    </Link>
+                  </p>
+                )}
+              </form>
+            </Card>
+          </div>
+
+          {/* Booking Summary */}
+          <div>
+            <Card className="p-6 sticky top-6">
+              <h2 className="font-semibold mb-4">Booking Summary</h2>
+              
+              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                {room && room.roomTypePhotos && room.roomTypePhotos[0] ? (
+                  <Image
+                    src={`${room.roomTypePhotos[0]}?w=400&h=300&fit=crop`}
+                    alt={room.roomTypeName || ''}
+                    width={400}
+                    height={300}
+                    className="object-cover cursor-pointer"
+                    onClick={() => setCarouselOpen(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">No image</div>
+                )}
+              </div>
+
+              <h3 className="font-medium mb-2">{room ? room.roomTypeName : ''}</h3>
+
+              <div className="space-y-2 text-sm">
+                {price === null && (
+                  <div className="text-red-500 text-sm mb-2">No rates available for this room and date selection. Please try different dates or another room.</div>
+                )}
+                <div className="flex justify-between">
+                  <span>Check-in</span>
+                  <span className="font-medium">{format(parseISO(bookingData.checkIn), 'MMM d, yyyy')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Check-out</span>
+                  <span className="font-medium">{format(parseISO(bookingData.checkOut), 'MMM d, yyyy')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Number of nights</span>
+                  <span className="font-medium">{numberOfNights}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Price per night</span>
+                  <span className="font-medium">
+                    {perNightPrice !== null ? `MYR ${perNightPrice.toFixed(2)}` : 'N/A'}
+                  </span>
+                </div>
+                <div className="pt-2 mt-2 border-t flex justify-between">
+                  <span className="font-semibold">Total</span>
+                  <span className="font-semibold">
+                    {totalPrice !== null ? `MYR ${totalPrice.toFixed(2)}` : 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+        {/* Property Information Section (added below booking form/summary) */}
+        {searchParams.get('propertyId') && <div className="mt-12"><PropertyInformation propertyId={searchParams.get('propertyId')!} /></div>}
       </div>
       {/* Swiper Modal Carousel */}
       {carouselOpen && room && room.roomTypePhotos && room.roomTypePhotos.length > 0 && (

@@ -307,7 +307,7 @@ function SearchResults() {
                       {buttonLoading === room.id ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
-                        'Book Now'
+                        'Resume Booking'
                       )}
                     </Button>
                   </div>
