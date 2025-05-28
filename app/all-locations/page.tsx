@@ -312,7 +312,7 @@ export default function AllLocationsPage() {
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="relative z-20">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">Soulasia Locations</h1>
-          <p className="text-lg md:text-2xl text-white max-w-2xl mx-auto animate-fade-in-up delay-100">Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
+          <p className="text-lg md:text-2xl max-w-2xl mx-auto animate-fade-in-up delay-100" style={{ color: '#fff' }}>Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
         </div>
       </section>
       <div className="min-h-screen bg-gray-50 py-12">

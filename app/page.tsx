@@ -144,7 +144,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/50" />
           </div>
 
-          <div className="container relative z-10 flex flex-col items-center justify-center px-4 mx-auto text-center">
+          <div className="container mx-auto relative z-10 flex flex-col items-center justify-center text-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ export default function Home() {
             }}
           />
           <div className="relative z-10">
-            <div className="container px-4 mx-auto">
+            <div className="container mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                 <motion.div
                   initial="hidden"
@@ -336,7 +336,7 @@ export default function Home() {
             />
           </div>
           <div className="absolute inset-0 bg-black/60 z-10" />
-          <div className="container px-4 mx-auto text-center relative z-20">
+          <div className="container mx-auto text-center relative z-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready for a Soulful Stay?</h2>
             <p className="max-w-2xl mx-auto mb-8" style={{ color: '#fff' }}>
               Whether you&apos;re visiting for business or pleasure, our premium apartments offer the perfect blend of comfort, convenience, and luxury.
@@ -363,7 +363,7 @@ export default function Home() {
 
         {/* Gallery Section */}
         <section className="py-24">
-          <div className="container px-4 mx-auto">
+          <div className="container mx-auto">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -432,7 +432,7 @@ export default function Home() {
 
         {/* Featured Apartments Section */}
         <section className="py-24 bg-gray-50">
-          <div className="container px-4 mx-auto">
+          <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Featured Apartments</h2>
             <FeaturedApartmentsCarousel />
           </div>
@@ -445,7 +445,7 @@ export default function Home() {
 
         {/* OTA Logos Section */}
         <section className="py-16 bg-white border-t border-gray-100">
-          <div className="container px-4 mx-auto text-center">
+          <div className="container mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-8">We are listed on</h2>
             <div className="flex flex-wrap justify-center items-center gap-8">
               <img src="/OTA/airbnb.png" alt="Airbnb" className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
