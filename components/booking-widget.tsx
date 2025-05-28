@@ -278,7 +278,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
                 >
                   <CalendarIcon className="mr-2 h-5 w-5 md:h-4 md:w-4" />
                   {date?.from && date?.to
-                    ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
+                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
                     : <span>Pick dates</span>}
                 </Button>
               </PopoverTrigger>
@@ -343,9 +343,9 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
                       <Button type="button" size="icon" variant="outline" disabled={apartments <= 1} onClick={() => setApartments(apartments - 1)}>-</Button>
                       <span className="w-6 text-center">{apartments}</span>
                       <Button type="button" size="icon" variant="outline" onClick={() => setApartments(apartments + 1)}>+</Button>
-                    </div>
-                  </div>
-                </div>
+                      </div>
+              </div>
+                      </div>
               </PopoverContent>
             </Popover>
           </div>

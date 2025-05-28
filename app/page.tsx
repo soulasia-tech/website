@@ -346,17 +346,6 @@ export default function Home() {
                 View All Locations
                 <ArrowRight className="ml-2 size-5" />
               </Link>
-              <button 
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
-                }}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium bg-blue-50 hover:bg-blue-100 transition-colors"
-                style={{ color: '#0E3599' }}
-              >
-                Book Now
-              </button>
             </div>
           </div>
         </section>

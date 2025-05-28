@@ -32,7 +32,7 @@ const data = [
     description:
       "Premium serviced apartments at Scarletz, Kuala Lumpur. Modern comfort in the heart of the city.",
     href: "/properties/270917",
-    image: "/properties/Scarletz/DSC01330.jpg",
+    image: "/properties/Scarletz/card.jpg",
   },
   {
     id: "location-2",
@@ -41,7 +41,7 @@ const data = [
     description:
       "Modern serviced apartments at Vortex, Kuala Lumpur. Experience city living with stunning views.",
     href: "/properties/19928",
-    image: "/properties/Vortex/54c2879c_z copy 2.jpg",
+    image: "/properties/Vortex/card.jpg",
   },
   {
     id: "location-3",
@@ -50,7 +50,7 @@ const data = [
     description:
       "Luxury serviced apartments at 188 Suites, Kuala Lumpur. Enjoy premium amenities and comfort.",
     href: "/properties/188-id",
-    image: "/properties/188/DSC06377.jpg",
+    image: "/properties/188/card.jpg",
   },
   {
     id: "location-4",
@@ -59,7 +59,7 @@ const data = [
     description:
       "Elegant serviced apartments at Mercu Summer Suites, Kuala Lumpur. Perfect for a relaxing stay.",
     href: "/properties/mercu-id",
-    image: "/properties/Mercu/DSC02384.jpg",
+    image: "/properties/Mercu/card.jpg",
   },
 ];
 
