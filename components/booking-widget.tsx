@@ -29,6 +29,7 @@ interface BookingWidgetProps {
     endDate: string;
     adults: string;
     children: string;
+    apartments?: string;
   };
   alwaysSticky?: boolean;
 }
@@ -84,7 +85,13 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
   const [widgetTop, setWidgetTop] = useState<number | null>(null);
 
   // Add new state for apartments
-  const [apartments, setApartments] = useState(1);
+  const [apartments, setApartments] = useState(() => {
+    if (initialSearchParams?.apartments) {
+      const n = parseInt(initialSearchParams.apartments, 10);
+      return isNaN(n) ? 1 : n;
+    }
+    return 1;
+  });
   const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
 
   useEffect(() => {
@@ -160,6 +167,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
       endDate: format(date.to, 'yyyy-MM-dd'),
       adults: searchParams.adults,
       children: searchParams.children,
+      apartments: apartments.toString(),
       guests: totalGuests.toString(),
     }).toString()
     router.push(`/search?${queryString}`)

@@ -30,6 +30,14 @@ interface RoomResult {
   city: string;
 }
 
+interface RatePlan {
+  roomTypeID: string;
+  totalRate: number;
+  roomsAvailable: number;
+  ratePlanNamePublic?: string;
+  [key: string]: unknown; // For any extra fields
+}
+
 function SearchResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,7 +46,7 @@ function SearchResults() {
   const [property, setProperty] = useState<{ propertyId: string, propertyName: string } | null>(null);
   const [results, setResults] = useState<RoomResult[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [rates, setRates] = useState<{ [roomTypeID: string]: number }>({});
+  const [rates, setRates] = useState<{ [roomTypeID: string]: RatePlan }>({});
   const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -52,6 +60,7 @@ function SearchResults() {
   const adults = searchParams.get('adults');
   const children = searchParams.get('children');
   const propertyIdParam = searchParams.get('propertyId');
+  const apartments = parseInt(searchParams.get('apartments') || '1', 10);
 
   // Create initial search params object for BookingWidget
   const initialSearchParams = {
@@ -60,6 +69,7 @@ function SearchResults() {
     endDate: endDate || '',
     adults: adults || '2',
     children: children || '0',
+    apartments: apartments.toString(),
   };
 
   useEffect(() => {
@@ -69,12 +79,12 @@ function SearchResults() {
       return;
     }
 
-    // Fetch all properties in the selected city or by propertyId
     const fetchPropertiesAndRooms = async () => {
       setPropertyLoading(true);
       setLoading(true);
       setError(null);
       try {
+        console.log('Fetching properties and rooms...', { city, propertyIdParam, startDate, endDate, adults, children, apartments });
         const propRes = await fetch('/api/cloudbeds-properties');
         const propData = await propRes.json();
         if (!propData.success || !Array.isArray(propData.properties)) {
@@ -104,7 +114,7 @@ function SearchResults() {
         setProperty(propertyIdParam ? { propertyId: propertyIdParam, propertyName: filteredProperties[0].propertyName } : { propertyId: '', propertyName: city });
         // Fetch rooms and rates for all filtered properties in parallel
         const allRooms: RoomResult[] = [];
-        const allRates: { [roomTypeID: string]: number } = {};
+        const allRates: { [roomTypeID: string]: RatePlan } = {};
         await Promise.all(filteredProperties.map(async (property: { propertyId: string; propertyName: string; city: string }) => {
           // Fetch room types
           const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
@@ -113,12 +123,12 @@ function SearchResults() {
             // Fetch rates for this property
             const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
             const rateData = await rateRes.json();
-            const propertyRates: { [roomTypeID: string]: number } = {};
+            const propertyRates: { [roomTypeID: string]: RatePlan } = {};
             if (rateData.success && Array.isArray(rateData.ratePlans)) {
-              rateData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
-                if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
-                  propertyRates[rate.roomTypeID] = rate.totalRate;
-                  allRates[rate.roomTypeID] = rate.totalRate;
+              rateData.ratePlans.forEach((rate: RatePlan) => {
+                if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!" || rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!") {
+                  propertyRates[rate.roomTypeID] = rate;
+                  allRates[rate.roomTypeID] = rate;
                 }
               });
             }
@@ -135,7 +145,7 @@ function SearchResults() {
                 id: room.roomTypeID,
                 name: room.roomTypeName,
                 description: room.roomTypeDescription,
-                price: propertyRates[room.roomTypeID] || 0,
+                price: propertyRates[room.roomTypeID]?.totalRate || 0,
                 maxGuests: room.maxGuests,
                 available: propertyRates[room.roomTypeID] !== undefined,
                 images: room.roomTypePhotos || [],
@@ -151,17 +161,19 @@ function SearchResults() {
         setRates(allRates);
         setPropertyLoading(false);
         setLoading(false);
-      } catch {
+        console.log('Fetch complete');
+      } catch (err) {
         setProperty(null);
         setResults([]);
         setRates({});
         setPropertyLoading(false);
         setLoading(false);
         setError('Failed to load rooms');
+        console.error('Fetch error:', err);
       }
     };
     fetchPropertiesAndRooms();
-  }, [city, propertyIdParam, startDate, endDate, adults, children, router]);
+  }, [city, propertyIdParam, startDate, endDate, adults, children, apartments, router]);
 
   useEffect(() => {
     if (!selectedRoomImages) return;
@@ -195,9 +207,11 @@ function SearchResults() {
   const numAdults = adults ? parseInt(adults, 10) : 2;
   const numChildren = children ? parseInt(children, 10) : 0;
   const totalGuests = calculateTotalGuests(numAdults, numChildren);
-  // Filter rooms based on both rate and guest capacity
+  // Filter rooms based on both rate, guest capacity, and apartments availability
   const filteredRooms = results.filter(
-    room => rates[room.id] !== undefined && room.maxGuests >= totalGuests
+    room => rates[room.id] !== undefined &&
+            room.maxGuests >= totalGuests &&
+            rates[room.id].roomsAvailable >= apartments
   );
 
   // Calculate number of nights
@@ -289,12 +303,12 @@ function SearchResults() {
                     <div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-2xl font-bold">
-                          {rates[room.id] !== undefined ? `MYR ${(rates[room.id] / numberOfNights).toFixed(2)}` : 'N/A'}
+                          {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
                         </span>
                         <span className="text-gray-600 text-base">per night</span>
                       </div>
                       <p className="text-lg font-medium mt-1">
-                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].toFixed(2)} total` : 'N/A'}
+                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
                       </p>
                     </div>
                     <Button 
