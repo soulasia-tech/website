@@ -274,10 +274,21 @@ function SearchResults() {
       adults: numAdults,
       children: numChildren,
       propertyId: property?.propertyId || '',
+      city: city || '',
     };
     console.log('[SearchPage] Saving bookingCart to sessionStorage:', bookingCart);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('bookingCart', JSON.stringify(bookingCart));
+      // Save only search terms for back-to-search
+      const searchParamsObj = {
+        city: city || '',
+        startDate: startDate || '',
+        endDate: endDate || '',
+        adults: numAdults.toString(),
+        children: numChildren.toString(),
+        apartments: apartments.toString(),
+      };
+      sessionStorage.setItem('lastSearchParams', JSON.stringify(searchParamsObj));
     }
     router.push('/booking');
   };

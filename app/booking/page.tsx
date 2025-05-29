@@ -60,6 +60,7 @@ interface BookingCart {
   adults: number;
   children: number;
   propertyId: string;
+  city?: string;
 }
 
 function BookingForm() {
@@ -229,7 +230,39 @@ function BookingForm() {
           <h1 className="text-3xl font-bold">Guest Contact details</h1>
           <Button 
             variant="outline"
-            onClick={() => router.push('/search')}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                const lastSearchParams = sessionStorage.getItem('lastSearchParams');
+                if (lastSearchParams) {
+                  try {
+                    const paramsObj = JSON.parse(lastSearchParams);
+                    const params = new URLSearchParams();
+                    if (paramsObj.city) params.set('city', paramsObj.city);
+                    if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
+                    if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
+                    if (paramsObj.adults) params.set('adults', paramsObj.adults);
+                    if (paramsObj.children) params.set('children', paramsObj.children);
+                    if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
+                    router.push(`/search?${params.toString()}`);
+                    return;
+                  } catch {
+                    // fallback to below
+                  }
+                }
+              }
+              if (bookingCart) {
+                const params = new URLSearchParams();
+                if (bookingCart.city) params.set('city', bookingCart.city);
+                if (bookingCart.checkIn) params.set('startDate', bookingCart.checkIn);
+                if (bookingCart.checkOut) params.set('endDate', bookingCart.checkOut);
+                if (bookingCart.adults) params.set('adults', bookingCart.adults.toString());
+                if (bookingCart.children) params.set('children', bookingCart.children.toString());
+                if (bookingCart.propertyId) params.set('propertyId', bookingCart.propertyId);
+                router.push(`/search?${params.toString()}`);
+              } else {
+                router.push('/search');
+              }
+            }}
             className="flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -289,7 +322,39 @@ function BookingForm() {
                     <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.children}</div>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => router.push('/search')}>go back to search</button>.</p>
+                <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    const lastSearchParams = sessionStorage.getItem('lastSearchParams');
+                    if (lastSearchParams) {
+                      try {
+                        const paramsObj = JSON.parse(lastSearchParams);
+                        const params = new URLSearchParams();
+                        if (paramsObj.city) params.set('city', paramsObj.city);
+                        if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
+                        if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
+                        if (paramsObj.adults) params.set('adults', paramsObj.adults);
+                        if (paramsObj.children) params.set('children', paramsObj.children);
+                        if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
+                        router.push(`/search?${params.toString()}`);
+                        return;
+                      } catch {
+                        // fallback to below
+                      }
+                    }
+                  }
+                  if (bookingCart) {
+                    const params = new URLSearchParams();
+                    if (bookingCart.city) params.set('city', bookingCart.city);
+                    if (bookingCart.checkIn) params.set('startDate', bookingCart.checkIn);
+                    if (bookingCart.checkOut) params.set('endDate', bookingCart.checkOut);
+                    if (bookingCart.adults) params.set('adults', bookingCart.adults.toString());
+                    if (bookingCart.children) params.set('children', bookingCart.children.toString());
+                    if (bookingCart.propertyId) params.set('propertyId', bookingCart.propertyId);
+                    router.push(`/search?${params.toString()}`);
+                  } else {
+                    router.push('/search');
+                  }
+                }}>go back to search</button>.</p>
                 {/* Estimated Arrival Time */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
