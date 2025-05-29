@@ -108,10 +108,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
     }
   }, [isSticky]);
 
-  // Portal logic for sticky mode
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   useEffect(() => {
     const fetchProperties = async () => {
       setLoading(true)
@@ -255,6 +251,23 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
     setSearchParams(prev => ({ ...prev, children: value }));
   }
 
+  // Default widget style (used for SSR and non-sticky mode)
+  const defaultWidgetStyle = { width: '48rem', margin: '0 auto' };
+
+  // Sticky widget style (used only after hydration, in sticky/portal mode)
+  const stickyWidgetStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 96,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '48rem',
+    zIndex: 9999,
+    boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)',
+    borderRadius: '9999px',
+    background: 'white',
+    margin: '0',
+  };
+
   if (isMobile && !isExpanded) {
     return (
       <div
@@ -278,30 +291,160 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
     <div
       ref={widgetRef}
       className={
-        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 w-full max-w-3xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300` +
-        ((alwaysSticky || isSticky || stickyMode === 'always') ? '' : '')
+        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300`
       }
-      style={
-        (alwaysSticky || isSticky || stickyMode === 'always') && typeof window !== 'undefined' && window.innerWidth >= 768
-          ? {
-              position: 'fixed',
-              top: 96,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              maxWidth: '48rem',
-              width: '100vw',
-              zIndex: 9999,
-              boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)',
-              borderRadius: '9999px',
-              background: 'white',
-              margin: 0,
-            }
-          : {
-              maxWidth: '48rem',
-              width: '100%',
-              margin: '0 auto',
-            }
+      style={defaultWidgetStyle}
+    >
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col md:flex-row md:items-center md:divide-x md:divide-gray-200 gap-2 md:gap-0 w-full"
+      >
+        {/* City & Dates Group */}
+        <div className="w-full md:flex-[2] md:px-8 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
+          <div className="flex-1 bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+            <label className="block text-xs md:text-sm font-semibold md:font-medium text-gray-700 mb-2 md:mb-1 text-left">City</label>
+            <Select
+              value={searchParams.city}
+              onValueChange={handleCityChange}
+              disabled={loading}
+            >
+              <SelectTrigger
+                ref={cityRef}
+                className="w-full border-0 p-0 h-auto font-normal"
+              >
+                <SelectValue placeholder="Select a city" />
+              </SelectTrigger>
+              <SelectContent>
+                {cities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-full md:w-[220px] md:max-w-[260px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+            <label className="block text-xs md:text-sm font-semibold md:font-medium text-gray-700 mb-2 md:mb-1 text-left">Dates</label>
+            <Popover
+              open={datePopoverOpen}
+              onOpenChange={setDatePopoverOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  ref={dateButtonRef}
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start p-0 font-normal text-left flex items-center gap-2 truncate",
+                    !date?.from && "text-gray-400"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-5 w-5 md:h-4 md:w-4" />
+                  {date?.from && date?.to
+                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
+                    : <span>Pick dates</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={date}
+                  onSelect={handleDateChange}
+                  numberOfMonths={1}
+                  initialFocus
+                  className="rounded-lg border border-border p-2"
+                  disabled={{ before: new Date() }}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Guests Group */}
+        <div className="w-full md:flex-[2] md:px-6 md:py-3 flex flex-col md:flex-row gap-2 md:gap-8 justify-center">
+          <div className="flex-1 md:basis-48 md:max-w-[200px] bg-gray-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 mb-2 md:mb-0">
+            <label className="block text-xs md:text-sm font-medium text-gray-800 mb-1 text-left">Add guests</label>
+            <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start p-0 font-normal text-left flex items-center gap-2"
+                >
+                  {`${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}, ${apartments} apartment${apartments === 1 ? '' : 's'}`}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Adults</div>
+                      <div className="text-xs text-gray-500">Ages 18 or above</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.adults) <= 1} onClick={() => handleAdultsChange((parseInt(searchParams.adults) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.adults}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleAdultsChange((parseInt(searchParams.adults) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Kids</div>
+                      <div className="text-xs text-gray-500">Ages 3-17</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.children) <= 0} onClick={() => handleChildrenChange((parseInt(searchParams.children) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.children}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleChildrenChange((parseInt(searchParams.children) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Apartments</div>
+                      <div className="text-xs text-gray-500">Number of apartments</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={apartments <= 1} onClick={() => setApartments(apartments - 1)}>-</Button>
+                      <span className="w-6 text-center">{apartments}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => setApartments(apartments + 1)}>+</Button>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Search Button */}
+        <div className="flex items-center justify-center flex-none px-0 md:px-0 mx-1 md:mx-2">
+          <Button 
+            type="submit" 
+            size="icon"
+            className="h-11 w-11 md:h-12 md:w-12 rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white shadow-xl flex items-center justify-center text-lg md:text-base font-bold"
+            disabled={submitting}
+            style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+          >
+            {submitting ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <Search className="w-6 h-6" />
+            )}
+          </Button>
+        </div>
+      </form>
+      {/* Remove close button, add mobile-only bottom spacing */}
+      {isMobile && isExpanded && (
+        <div className="h-6 md:hidden" />
+      )}
+    </div>
+  );
+
+  // Sticky/portal version (only after hydration)
+  const stickyWidgetContent = (
+    <div
+      ref={widgetRef}
+      className={
+        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300`
       }
+      style={stickyWidgetStyle}
     >
       <form
         onSubmit={handleSearch}
@@ -448,12 +591,15 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
   return (
     <>
       {/* Spacer to prevent layout shift when sticky (desktop/tablet only) */}
-      {isSticky && widgetHeight > 0 && (
+      {isSticky && widgetHeight > 0 && hydrated && (
         <div className="hidden md:block" style={{ height: widgetHeight }} />
       )}
-      {mounted && (alwaysSticky || isSticky || stickyMode === 'always') && typeof window !== 'undefined' && window.innerWidth >= 768
-        ? ReactDOM.createPortal(widgetContent, document.body)
-        : widgetContent}
+      {/* On server or before hydration, always render default (non-sticky, non-portal) version */}
+      {!hydrated
+        ? widgetContent
+        : (alwaysSticky || isSticky || stickyMode === 'always') && typeof window !== 'undefined' && window.innerWidth >= 768
+          ? ReactDOM.createPortal(stickyWidgetContent, document.body)
+          : widgetContent}
     </>
   )
 } 
