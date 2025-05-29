@@ -304,57 +304,6 @@ function BookingForm() {
                   <label className="block text-sm font-medium mb-1">Email</label>
                   <Input type="email" required value={bookingData.email} onChange={e => setBookingData(prev => ({ ...prev, email: e.target.value }))} />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Check-in</label>
-                  <Input type="date" required value={bookingData.checkIn} onChange={e => setBookingData(prev => ({ ...prev, checkIn: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Check-out</label>
-                  <Input type="date" required value={bookingData.checkOut} onChange={e => setBookingData(prev => ({ ...prev, checkOut: e.target.value }))} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Number of adults</label>
-                    <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.adults}</div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Number of children</label>
-                    <div className="py-2 px-3 bg-gray-100 rounded text-gray-800">{bookingData.children}</div>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2 mb-4">To change the number of adults or children, <button type="button" className="text-blue-600 underline" onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    const lastSearchParams = sessionStorage.getItem('lastSearchParams');
-                    if (lastSearchParams) {
-                      try {
-                        const paramsObj = JSON.parse(lastSearchParams);
-                        const params = new URLSearchParams();
-                        if (paramsObj.city) params.set('city', paramsObj.city);
-                        if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
-                        if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
-                        if (paramsObj.adults) params.set('adults', paramsObj.adults);
-                        if (paramsObj.children) params.set('children', paramsObj.children);
-                        if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
-                        router.push(`/search?${params.toString()}`);
-                        return;
-                      } catch {
-                        // fallback to below
-                      }
-                    }
-                  }
-                  if (bookingCart) {
-                    const params = new URLSearchParams();
-                    if (bookingCart.city) params.set('city', bookingCart.city);
-                    if (bookingCart.checkIn) params.set('startDate', bookingCart.checkIn);
-                    if (bookingCart.checkOut) params.set('endDate', bookingCart.checkOut);
-                    if (bookingCart.adults) params.set('adults', bookingCart.adults.toString());
-                    if (bookingCart.children) params.set('children', bookingCart.children.toString());
-                    if (bookingCart.propertyId) params.set('propertyId', bookingCart.propertyId);
-                    router.push(`/search?${params.toString()}`);
-                  } else {
-                    router.push('/search');
-                  }
-                }}>go back to search</button>.</p>
                 {/* Estimated Arrival Time */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
@@ -399,7 +348,12 @@ function BookingForm() {
                     )}
                   </div>
                 )}
-                <Button type="submit" disabled={submitting} variant="outline" className="w-full h-12 border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition">
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full h-12 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center"
+                  style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+                >
                   {submitting ? (
                     <div className="flex items-center justify-center">
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
@@ -427,6 +381,14 @@ function BookingForm() {
                 <div className="flex justify-between">
                   <span>Check-out</span>
                   <span className="font-medium">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Number of adults</span>
+                  <span className="font-medium">{bookingCart?.adults}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Number of children</span>
+                  <span className="font-medium">{bookingCart?.children}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Number of nights</span>
