@@ -90,8 +90,16 @@ function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetailsModalPr
                 <p>{cloudbedsDetails.guestName}</p>
                 <p className="text-gray-600">Status:</p>
                 <p>{cloudbedsDetails.status}</p>
-                <p className="text-gray-600">Room:</p>
-                <p>{cloudbedsDetails.assigned?.[0]?.roomName}</p>
+                <p className="text-gray-600">Apartments:</p>
+                <div className="col-span-1 flex flex-col gap-1">
+                  {Array.isArray(cloudbedsDetails.assigned) && cloudbedsDetails.assigned.length > 0 ? (
+                    cloudbedsDetails.assigned.map((room, idx) => (
+                      <div key={idx}>{room.roomName}</div>
+                    ))
+                  ) : (
+                    <span className="text-gray-400">No room info</span>
+                  )}
+                </div>
                 <p className="text-gray-600">Check-in:</p>
                 <p>{cloudbedsDetails.startDate}</p>
                 <p className="text-gray-600">Check-out:</p>
@@ -233,7 +241,13 @@ export default function MyBookingsPage() {
                         </span>
                       </div>
                       <div className="flex flex-col gap-1 flex-1">
-                        <div className="font-semibold text-lg truncate">{cb?.assigned?.[0]?.roomName || 'Room info unavailable'}</div>
+                        <div className="font-semibold text-lg truncate">
+                          {Array.isArray(cb?.assigned) && cb?.assigned?.length > 0
+                            ? cb.assigned.map((room, idx) => (
+                                <span key={idx}>{room.roomName}{idx < (cb.assigned?.length ?? 0) - 1 ? ', ' : ''}</span>
+                              ))
+                            : 'Room info unavailable'}
+                        </div>
                         <div className="text-gray-500 text-sm">{cb?.startDate || formatDate(booking.check_in)} - {cb?.endDate || formatDate(booking.check_out)}</div>
                         <div className="text-gray-500 text-sm">Guests: {booking.number_of_guests}</div>
                         <div className="text-gray-900 font-bold mt-1">{cb?.total !== undefined ? `MYR ${cb.total.toFixed(2)}` : (booking.total_price ? `MYR ${booking.total_price.toFixed(2)}` : <span className="text-gray-400">-</span>)}</div>

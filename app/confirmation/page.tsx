@@ -54,9 +54,9 @@ function ConfirmationContent() {
         setError(null);
         // Prepare FormData for API
         const fd = new FormData();
-        fd.append('propertyID', bookingPayload.propertyId);
-        fd.append('startDate', bookingPayload.bookingData.checkIn);
-        fd.append('endDate', bookingPayload.bookingData.checkOut);
+        fd.append('propertyID', bookingPayload.bookingCart.propertyId);
+        fd.append('startDate', bookingPayload.bookingCart.checkIn);
+        fd.append('endDate', bookingPayload.bookingCart.checkOut);
         fd.append('guestFirstName', bookingPayload.bookingData.firstName);
         fd.append('guestLastName', bookingPayload.bookingData.lastName);
         fd.append('guestEmail', bookingPayload.bookingData.email);
@@ -64,32 +64,33 @@ function ConfirmationContent() {
         fd.append('guestZip', '00000');
         fd.append('paymentMethod', 'credit_card'); // Mark as paid
         fd.append('sendEmailConfirmation', 'true');
-        fd.append('rooms', JSON.stringify([
-          {
-            roomTypeID: bookingPayload.bookingData.roomId,
-            roomID: bookingPayload.bookingData.roomId,
-            quantity: "1",
-            roomRateID: bookingPayload.selectedRateID
-          }
-        ]));
-        fd.append('adults', JSON.stringify([
-          {
-            roomTypeID: bookingPayload.bookingData.roomId,
-            roomID: bookingPayload.bookingData.roomId,
-            quantity: String(
-              typeof bookingPayload.bookingData.guests === 'number' && bookingPayload.bookingData.guests > 0
-                ? bookingPayload.bookingData.guests
-                : 1
-            )
-          }
-        ]));
-        fd.append('children', JSON.stringify([
-          {
-            roomTypeID: bookingPayload.bookingData.roomId,
-            roomID: bookingPayload.bookingData.roomId,
-            quantity: "0"
-          }
-        ]));
+
+        // Add type for cart items
+        type CartItem = { roomTypeID: string; quantity: number };
+        // Build rooms, adults, and children arrays from cart
+        const roomsArr = bookingPayload.bookingCart.cart.map((item: CartItem) => ({
+          roomTypeID: item.roomTypeID,
+          roomID: item.roomTypeID, // If you have real room IDs, use them here
+          quantity: String(item.quantity),
+          // roomRateID: item.roomRateID, // Add if available in cart
+        }));
+        fd.append('rooms', JSON.stringify(roomsArr));
+
+        // For now, assume all guests are adults, children = 0
+        const adultsArr = bookingPayload.bookingCart.cart.map((item: CartItem) => ({
+          roomTypeID: item.roomTypeID,
+          roomID: item.roomTypeID, // If you have real room IDs, use them here
+          quantity: String(item.quantity),
+        }));
+        fd.append('adults', JSON.stringify(adultsArr));
+
+        const childrenArr = bookingPayload.bookingCart.cart.map((item: CartItem) => ({
+          roomTypeID: item.roomTypeID,
+          roomID: item.roomTypeID, // If you have real room IDs, use them here
+          quantity: "0",
+        }));
+        fd.append('children', JSON.stringify(childrenArr));
+
         // Add optional fields
         if (bookingPayload.bookingData.phone) fd.append('guestPhone', bookingPayload.bookingData.phone);
         if (bookingPayload.bookingData.estimatedArrivalTime) fd.append('estimatedArrivalTime', bookingPayload.bookingData.estimatedArrivalTime);
@@ -104,7 +105,7 @@ function ConfirmationContent() {
         }
         // --- Add payment to reservation ---
         const paymentFd = new FormData();
-        paymentFd.append('propertyID', bookingPayload.propertyId);
+        paymentFd.append('propertyID', bookingPayload.bookingCart.propertyId);
         paymentFd.append('addPayment', 'true');
         paymentFd.append('amount', bookingPayload.totalPrice.toString());
         paymentFd.append('reservationID', resData.data.reservationID);
@@ -120,16 +121,16 @@ function ConfirmationContent() {
         // Set booking info for confirmation
         setBooking({
           id: resData.data.reservationID,
-          check_in: bookingPayload.bookingData.checkIn,
-          check_out: bookingPayload.bookingData.checkOut,
+          check_in: bookingPayload.bookingCart.checkIn,
+          check_out: bookingPayload.bookingCart.checkOut,
           total_price: bookingPayload.totalPrice,
           guest_first_name: bookingPayload.bookingData.firstName,
           guest_last_name: bookingPayload.bookingData.lastName,
           guest_email: bookingPayload.bookingData.email,
-          number_of_guests: bookingPayload.bookingData.guests,
-          room_id: bookingPayload.bookingData.roomId,
+          number_of_guests: bookingPayload.bookingCart.cart.reduce((total: number, item: CartItem) => total + item.quantity, 0),
+          room_id: bookingPayload.bookingCart.cart[0].roomTypeID,
           status: 'confirmed',
-          property_id: bookingPayload.propertyId,
+          property_id: bookingPayload.bookingCart.propertyId,
         });
         // If user is logged in, insert booking into Supabase
         let userIdToUse = null;
@@ -143,7 +144,7 @@ function ConfirmationContent() {
           const insertPayload = {
             user_id: userIdToUse,
             cloudbeds_res_id: resData.data.reservationID,
-            cloudbeds_property_id: bookingPayload.propertyId,
+            cloudbeds_property_id: bookingPayload.bookingCart.propertyId,
           };
           console.log('Inserting booking:', insertPayload);
           const { error: bookingInsertError } = await supabase
