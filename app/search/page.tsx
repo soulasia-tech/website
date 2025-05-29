@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { BookingWidget } from '@/components/booking-widget';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -14,6 +14,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
+import { PropertyInformation } from '@/components/property-information';
 
 interface RoomResult {
   id: string;
@@ -61,6 +62,10 @@ function SearchResults() {
   const swiperInitialized = useRef(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<{ [roomTypeID: string]: number }>({});
+  const [proceeding, setProceeding] = useState(false);
+  const [openPropertyId, setOpenPropertyId] = useState<string | null>(null);
+  const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
+  const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -267,6 +272,7 @@ function SearchResults() {
 
   // Proceed to guest details
   const handleProceed = () => {
+    setProceeding(true);
     const bookingCart = {
       cart,
       checkIn: startDate,
@@ -292,6 +298,28 @@ function SearchResults() {
     }
     router.push('/booking');
   };
+
+  // Preload property info for all visible room cards
+  useEffect(() => {
+    const uniquePropertyIds = Array.from(new Set(filteredRooms.map(r => r.propertyId)));
+    uniquePropertyIds.forEach(propertyId => {
+      if (!propertyInfoData[propertyId] && !propertyInfoLoading[propertyId]) {
+        setPropertyInfoLoading(prev => ({ ...prev, [propertyId]: true }));
+        fetch(`/api/cloudbeds/property?propertyId=${propertyId}`)
+          .then(res => res.json())
+          .then(data => {
+            setPropertyInfoData(prev => ({ ...prev, [propertyId]: data }));
+          })
+          .catch(() => {
+            setPropertyInfoData(prev => ({ ...prev, [propertyId]: { error: 'Failed to load property information' } }));
+          })
+          .finally(() => {
+            setPropertyInfoLoading(prev => ({ ...prev, [propertyId]: false }));
+          });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredRooms]);
 
   if (propertyLoading || loading) {
     return (
@@ -324,153 +352,165 @@ function SearchResults() {
         </div>
         <div className="h-0 md:h-[112px]" />
 
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">
-            {property ? property.propertyName : 'Property'}
-          </h1>
-          <div className="text-gray-600 mb-2">
-            {startDate && endDate && (
-              <span>
-                {format(parseISO(startDate), 'MMM d, yyyy')} - {format(parseISO(endDate), 'MMM d, yyyy')}
-              </span>
-            )}
-            {(adults || children) && (
-              <span> &middot; {numAdults} adult{numAdults === 1 ? '' : 's'}{numChildren > 0 ? `, ${numChildren} child${numChildren === 1 ? '' : 'ren'}` : ''}</span>
-            )}
-          </div>
-          {error && <div className="text-red-500 mb-2">{error}</div>}
-        </div>
-        {/* Cart summary and controls at the top */}
-        <div className="mb-8">
-          <div className="max-w-2xl mx-auto bg-white rounded shadow p-4">
-            <h2 className="text-lg font-bold mb-2">Your Reservation</h2>
-            {cart.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
-            ) : (
-              <>
-                {cart.map(item => (
-                  <div key={item.roomTypeID} className="flex items-center gap-4 border-b pb-3 mb-3">
-                    <div className="flex-1">
-                      <div className="font-semibold">{item.roomName}</div>
-                      <div className="text-sm text-gray-600">MYR {item.price.toFixed(2)} per apartment</div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <button
-                          className="px-2 py-1 border rounded"
-                          onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                        >-</button>
-                        <span className="w-6 text-center">{item.quantity}</span>
-                        <button
-                          className="px-2 py-1 border rounded"
-                          onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity + 1)}
-                          disabled={item.quantity >= item.maxAvailable}
-                        >+</button>
-                      </div>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Left: Search Results */}
+          <div className="md:w-2/3 w-full">
+            <div className="space-y-6">
+              {!error && filteredRooms.length === 0 && (
+                <div className="text-gray-500 text-center py-8">
+                  No rooms found for your search criteria. Try another property or reduce the number of guests.
+                </div>
+              )}
+              {filteredRooms.map(room => (
+                <Card key={room.id} className="overflow-hidden">
+                  <div className="flex flex-col md:flex-row">
+                    <div className="md:w-1/3 h-64 relative">
+                      <Image 
+                        src={`${room.images[0]}?w=600&h=400&fit=crop`}
+                        alt={room.name}
+                        width={600}
+                        height={400}
+                        className="object-cover cursor-pointer"
+                        onClick={() => setSelectedRoomImages(room.images)}
+                      />
                     </div>
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                      aria-label="Remove from cart"
-                    >Remove</button>
-                  </div>
-                ))}
-                <div className="flex justify-between mb-4 mt-4">
-                  <span className="font-semibold">Total</span>
-                  <span className="font-bold">MYR {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
-                </div>
-                <button
-                  className="w-full h-12 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition"
-                  disabled={cart.length === 0}
-                  onClick={handleProceed}
-                >
-                  Proceed to Guest Details
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-        <div className="space-y-6">
-          {!error && filteredRooms.length === 0 && (
-            <div className="text-gray-500 text-center py-8">
-              No rooms found for your search criteria. Try another property or reduce the number of guests.
-            </div>
-          )}
-          {filteredRooms.map(room => (
-            <Card key={room.id} className="overflow-hidden">
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/3 h-64 relative">
-                  <Image 
-                    src={`${room.images[0]}?w=600&h=400&fit=crop`}
-                    alt={room.name}
-                    width={600}
-                    height={400}
-                    className="object-cover cursor-pointer"
-                    onClick={() => setSelectedRoomImages(room.images)}
-                  />
-                </div>
-                <div className="p-6 md:w-2/3 flex flex-col">
-                  <div className="flex-grow">
-                    <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
-                    <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {room.amenities.map((amenity, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
+                    <div className="p-6 md:w-2/3 flex flex-col">
+                      <div className="flex-grow">
+                        <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
+                        <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {room.amenities.map((amenity, index) => (
+                            <span 
+                              key={index}
+                              className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
+                            >
+                              {amenity}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-600">Up to {room.maxGuests} guests</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                        <div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold">
+                              {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                            </span>
+                            <span className="text-gray-600 text-base">per night</span>
+                          </div>
+                          <p className="text-lg font-medium mt-1">
+                            {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
+                          </p>
+                          {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
+                            <p className="text-sm text-green-700 mt-1">
+                              {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
+                            </p>
+                          )}
+                        </div>
+                        {/* Quantity selector and Add to Cart */}
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              className="px-2 py-1 border rounded"
+                              onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
+                              disabled={(quantities[room.id] || 1) <= 1}
+                            >-</button>
+                            <span className="w-6 text-center">{quantities[room.id] || 1}</span>
+                            <button
+                              className="px-2 py-1 border rounded"
+                              onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
+                              disabled={(quantities[room.id] || 1) >= rates[room.id].roomsAvailable}
+                            >+</button>
+                          </div>
+                          <Button
+                            onClick={() => handleAddToCart(room)}
+                            disabled={rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
+                            size="sm"
+                            variant="outline"
+                            className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition w-24"
+                          >
+                            Reserve
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2 mt-4">
+                        <Button
+                          variant="link"
+                          className="text-blue-600 underline text-sm p-0 h-auto min-w-0"
+                          onClick={() => setOpenPropertyId(openPropertyId === room.propertyId ? null : room.propertyId)}
                         >
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">Up to {room.maxGuests} guests</p>
-                  </div>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold">
-                          {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
-                        </span>
-                        <span className="text-gray-600 text-base">per night</span>
+                          {openPropertyId === room.propertyId ? 'Hide property info' : 'Learn more about this property'}
+                        </Button>
+                        {openPropertyId === room.propertyId && (
+                          <div className="mt-2 w-full px-0">
+                            {propertyInfoLoading[room.propertyId] ? (
+                              <div className="text-gray-500 text-sm py-8 text-center">Loading property information...</div>
+                            ) : propertyInfoData[room.propertyId] ? (
+                              <PropertyInformation propertyId={room.propertyId} />
+                            ) : null}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-lg font-medium mt-1">
-                        {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
-                      </p>
-                      {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
-                        <p className="text-sm text-green-700 mt-1">
-                          {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
-                        </p>
-                      )}
-                    </div>
-                    {/* Quantity selector and Add to Cart */}
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="px-2 py-1 border rounded"
-                          onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
-                          disabled={(quantities[room.id] || 1) <= 1}
-                        >-</button>
-                        <span className="w-6 text-center">{quantities[room.id] || 1}</span>
-                        <button
-                          className="px-2 py-1 border rounded"
-                          onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
-                          disabled={(quantities[room.id] || 1) >= rates[room.id].roomsAvailable}
-                        >+</button>
-                      </div>
-                      <Button
-                        onClick={() => handleAddToCart(room)}
-                        disabled={rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
-                        size="lg"
-                        variant="outline"
-                        className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition"
-                      >
-                        Add to Reservation
-                      </Button>
                     </div>
                   </div>
-                </div>
-              </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+          {/* Right: Booking Cart */}
+          <div className="md:w-1/3 w-full">
+            <Card className="p-6 shadow-lg">
+              <h2 className="font-semibold text-xl mb-4">Your Reservation</h2>
+              {cart.length === 0 ? (
+                <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
+              ) : (
+                <>
+                  {cart.map(item => (
+                    <div key={item.roomTypeID} className="flex items-center gap-4 border-b pb-3 mb-3">
+                      <div className="flex-1">
+                        <div className="font-semibold">{item.roomName}</div>
+                        <div className="text-sm text-gray-600">MYR {item.price.toFixed(2)} per apartment</div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            className="px-2 py-1 border rounded"
+                            onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                          >-</button>
+                          <span className="w-6 text-center">{item.quantity}</span>
+                          <button
+                            className="px-2 py-1 border rounded"
+                            onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity + 1)}
+                            disabled={item.quantity >= item.maxAvailable}
+                          >+</button>
+                        </div>
+                      </div>
+                      <button
+                        className="text-red-500 hover:underline"
+                        onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                        aria-label="Remove from cart"
+                      >Remove</button>
+                    </div>
+                  ))}
+                  <div className="flex justify-between mb-4 mt-4">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-bold">MYR {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                  </div>
+                  <Button
+                    className="w-full h-12 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center"
+                    disabled={cart.length === 0 || proceeding}
+                    onClick={handleProceed}
+                    style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+                  >
+                    {proceeding ? (
+                      <span className="flex items-center gap-2"><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>Processing...</span>
+                    ) : (
+                      'Proceed to Guest Details'
+                    )}
+                  </Button>
+                </>
+              )}
             </Card>
-          ))}
+          </div>
         </div>
         {selectedRoomImages && (() => {
           console.log('Modal images:', selectedRoomImages);

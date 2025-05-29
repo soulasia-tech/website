@@ -171,12 +171,12 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
   const terms = property.termsAndConditions || null;
 
   return (
-    <section className="py-12">
-      <div className="container px-4 mx-auto">
+    <section className="py-8 w-full">
+      <div className="w-full px-0 mx-0">
         <h2 className="text-2xl font-bold mb-6">Property Information</h2>
         {/* Photos as horizontally scrollable cards with arrows */}
         {photos.length > 0 && (
-          <div className="mb-8 relative">
+          <div className="mb-8 relative w-full">
             {/* Carousel Arrows */}
             {photos.length > 1 && (
               <>
@@ -207,14 +207,14 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
               </>
             )}
             <div
-              className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
+              className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide w-full"
               ref={carouselRef}
-              style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
+              style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth', width: '100%' }}
             >
               {photos.map((photo, idx) => (
                 <div
                   key={idx}
-                  className="h-56 rounded-xl shadow bg-white overflow-hidden flex-shrink-0 cursor-pointer group"
+                  className="h-56 md:h-72 rounded-xl shadow bg-white overflow-hidden flex-shrink-0 cursor-pointer group w-full"
                   style={{
                     minWidth: '100%',
                     maxWidth: '100%',
@@ -224,21 +224,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
                   tabIndex={0}
                   aria-label="View image"
                 >
-                  <style jsx>{`
-                    @media (min-width: 640px) {
-                      .property-carousel-item {
-                        min-width: calc((100% - 1rem) / 2);
-                        max-width: calc((100% - 1rem) / 2);
-                      }
-                    }
-                    @media (min-width: 1024px) {
-                      .property-carousel-item {
-                        min-width: calc((100% - 3rem) / 4);
-                        max-width: calc((100% - 3rem) / 4);
-                      }
-                    }
-                  `}</style>
-                  <div className="property-carousel-item relative w-full h-full">
+                  <div className="relative w-full h-full">
                     <Image src={photo.url} alt={photo.caption || "Property photo"} fill className="object-cover rounded-xl group-hover:opacity-80 transition" />
                   </div>
                 </div>
