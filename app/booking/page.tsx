@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -65,6 +65,7 @@ interface BookingCart {
 
 function BookingForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -90,30 +91,72 @@ function BookingForm() {
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  // Always get propertyId from searchParams or bookingCart
+  const propertyId = searchParams.get('propertyId') || bookingCart?.propertyId || '';
+
   // On mount, read bookingCart from sessionStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const cartStr = sessionStorage.getItem('bookingCart');
-      if (cartStr) {
-        try {
-          const cartObj: BookingCart = JSON.parse(cartStr);
-          setBookingCart(cartObj);
-          setBookingData(prev => ({
-            ...prev,
-            checkIn: cartObj.checkIn || '',
-            checkOut: cartObj.checkOut || '',
-            adults: cartObj.adults || 2,
-            children: cartObj.children || 0,
-          }));
-        } catch {
-          setError('Booking data is corrupted. Please return to the search page and try again.');
+    async function tryRestoreCart() {
+      if (typeof window !== 'undefined') {
+        const cartStr = sessionStorage.getItem('bookingCart');
+        if (cartStr) {
+          try {
+            const cartObj: BookingCart = JSON.parse(cartStr);
+            setBookingCart(cartObj);
+            setBookingData((prev: BookingFormData) => ({
+              ...prev,
+              checkIn: cartObj.checkIn || '',
+              checkOut: cartObj.checkOut || '',
+              adults: cartObj.adults || 2,
+              children: cartObj.children || 0,
+            }));
+            setLoading(false);
+            setCartChecked(true);
+            return;
+          } catch {
+            setError('Booking data is corrupted. Please return to the search page and try again.');
+            setLoading(false);
+            setCartChecked(true);
+            return;
+          }
         }
-      } else {
+        // Try to recover from backend session store using latest booking token
+        let latestToken = null;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('booking_')) {
+            latestToken = key.replace('booking_', '');
+            break;
+          }
+        }
+        if (latestToken) {
+          try {
+            const res = await fetch(`/api/booking-session?token=${latestToken}`);
+            const data = await res.json();
+            if (data.success && data.bookingData?.bookingCart) {
+              setBookingCart(data.bookingData.bookingCart as BookingCart);
+              setBookingData((prev: BookingFormData) => ({
+                ...prev,
+                checkIn: data.bookingData.bookingCart.checkIn || '',
+                checkOut: data.bookingData.bookingCart.checkOut || '',
+                adults: data.bookingData.bookingCart.adults || 2,
+                children: data.bookingData.bookingCart.children || 0,
+              }));
+              setLoading(false);
+              setCartChecked(true);
+              return;
+            }
+          } catch {}
+        }
         setError('No booking found. Please return to the search page and start your booking again.');
+        setLoading(false);
+        setCartChecked(true);
+        setTimeout(() => {
+          window.location.href = '/search?error=missing_cart';
+        }, 2000);
       }
-      setLoading(false);
-      setCartChecked(true);
     }
+    tryRestoreCart();
   }, []);
 
   // Pre-fill user info if logged in
@@ -157,27 +200,44 @@ function BookingForm() {
         setSubmitting(false);
         return;
       }
-      // Optionally, validate cart contents here
       // --- Generate a random token and store booking data in localStorage ---
       const bookingToken = crypto.randomUUID();
       const bookingPayload = {
         bookingData,
         bookingCart,
+        propertyId,
         userId: user?.id
       };
+      console.log('[Booking] bookingCart:', bookingCart);
+      console.log('[Booking] bookingPayload:', bookingPayload);
       localStorage.setItem(`booking_${bookingToken}`, JSON.stringify(bookingPayload));
+      // --- Save booking session to backend ---
+      const sessionRes = await fetch('/api/booking-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: bookingToken, bookingData: bookingPayload }),
+      });
+      const sessionData = await sessionRes.json();
+      console.log('[Booking] booking-session POST response:', sessionData);
+      if (!sessionData.success) {
+        setError(sessionData.error || 'Failed to save booking session. Please try again.');
+        setSubmitting(false);
+        return;
+      }
       // --- Billplz Payment Flow (mocked) ---
       setLoadingMessage('Redirecting to payment...');
-      // Use bookingToken as Billplz reference_1 and pass propertyId as reference_2
+      // Use propertyId for Billplz
+      const totalAmount = bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
       const billPayload = {
-        amount: bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0),
+        amount: Math.round(totalAmount * 100), // Billplz expects amount in cents
         name: `${bookingData.firstName} ${bookingData.lastName}`,
         email: bookingData.email,
         callback_url: `${window.location.origin}/api/payment/billplz-callback`,
         redirect_url: `${window.location.origin}/confirmation?bookingToken=${bookingToken}`,
         reference_1: bookingToken,
-        reference_2: bookingCart.propertyId,
+        reference_2: propertyId,
       };
+      console.log('[Booking] billPayload:', billPayload);
       // Call our API route to create the Billplz bill
       const billRes = await fetch('/api/payment/create-bill', {
         method: 'POST',
@@ -185,6 +245,7 @@ function BookingForm() {
         body: JSON.stringify(billPayload),
       });
       const billData = await billRes.json();
+      console.log('[Booking] create-bill response:', billData);
       if (!billData.success || !billData.bill?.url) {
         throw new Error(billData.error || 'Failed to create payment bill');
       }
@@ -194,6 +255,24 @@ function BookingForm() {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (bookingCart) {
+      console.log('bookingCart:', bookingCart);
+      console.log('propertyId for PropertyInformation:', bookingCart.propertyId);
+    }
+  }, [bookingCart]);
+
+  // Debug logs for propertyId
+  useEffect(() => {
+    const spPropertyId = searchParams.get('propertyId');
+    console.log('[BookingPage] searchParams.get(propertyId):', spPropertyId);
+    console.log('[BookingPage] bookingCart:', bookingCart);
+    console.log('[BookingPage] resolved propertyId:', propertyId);
+    if (!propertyId) {
+      setError('Error: propertyId is missing. Please return to the search page and try again.');
+    }
+  }, [searchParams, bookingCart, propertyId]);
 
   if (loading || !cartChecked) {
     return (
@@ -416,7 +495,7 @@ function BookingForm() {
           </div>
         </div>
         {/* Property Information Section */}
-        {bookingCart?.propertyId && <div className="mt-12"><PropertyInformation propertyId={bookingCart.propertyId} /></div>}
+        {propertyId && <div className="mt-12"><PropertyInformation propertyId={propertyId} /></div>}
       </div>
     </div>
   );

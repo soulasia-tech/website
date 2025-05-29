@@ -94,9 +94,6 @@ export async function POST(request: Request) {
       params.append('estimatedArrivalTime', estimatedArrivalTime as string);
     }
 
-    // Log outgoing payload for debugging
-    console.log('Cloudbeds reservation payload:', params.toString());
-
     // Add room data
     rooms.forEach((room: RoomData, index: number) => {
       params.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
@@ -135,9 +132,6 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-
-    // Log full Cloudbeds response for debugging
-    console.log('Cloudbeds API response:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       console.error('Cloudbeds API error:', data);

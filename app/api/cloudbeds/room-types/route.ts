@@ -19,17 +19,12 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('Attempting to fetch API keys...');
-
     // Get API keys from Supabase
     const { data: property, error: propertyError } = await supabase
       .from('cloudbeds_properties')
       .select('api_key')
       .eq('property_id', propertyId)
       .single();
-
-    console.log('Property Response:', { data: property, error: propertyError });
 
     if (propertyError || !property) {
       console.error('Error fetching property API key:', propertyError);
@@ -61,8 +56,6 @@ export async function GET(request: Request) {
         error: data.message || 'Failed to fetch room types'
       }, { status: response.status });
     }
-
-    console.log('Cloudbeds room types response:', JSON.stringify(data.data, null, 2));
 
     return NextResponse.json({
       success: true,

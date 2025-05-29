@@ -14,10 +14,6 @@ export async function POST(request: Request) {
   try {
     // Parse FormData from the request
     const formData = await request.formData();
-    // Log all incoming fields for debugging
-    for (const [key, value] of formData.entries()) {
-      console.log(`Received field: ${key} =`, value);
-    }
     // Extract required fields (use PascalCase as per Cloudbeds docs)
     const propertyID = formData.get('propertyID');
     if (!propertyID) {
@@ -82,16 +78,13 @@ export async function POST(request: Request) {
     let paymentResult = null;
     if (cbData.reservationID && amount) {
       try {
-        console.log('Posting payment to Cloudbeds:', { propertyID, reservationID: cbData.reservationID, amount });
         paymentResult = await addPaymentToReservation({
           propertyId: propertyID.toString(),
           reservationId: cbData.reservationID,
           amount: Number(amount),
           paymentMethod: 'credit_card',
         });
-        console.log('Payment posted to Cloudbeds:', paymentResult);
       } catch (err) {
-        console.error('Error adding payment to reservation:', err);
         // Still return reservation, but include payment error
         return NextResponse.json({ success: true, data: cbData, paymentError: err instanceof Error ? err.message : String(err) });
       }

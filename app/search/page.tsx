@@ -14,7 +14,6 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
-import { PropertyInformation } from '@/components/property-information';
 
 interface RoomResult {
   id: string;
@@ -45,6 +44,8 @@ interface CartItem {
   price: number;
   quantity: number;
   maxAvailable: number;
+  propertyId: string;
+  propertyName: string;
 }
 
 function SearchResults() {
@@ -63,7 +64,6 @@ function SearchResults() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [quantities, setQuantities] = useState<{ [roomTypeID: string]: number }>({});
   const [proceeding, setProceeding] = useState(false);
-  const [openPropertyId, setOpenPropertyId] = useState<string | null>(null);
   const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
   const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
 
@@ -233,7 +233,7 @@ function SearchResults() {
     setCart(prev => {
       const existing = prev.find(item => item.roomTypeID === room.id);
       if (existing) {
-        // Update quantity (but not above maxAvailable)
+        // Update quantity (but not above maxAvailable), keep all fields
         return prev.map(item =>
           item.roomTypeID === room.id
             ? { ...item, quantity: Math.min(item.quantity + qty, rates[room.id].roomsAvailable) }
@@ -248,6 +248,8 @@ function SearchResults() {
             price: rates[room.id].totalRate,
             quantity: qty,
             maxAvailable: rates[room.id].roomsAvailable,
+            propertyId: room.propertyId,
+            propertyName: room.propertyName,
           },
         ];
       }
@@ -270,19 +272,32 @@ function SearchResults() {
     setCart(prev => prev.filter(item => item.roomTypeID !== roomTypeID));
   };
 
+  // Add debug log for property at the top of SearchResults
+  useEffect(() => {
+    console.log('[SearchPage] property:', property);
+    console.log('[SearchPage] propertyId:', property?.propertyId);
+  }, [property]);
+
   // Proceed to guest details
   const handleProceed = () => {
-    setProceeding(true);
+    const cartPropertyId = cart.length > 0 ? cart[0].propertyId : '';
+    console.log('[SearchPage] handleProceed property:', property);
+    console.log('[SearchPage] handleProceed cartPropertyId:', cartPropertyId);
     const bookingCart = {
       cart,
       checkIn: startDate,
       checkOut: endDate,
       adults: numAdults,
       children: numChildren,
-      propertyId: property?.propertyId || '',
+      propertyId: cartPropertyId,
       city: city || '',
     };
     console.log('[SearchPage] Saving bookingCart to sessionStorage:', bookingCart);
+    if (!cartPropertyId) {
+      alert('Error: propertyId is missing (cart). Cannot proceed to booking.');
+      setProceeding(false);
+      return;
+    }
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('bookingCart', JSON.stringify(bookingCart));
       // Save only search terms for back-to-search
@@ -296,7 +311,8 @@ function SearchResults() {
       };
       sessionStorage.setItem('lastSearchParams', JSON.stringify(searchParamsObj));
     }
-    router.push('/booking');
+    // Always include propertyId in the URL
+    router.push(`/booking?propertyId=${cartPropertyId}`);
   };
 
   // Preload property info for all visible room cards
@@ -320,9 +336,6 @@ function SearchResults() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRooms]);
-
-  // Determine the propertyId of the current cart (if any)
-  const cartPropertyId = cart.length > 0 ? results.find(r => r.id === cart[0].roomTypeID)?.propertyId : null;
 
   if (propertyLoading || loading) {
     return (
@@ -366,7 +379,7 @@ function SearchResults() {
               )}
               {filteredRooms.map(room => {
                 // Disable Reserve if cart contains rooms from a different property
-                const isOtherProperty = !!cartPropertyId && room.propertyId !== cartPropertyId;
+                const isOtherProperty = !!(cart.length > 0 && results.find(r => r.id === cart[0].roomTypeID)?.propertyId && room.propertyId !== results.find(r => r.id === cart[0].roomTypeID)?.propertyId);
                 return (
                   <Card key={room.id} className="overflow-hidden">
                     <div className="flex flex-col md:flex-row">
@@ -444,24 +457,6 @@ function SearchResults() {
                             )}
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2 mt-4">
-                          <Button
-                            variant="link"
-                            className="text-blue-600 underline text-sm p-0 h-auto min-w-0"
-                            onClick={() => setOpenPropertyId(openPropertyId === room.propertyId ? null : room.propertyId)}
-                          >
-                            {openPropertyId === room.propertyId ? 'Hide property info' : 'Learn more about this property'}
-                          </Button>
-                          {openPropertyId === room.propertyId && (
-                            <div className="mt-2 w-full px-0">
-                              {propertyInfoLoading[room.propertyId] ? (
-                                <div className="text-gray-500 text-sm py-8 text-center">Loading property information...</div>
-                              ) : propertyInfoData[room.propertyId] ? (
-                                <PropertyInformation propertyId={room.propertyId} />
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </Card>
@@ -510,11 +505,17 @@ function SearchResults() {
                   <Button
                     className="w-full h-12 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center"
                     disabled={cart.length === 0 || proceeding}
-                    onClick={handleProceed}
+                    onClick={() => {
+                      setProceeding(true);
+                      handleProceed();
+                    }}
                     style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
                   >
                     {proceeding ? (
-                      <span className="flex items-center gap-2"><span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>Processing...</span>
+                      <span className="flex items-center gap-2">
+                        <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        Processing...
+                      </span>
                     ) : (
                       'Proceed to Guest Details'
                     )}
@@ -525,7 +526,7 @@ function SearchResults() {
           </div>
         </div>
         {selectedRoomImages && (() => {
-          console.log('Modal images:', selectedRoomImages);
+          console.error('Modal images:', selectedRoomImages);
           return (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"

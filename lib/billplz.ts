@@ -7,6 +7,7 @@ interface CreateBillParams {
   callback_url: string;
   redirect_url: string;
   reference_1?: string;
+  reference_2?: string;
 }
 
 interface VerifyPaymentParams {
@@ -14,7 +15,7 @@ interface VerifyPaymentParams {
   x_signature: string;
 }
 
-export async function createBill({ amount, name, email, callback_url, redirect_url, reference_1 }: CreateBillParams) {
+export async function createBill({ amount, name, email, callback_url, redirect_url, reference_1, reference_2 }: CreateBillParams) {
   const apiKey = process.env.BILLPLZ_API_KEY;
   const collectionId = process.env.BILLPLZ_COLLECTION_ID;
   if (!apiKey || !collectionId) {
@@ -31,6 +32,8 @@ export async function createBill({ amount, name, email, callback_url, redirect_u
     redirect_url,
     reference_1,
     reference_1_label: 'Booking Data',
+    reference_2,
+    reference_2_label: 'Property ID',
   };
 
   const res = await fetch('https://www.billplz.com/api/v3/bills', {

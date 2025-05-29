@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { LucideIcon, icons } from "lucide-react";
 import Map, { Marker, Popup } from 'react-map-gl';
@@ -88,8 +88,6 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   // Modal state for image preview
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  // Ref for carousel scroll
-  const carouselRef = useRef<HTMLDivElement>(null);
   const [mapPosition, setMapPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -174,59 +172,26 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
     <section className="py-8 w-full">
       <div className="w-full px-0 mx-0">
         <h2 className="text-2xl font-bold mb-6">Property Information</h2>
-        {/* Photos as horizontally scrollable cards with arrows */}
+        {/* Responsive grid of property photos */}
         {photos.length > 0 && (
-          <div className="mb-8 relative w-full">
-            {/* Carousel Arrows */}
-            {photos.length > 1 && (
-              <>
-                <button
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2 transition disabled:opacity-30"
-                  style={{ left: '-18px' }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      carouselRef.current.scrollBy({ left: -300, behavior: 'smooth' });
-                    }
-                  }}
-                  aria-label="Scroll left"
-                >
-                  <icons.ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2 transition disabled:opacity-30"
-                  style={{ right: '-18px' }}
-                  onClick={() => {
-                    if (carouselRef.current) {
-                      carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
-                    }
-                  }}
-                  aria-label="Scroll right"
-                >
-                  <icons.ChevronRight className="w-6 h-6" />
-                </button>
-              </>
-            )}
-            <div
-              className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide w-full"
-              ref={carouselRef}
-              style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth', width: '100%' }}
-            >
+          <div className="mb-8 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {photos.map((photo, idx) => (
                 <div
                   key={idx}
-                  className="h-56 md:h-72 rounded-xl shadow bg-white overflow-hidden flex-shrink-0 cursor-pointer group w-full"
-                  style={{
-                    minWidth: '100%',
-                    maxWidth: '100%',
-                    scrollSnapAlign: 'start',
-                  }}
+                  className="relative aspect-square rounded-xl shadow bg-white overflow-hidden cursor-pointer group"
                   onClick={() => setSelectedImage(photo.url)}
                   tabIndex={0}
                   aria-label="View image"
                 >
-                  <div className="relative w-full h-full">
-                    <Image src={photo.url} alt={photo.caption || "Property photo"} fill className="object-cover rounded-xl group-hover:opacity-80 transition" />
-                  </div>
+                  <Image
+                    src={photo.url}
+                    alt={photo.caption || "Property photo"}
+                    fill
+                    className="object-cover rounded-xl group-hover:opacity-80 transition"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                    priority={idx === 0}
+                  />
                 </div>
               ))}
             </div>
