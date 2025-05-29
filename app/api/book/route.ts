@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const body: BookingRequest = await request.json();
 
     // Validate request
-    if (!body.firstName || !body.lastName || !body.email || !body.checkIn || !body.checkOut || !body.roomId) {
+    if (!body.firstName || !body.lastName || !body.email || !body.checkIn || !body.checkOut || !body.propertyId || !body.rooms || !Array.isArray(body.rooms) || body.rooms.length === 0) {
       return NextResponse.json<ApiResponse<never>>({
         success: false,
         error: 'Missing required fields'
@@ -22,8 +22,8 @@ export async function POST(request: Request) {
       status: 'pending',
       checkIn: body.checkIn,
       checkOut: body.checkOut,
-      roomType: 'Deluxe Room',
-      totalPrice: 150,
+      roomType: body.rooms.map(r => `${r.quantity} x ${r.roomTypeID}`).join(', '),
+      totalPrice: 150 * body.rooms.reduce((sum, r) => sum + r.quantity, 0),
       paymentStatus: 'pending'
     };
 

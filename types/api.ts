@@ -11,6 +11,12 @@ export interface SearchRequest {
   guests: number;
 }
 
+export interface BookingRoomSelection {
+  roomTypeID: string;
+  quantity: number;
+  rateId?: string;
+}
+
 export interface BookingRequest {
   firstName: string;
   lastName: string;
@@ -18,8 +24,11 @@ export interface BookingRequest {
   phone: string;
   checkIn: string;
   checkOut: string;
-  roomId: string;
-  numberOfGuests: number;
+  propertyId: string;
+  rooms: BookingRoomSelection[];
+  adults: number;
+  children: number;
+  country?: string;
 }
 
 export interface PaymentRequest {
