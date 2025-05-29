@@ -343,7 +343,7 @@ function SearchResults() {
         <div className="container mx-auto px-4">
           <div className="mb-8">
             <div className="mt-4 md:mt-0">
-              <BookingWidget initialSearchParams={initialSearchParams} alwaysSticky />
+              <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" />
             </div>
           </div>
           <div className="animate-pulse space-y-8 mt-32 md:mt-40">
@@ -364,7 +364,7 @@ function SearchResults() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <div className="mt-4 md:mt-0">
-          <BookingWidget initialSearchParams={initialSearchParams} alwaysSticky />
+          <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" />
         </div>
         <div className="h-0 md:h-[112px]" />
 

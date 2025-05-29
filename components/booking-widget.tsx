@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select"
 import { DateRange } from "react-day-picker"
 import { calculateTotalGuests } from '@/lib/guest-utils'
+import ReactDOM from 'react-dom'
 
 interface BookingWidgetProps {
   initialSearchParams?: {
@@ -32,6 +33,7 @@ interface BookingWidgetProps {
     apartments?: string;
   };
   alwaysSticky?: boolean;
+  stickyMode?: 'hero' | 'always';
 }
 
 // Add a hook to detect mobile view
@@ -48,7 +50,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidgetProps) {
+export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     city: initialSearchParams?.city || '',
@@ -83,6 +85,8 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const [isSticky, setIsSticky] = useState(false);
   const [widgetTop, setWidgetTop] = useState<number | null>(null);
+  // For hero sticky mode, track the anchor position
+  const [heroAnchorTop, setHeroAnchorTop] = useState<number | null>(null);
 
   // Add new state for apartments
   const [apartments, setApartments] = useState(() => {
@@ -93,6 +97,20 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
     return 1;
   });
   const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
+
+  // Track widget height for placeholder
+  const [widgetHeight, setWidgetHeight] = useState<number>(0);
+  useEffect(() => {
+    if (isSticky && widgetRef.current && window.innerWidth >= 768) {
+      setWidgetHeight(widgetRef.current.offsetHeight);
+    } else {
+      setWidgetHeight(0);
+    }
+  }, [isSticky]);
+
+  // Portal logic for sticky mode
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -118,18 +136,48 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
   }, [initialSearchParams?.city])
 
   useEffect(() => {
-    if (alwaysSticky) {
+    if (stickyMode === 'always' || alwaysSticky) {
       setIsSticky(true);
       return;
     }
+    if (stickyMode === 'hero') {
+      function handleScroll() {
+        if (!widgetRef.current) return;
+        const scrollY = window.scrollY || window.pageYOffset;
+        // Find the anchor element (where the widget should become sticky)
+        const anchor = document.getElementById('booking-widget-hero-anchor');
+        if (!anchor) return;
+        const anchorRect = anchor.getBoundingClientRect();
+        const anchorTop = anchorRect.top + window.scrollY;
+        if (heroAnchorTop === null) setHeroAnchorTop(anchorTop);
+        // Only sticky on desktop/tablet
+        if (window.innerWidth >= 768) {
+          // 96px is the top offset for sticky (matches md:top-[96px])
+          const stickyOffset = 96;
+          if (scrollY + stickyOffset >= anchorTop) {
+            setIsSticky(true);
+          } else {
+            setIsSticky(false);
+          }
+        } else {
+          setIsSticky(false);
+        }
+      }
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+      setTimeout(handleScroll, 100);
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleScroll);
+      };
+    }
+    // fallback: default sticky logic (for other pages)
     function handleScroll() {
       if (!widgetRef.current) return;
       const scrollY = window.scrollY || window.pageYOffset;
       const navbarHeight = 72; // px, adjust if needed
-      // Get the widget's top relative to the document
       const widgetOffsetTop = widgetTop !== null ? widgetTop : (widgetRef.current.offsetTop - navbarHeight);
       if (widgetTop === null) setWidgetTop(widgetRef.current.offsetTop - navbarHeight);
-      // Only sticky on desktop/tablet
       if (window.innerWidth >= 768) {
         if (scrollY === 0) {
           setIsSticky(false);
@@ -146,13 +194,12 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
     }
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleScroll);
-    // Set initial position
     setTimeout(handleScroll, 100);
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [widgetTop, alwaysSticky]);
+  }, [widgetTop, alwaysSticky, stickyMode, heroAnchorTop]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -226,19 +273,34 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
     );
   }
 
-  return (
+  // Portal logic for sticky mode
+  const widgetContent = (
     <div
       ref={widgetRef}
       className={
-        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 max-w-3xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300 ` +
-        ((alwaysSticky || isSticky)
-          ? 'md:fixed md:top-[96px] md:inset-x-0 md:mx-auto md:w-[900px]'
-          : '')
+        `bg-white rounded-xl md:rounded-full shadow-lg border border-gray-200 w-full max-w-3xl mx-auto px-2 md:px-0 z-30 transition-[top,box-shadow] duration-300` +
+        ((alwaysSticky || isSticky || stickyMode === 'always') ? '' : '')
       }
       style={
-        hydrated && (alwaysSticky || isSticky) && typeof window !== 'undefined' && window.innerWidth >= 768
-        ? { boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }
-          : {}
+        (alwaysSticky || isSticky || stickyMode === 'always') && typeof window !== 'undefined' && window.innerWidth >= 768
+          ? {
+              position: 'fixed',
+              top: 96,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              maxWidth: '48rem',
+              width: '100vw',
+              zIndex: 9999,
+              boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)',
+              borderRadius: '9999px',
+              background: 'white',
+              margin: 0,
+            }
+          : {
+              maxWidth: '48rem',
+              width: '100%',
+              margin: '0 auto',
+            }
       }
     >
       <form
@@ -351,9 +413,9 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
                       <Button type="button" size="icon" variant="outline" disabled={apartments <= 1} onClick={() => setApartments(apartments - 1)}>-</Button>
                       <span className="w-6 text-center">{apartments}</span>
                       <Button type="button" size="icon" variant="outline" onClick={() => setApartments(apartments + 1)}>+</Button>
-                      </div>
-              </div>
-                      </div>
+                    </div>
+                  </div>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
@@ -381,5 +443,17 @@ export function BookingWidget({ initialSearchParams, alwaysSticky }: BookingWidg
         <div className="h-6 md:hidden" />
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* Spacer to prevent layout shift when sticky (desktop/tablet only) */}
+      {isSticky && widgetHeight > 0 && (
+        <div className="hidden md:block" style={{ height: widgetHeight }} />
+      )}
+      {mounted && (alwaysSticky || isSticky || stickyMode === 'always') && typeof window !== 'undefined' && window.innerWidth >= 768
+        ? ReactDOM.createPortal(widgetContent, document.body)
+        : widgetContent}
+    </>
   )
 } 

@@ -121,46 +121,45 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Toaster />
-      {/* Always-fixed Booking Widget at the top with placeholder */}
-      <div className="w-full bg-transparent z-30 mt-4 md:mt-0">
-        <BookingWidget alwaysSticky />
-      </div>
+      {/* Hero Section (without BookingWidget) */}
+      <section className="relative overflow-hidden bg-white py-32 min-h-[85vh] flex items-center">
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <Image
+            src="/media-assets/asset3.jpg"
+            alt="Soulasia Hero Background"
+            fill
+            priority
+            quality={80}
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: 'center 10%' }}
+          />
+          {/* Overlay to darken the image further */}
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        <div className="container mx-auto relative z-10 flex flex-col items-center justify-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-3xl mb-8"
+          >
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-lg">
+              Soulful Stays, Memorable Days
+            </h1>
+            <p className="text-lg md:text-xl font-semibold max-w-2xl mx-auto drop-shadow-md" style={{ color: '#fff' }}>
+              Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
+            </p>
+            {/* BookingWidget right under subheader */}
+            <div className="w-full bg-transparent z-30 flex justify-center mt-8" id="booking-widget-hero-anchor">
+              <BookingWidget stickyMode="hero" />
+            </div>
+          </motion.div>
+        </div>
+      </section>
       <main className="flex-1 pt-0">
-        {/* Hero Section (without BookingWidget) */}
-        <section className="relative overflow-hidden bg-white py-32 min-h-[85vh] flex items-center">
-          {/* Decorative Elements */}
-          <div className="absolute inset-0 w-full h-full z-0">
-            <Image
-              src="/media-assets/asset3.jpg"
-              alt="Soulasia Hero Background"
-              fill
-              priority
-              quality={80}
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: 'center 10%' }}
-            />
-            {/* Overlay to darken the image further */}
-            <div className="absolute inset-0 bg-black/50" />
-          </div>
-
-          <div className="container mx-auto relative z-10 flex flex-col items-center justify-center text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-3xl mb-8"
-            >
-              <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-white drop-shadow-lg">
-                Soulful Stays, Memorable Days
-              </h1>
-              <p className="text-lg md:text-xl font-semibold max-w-2xl mx-auto drop-shadow-md" style={{ color: '#fff' }}>
-                Premium serviced apartments in Kuala Lumpur for families, couples, and business travelers
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
         {/* Value Proposition Section - moved up */}
         <section className="py-24 bg-gray-50 relative overflow-hidden">
           {/* Soft gradient background, contained to this section */}
