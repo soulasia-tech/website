@@ -321,6 +321,9 @@ function SearchResults() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRooms]);
 
+  // Determine the propertyId of the current cart (if any)
+  const cartPropertyId = cart.length > 0 ? results.find(r => r.id === cart[0].roomTypeID)?.propertyId : null;
+
   if (propertyLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
@@ -361,100 +364,109 @@ function SearchResults() {
                   No rooms found for your search criteria. Try another property or reduce the number of guests.
                 </div>
               )}
-              {filteredRooms.map(room => (
-                <Card key={room.id} className="overflow-hidden">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/3 h-64 relative">
-                      <Image 
-                        src={`${room.images[0]}?w=600&h=400&fit=crop`}
-                        alt={room.name}
-                        width={600}
-                        height={400}
-                        className="object-cover cursor-pointer"
-                        onClick={() => setSelectedRoomImages(room.images)}
-                      />
-                    </div>
-                    <div className="p-6 md:w-2/3 flex flex-col">
-                      <div className="flex-grow">
-                        <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
-                        <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {room.amenities.map((amenity, index) => (
-                            <span 
-                              key={index}
-                              className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
-                            >
-                              {amenity}
-                            </span>
-                          ))}
-                        </div>
-                        <p className="text-sm text-gray-600">Up to {room.maxGuests} guests</p>
+              {filteredRooms.map(room => {
+                // Disable Reserve if cart contains rooms from a different property
+                const isOtherProperty = !!cartPropertyId && room.propertyId !== cartPropertyId;
+                return (
+                  <Card key={room.id} className="overflow-hidden">
+                    <div className="flex flex-col md:flex-row">
+                      <div className="md:w-1/3 h-64 relative">
+                        <Image 
+                          src={`${room.images[0]}?w=600&h=400&fit=crop`}
+                          alt={room.name}
+                          width={600}
+                          height={400}
+                          className="object-cover cursor-pointer"
+                          onClick={() => setSelectedRoomImages(room.images)}
+                        />
                       </div>
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                        <div>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold">
-                              {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
-                            </span>
-                            <span className="text-gray-600 text-base">per night</span>
+                      <div className="p-6 md:w-2/3 flex flex-col">
+                        <div className="flex-grow">
+                          <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
+                          <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {room.amenities.map((amenity, index) => (
+                              <span 
+                                key={index}
+                                className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
+                              >
+                                {amenity}
+                              </span>
+                            ))}
                           </div>
-                          <p className="text-lg font-medium mt-1">
-                            {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
-                          </p>
-                          {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
-                            <p className="text-sm text-green-700 mt-1">
-                              {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
+                          <p className="text-sm text-gray-600">Up to {room.maxGuests} guests</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                          <div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-bold">
+                                {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                              </span>
+                              <span className="text-gray-600 text-base">per night</span>
+                            </div>
+                            <p className="text-lg font-medium mt-1">
+                              {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
                             </p>
+                            {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
+                              <p className="text-sm text-green-700 mt-1">
+                                {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
+                              </p>
+                            )}
+                          </div>
+                          {/* Quantity selector and Add to Cart */}
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
+                                disabled={(quantities[room.id] || 1) <= 1 || isOtherProperty}
+                              >-</button>
+                              <span className="w-6 text-center">{quantities[room.id] || 1}</span>
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
+                                disabled={(quantities[room.id] || 1) >= rates[room.id].roomsAvailable || isOtherProperty}
+                              >+</button>
+                            </div>
+                            <Button
+                              onClick={() => handleAddToCart(room)}
+                              disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
+                              size="sm"
+                              variant="outline"
+                              className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition w-24"
+                            >
+                              Reserve
+                            </Button>
+                            {isOtherProperty && (
+                              <div className="text-xs text-red-600 mt-1 text-right max-w-xs">
+                                Only one property can be reserved at a time. Complete the reservation and come back to book this property.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 mt-4">
+                          <Button
+                            variant="link"
+                            className="text-blue-600 underline text-sm p-0 h-auto min-w-0"
+                            onClick={() => setOpenPropertyId(openPropertyId === room.propertyId ? null : room.propertyId)}
+                          >
+                            {openPropertyId === room.propertyId ? 'Hide property info' : 'Learn more about this property'}
+                          </Button>
+                          {openPropertyId === room.propertyId && (
+                            <div className="mt-2 w-full px-0">
+                              {propertyInfoLoading[room.propertyId] ? (
+                                <div className="text-gray-500 text-sm py-8 text-center">Loading property information...</div>
+                              ) : propertyInfoData[room.propertyId] ? (
+                                <PropertyInformation propertyId={room.propertyId} />
+                              ) : null}
+                            </div>
                           )}
                         </div>
-                        {/* Quantity selector and Add to Cart */}
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex items-center gap-2">
-                            <button
-                              className="px-2 py-1 border rounded"
-                              onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
-                              disabled={(quantities[room.id] || 1) <= 1}
-                            >-</button>
-                            <span className="w-6 text-center">{quantities[room.id] || 1}</span>
-                            <button
-                              className="px-2 py-1 border rounded"
-                              onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
-                              disabled={(quantities[room.id] || 1) >= rates[room.id].roomsAvailable}
-                            >+</button>
-                          </div>
-                          <Button
-                            onClick={() => handleAddToCart(room)}
-                            disabled={rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
-                            size="sm"
-                            variant="outline"
-                            className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition w-24"
-                          >
-                            Reserve
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 mt-4">
-                        <Button
-                          variant="link"
-                          className="text-blue-600 underline text-sm p-0 h-auto min-w-0"
-                          onClick={() => setOpenPropertyId(openPropertyId === room.propertyId ? null : room.propertyId)}
-                        >
-                          {openPropertyId === room.propertyId ? 'Hide property info' : 'Learn more about this property'}
-                        </Button>
-                        {openPropertyId === room.propertyId && (
-                          <div className="mt-2 w-full px-0">
-                            {propertyInfoLoading[room.propertyId] ? (
-                              <div className="text-gray-500 text-sm py-8 text-center">Loading property information...</div>
-                            ) : propertyInfoData[room.propertyId] ? (
-                              <PropertyInformation propertyId={room.propertyId} />
-                            ) : null}
-                          </div>
-                        )}
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           </div>
           {/* Right: Booking Cart */}

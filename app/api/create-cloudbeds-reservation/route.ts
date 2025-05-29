@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { addPaymentToReservation } from '@/lib/cloudbeds';
+import { addPaymentToReservation, getRoomTypes } from '@/lib/cloudbeds';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Add types for room validation
+interface RoomType { roomTypeID: string; }
+interface RoomSelection { roomTypeID: string; quantity: string | number; }
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +22,29 @@ export async function POST(request: Request) {
     const propertyID = formData.get('propertyID');
     if (!propertyID) {
       return NextResponse.json({ success: false, message: 'Missing propertyID' }, { status: 400 });
+    }
+    const startDate = formData.get('startDate');
+    const endDate = formData.get('endDate');
+    const guestFirstName = formData.get('guestFirstName');
+    const guestLastName = formData.get('guestLastName');
+    const guestEmail = formData.get('guestEmail');
+    const paymentMethod = formData.get('paymentMethod');
+    const roomsRaw = formData.get('rooms');
+    if (!startDate || !endDate || !guestFirstName || !guestLastName || !guestEmail || !paymentMethod || !roomsRaw) {
+      return NextResponse.json({ success: false, message: 'Missing one or more required fields: startDate, endDate, guestFirstName, guestLastName, guestEmail, paymentMethod, rooms' }, { status: 400 });
+    }
+    // Validate all roomTypeIDs belong to the property
+    let rooms: RoomSelection[];
+    try {
+      rooms = JSON.parse(roomsRaw as string);
+    } catch {
+      return NextResponse.json({ success: false, message: 'Invalid rooms format. Must be a JSON array.' }, { status: 400 });
+    }
+    const validRoomTypes: RoomType[] = await getRoomTypes(propertyID.toString());
+    const validRoomTypeIDs = new Set(validRoomTypes.map((rt) => rt.roomTypeID));
+    const invalidRoomTypeIDs = rooms.filter((r) => !validRoomTypeIDs.has(r.roomTypeID)).map((r) => r.roomTypeID);
+    if (invalidRoomTypeIDs.length > 0) {
+      return NextResponse.json({ success: false, message: `Invalid roomTypeID(s) for property ${propertyID}: ${invalidRoomTypeIDs.join(', ')}` }, { status: 400 });
     }
     // Fetch API key for the property
     const { data, error } = await supabase
@@ -48,7 +75,7 @@ export async function POST(request: Request) {
     const cbData = await cbRes.json();
     if (!cbData.success) {
       console.error('Cloudbeds API error response:', cbData);
-      return NextResponse.json({ success: false, message: cbData.message || 'Failed to create reservation in Cloudbeds', cloudbedsResponse: cbData }, { status: 500 });
+      return NextResponse.json({ success: false, message: cbData.message || 'Failed to create reservation in Cloudbeds', cloudbedsResponse: cbData }, { status: 400 });
     }
     // Optionally add payment if requested
     const amount = formData.get('amount');
