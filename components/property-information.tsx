@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { LucideIcon, icons } from "lucide-react";
 import Map, { Marker, Popup } from 'react-map-gl';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface PropertyInformationProps {
   propertyId: string;
@@ -171,30 +176,42 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
   return (
     <section className="py-8 w-full">
       <div className="w-full px-0 mx-0">
-        <h2 className="text-2xl font-bold mb-6">Property Information</h2>
+        <h2 className="text-2xl font-bold mb-6">{property.propertyName ? `${property.propertyName} Information` : 'Property Information'}</h2>
         {/* Responsive grid of property photos */}
         {photos.length > 0 && (
           <div className="mb-8 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <Swiper
+              modules={[Navigation, Pagination]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={16}
+              breakpoints={{
+                0: { slidesPerView: 1 },
+                640: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 },
+              }}
+              className="rounded-xl"
+            >
               {photos.map((photo, idx) => (
-                <div
-                  key={idx}
-                  className="relative aspect-square rounded-xl shadow bg-white overflow-hidden cursor-pointer group"
-                  onClick={() => setSelectedImage(photo.url)}
-                  tabIndex={0}
-                  aria-label="View image"
-                >
-                  <Image
-                    src={photo.url}
-                    alt={photo.caption || "Property photo"}
-                    fill
-                    className="object-cover rounded-xl group-hover:opacity-80 transition"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
-                    priority={idx === 0}
-                  />
-                </div>
+                <SwiperSlide key={idx}>
+                  <div
+                    className="relative aspect-square rounded-xl shadow bg-white overflow-hidden cursor-pointer group"
+                    onClick={() => setSelectedImage(photo.url)}
+                    tabIndex={0}
+                    aria-label="View image"
+                  >
+                    <Image
+                      src={photo.url}
+                      alt={photo.caption || "Property photo"}
+                      fill
+                      className="object-cover rounded-xl group-hover:opacity-80 transition"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                      priority={idx === 0}
+                    />
+                  </div>
+                </SwiperSlide>
               ))}
-            </div>
+            </Swiper>
           </div>
         )}
         {/* Modal for image preview */}
@@ -216,7 +233,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
               >
                 <icons.X className="w-6 h-6" />
               </button>
-              <div className="relative w-full h-[60vw] max-h-[80vh] bg-black rounded-xl flex items-center justify-center">
+              <div className="relative w-full h-[60vw] max-h-[80vh] bg-white/90 rounded-xl flex items-center justify-center">
                 <Image
                   src={selectedImage}
                   alt="Enlarged property photo"
@@ -231,7 +248,7 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
         {/* Amenities as grid with icons */}
         {amenities.length > 0 && (
           <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4">Property Amenities</h3>
+            <h3 className="text-xl font-semibold mb-4">{property.propertyName ? `${property.propertyName} Amenities` : 'Property Amenities'}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 mb-4">
               {shownAmenities.map((a, i) => {
                 const name = a.amenityName || (typeof a === 'string' ? a : '');

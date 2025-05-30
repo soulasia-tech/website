@@ -88,7 +88,6 @@ function BookingForm() {
     estimatedArrivalTime: '',
     country: '',
   });
-  const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   // Always get propertyId from searchParams or bookingCart
@@ -193,7 +192,6 @@ function BookingForm() {
     setSubmitting(true);
     setError(null);
     setSuccessMessage('');
-    setLoadingMessage('Redirecting to payment...');
     try {
       if (!bookingCart || !bookingCart.cart || !bookingCart.propertyId) {
         setError('Booking data is missing. Please return to the search page and try again.');
@@ -225,7 +223,6 @@ function BookingForm() {
         return;
       }
       // --- Billplz Payment Flow (mocked) ---
-      setLoadingMessage('Redirecting to payment...');
       // Use propertyId for Billplz
       const totalAmount = bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
       const billPayload = {
