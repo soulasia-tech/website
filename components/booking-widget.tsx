@@ -216,21 +216,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
     router.push(`/search?${queryString}`)
   }
 
-  // Helper for preview summary
-  const previewSummary = () => {
-    let summary = searchParams.city ? searchParams.city : 'Select city';
-    if (date?.from && date?.to) {
-      summary += `, ${format(date.from, 'MMM d')} - ${format(date.to, 'MMM d')}`;
-    } else {
-      summary += ', Select dates';
-    }
-    summary += `, ${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}`;
-    if (searchParams.children !== '0') {
-      summary += `, ${searchParams.children} child${searchParams.children === '1' ? '' : 'ren'}`;
-    }
-    return summary;
-  };
-
   // Restore original handleCityChange
   function handleCityChange(value: string) {
     setSearchParams(prev => ({ ...prev, city: value }));
@@ -274,7 +259,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
   }
 
   if (isMobile && !isExpanded) {
-    // Collapsed summary bar with visible background and shadow, consistent width and spacing
+    // Collapsed summary bar, compact: only show 'Find your stay' and icon, left-aligned
     return (
       <div
         className="mx-auto mb-2 mt-0 flex items-center gap-4 cursor-pointer"
@@ -292,9 +277,8 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
         }}
         onClick={() => setIsExpanded(true)}
       >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="font-semibold text-xl text-gray-900 mb-1" style={{lineHeight: 1.2}}>Find your stay</div>
-          <div className="text-gray-500 text-base truncate" style={{lineHeight: 1.3}}>{previewSummary()}</div>
+        <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+          <div className="font-semibold text-xl text-gray-900" style={{lineHeight: 1.2}}>Find your stay</div>
         </div>
         <div className="flex items-center justify-center ml-4">
           <Search className="w-7 h-7 text-gray-700" />
