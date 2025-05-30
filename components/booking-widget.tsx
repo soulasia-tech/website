@@ -34,6 +34,7 @@ interface BookingWidgetProps {
   };
   alwaysSticky?: boolean;
   stickyMode?: 'hero' | 'always';
+  hide?: boolean;
 }
 
 // Add a hook to detect mobile view
@@ -50,7 +51,7 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }: BookingWidgetProps) {
+export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, hide }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     city: initialSearchParams?.city || '',
@@ -196,6 +197,8 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
       window.removeEventListener('resize', handleScroll);
     };
   }, [widgetTop, alwaysSticky, stickyMode, heroAnchorTop]);
+
+  if (hide) return null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()

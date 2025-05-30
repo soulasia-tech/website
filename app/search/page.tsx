@@ -66,6 +66,7 @@ function SearchResults() {
   const [proceeding, setProceeding] = useState(false);
   const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
   const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
+  const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -341,11 +342,6 @@ function SearchResults() {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <div className="mt-4 md:mt-0">
-              <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" />
-            </div>
-          </div>
           <div className="animate-pulse space-y-8 mt-32 md:mt-40">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
@@ -363,8 +359,9 @@ function SearchResults() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
+        {/* Hide BookingWidget when image modal is open */}
         <div className="mt-4 md:mt-0">
-          <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" />
+          <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" hide={!!selectedRoomImages} />
         </div>
         <div className="h-0 md:h-[112px]" />
 
@@ -383,58 +380,75 @@ function SearchResults() {
                 return (
                   <Card key={room.id} className="overflow-hidden">
                     <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/3 h-64 relative">
+                      <div className="md:w-1/2 w-full h-72 relative rounded-xl shadow overflow-hidden md:ml-2">
                         <Image 
                           src={`${room.images[0]}?w=600&h=400&fit=crop`}
                           alt={room.name}
                           width={600}
                           height={400}
-                          className="object-cover cursor-pointer"
+                          className="object-cover cursor-pointer w-full h-full"
                           onClick={() => setSelectedRoomImages(room.images)}
                         />
                       </div>
                       <div className="p-6 md:w-2/3 flex flex-col">
                         <div className="flex-grow">
-                          <h2 className="text-xl font-semibold mb-2">{room.name}</h2>
-                          <div className="text-gray-500 text-sm mb-1">{room.propertyName}</div>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {room.amenities.map((amenity, index) => (
-                              <span 
+                          <h2 className="text-2xl font-bold mb-1 text-gray-900">{room.name}</h2>
+                          <div className="text-gray-400 text-xs mb-2 font-medium">{room.propertyName}</div>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {(expandedAmenities[room.id] ? room.amenities : room.amenities.slice(0, 3)).map((amenity, index) => (
+                              <span
                                 key={index}
-                                className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
+                                className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-500 font-normal"
                               >
                                 {amenity}
                               </span>
                             ))}
-                          </div>
-                          <p className="text-sm text-gray-600">Up to {room.maxGuests} guests</p>
-                        </div>
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                          <div>
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-bold">
-                                {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                            {!expandedAmenities[room.id] && room.amenities.length > 3 && (
+                              <span
+                                className="px-2 py-0.5 bg-gray-200 rounded-full text-xs text-gray-500 font-medium cursor-pointer hover:bg-gray-300"
+                                onClick={() => setExpandedAmenities(prev => ({ ...prev, [room.id]: true }))}
+                              >
+                                +{room.amenities.length - 3} more
                               </span>
-                              <span className="text-gray-600 text-base">per night</span>
-                            </div>
-                            <p className="text-lg font-medium mt-1">
-                              {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
-                            </p>
-                            {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
-                              <p className="text-sm text-green-700 mt-1">
-                                {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
-                              </p>
+                            )}
+                            {expandedAmenities[room.id] && room.amenities.length > 3 && (
+                              <span
+                                className="px-2 py-0.5 bg-gray-200 rounded-full text-xs text-gray-500 font-medium cursor-pointer hover:bg-gray-300"
+                                onClick={() => setExpandedAmenities(prev => ({ ...prev, [room.id]: false }))}
+                              >
+                                Show less
+                              </span>
                             )}
                           </div>
-                          {/* Quantity selector and Add to Cart */}
-                          <div className="flex flex-col items-end gap-2">
+                          <p className="text-xs text-gray-500 mb-2">Up to {room.maxGuests} guests</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                          <div>
+                            <div className="flex items-baseline gap-2 mb-1">
+                              <span className="text-xl font-bold text-[#0E3599]">
+                                {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                              </span>
+                              <span className="text-gray-500 text-sm">per night</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-4 mt-1">
+                              <span className="text-base font-medium text-gray-700">
+                                {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
+                              </span>
+                              {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
+                                <span className="text-xs text-green-700">
+                                  {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2 mt-2">
                             <div className="flex items-center gap-2">
                               <button
                                 className="px-2 py-1 border rounded"
                                 onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
                                 disabled={(quantities[room.id] || 1) <= 1 || isOtherProperty}
                               >-</button>
-                              <span className="w-6 text-center">{quantities[room.id] || 1}</span>
+                              <span className="w-6 text-center text-base">{quantities[room.id] || 1}</span>
                               <button
                                 className="px-2 py-1 border rounded"
                                 onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
@@ -445,16 +459,11 @@ function SearchResults() {
                               onClick={() => handleAddToCart(room)}
                               disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
                               size="sm"
-                              variant="outline"
-                              className="border-gray-300 text-gray-800 hover:bg-gray-100 hover:text-black transition w-24"
+                              variant="default"
+                              className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition"
                             >
                               Reserve
                             </Button>
-                            {isOtherProperty && (
-                              <div className="text-xs text-red-600 mt-1 text-right max-w-xs">
-                                Only one property can be reserved at a time. Complete the reservation and come back to book this property.
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -466,67 +475,79 @@ function SearchResults() {
           </div>
           {/* Right: Booking Cart */}
           <div className="md:w-1/3 w-full">
-            <Card className="p-6 shadow-lg">
-              <h2 className="font-semibold text-xl mb-4">Your Reservation</h2>
+            <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
+              <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
               {cart.length === 0 ? (
                 <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
               ) : (
                 <>
                   {cart.map(item => (
-                    <div key={item.roomTypeID} className="flex items-center gap-4 border-b pb-3 mb-3">
-                      <div className="flex-1">
-                        <div className="font-semibold">{item.roomName}</div>
-                        <div className="text-sm text-gray-600">MYR {item.price.toFixed(2)} per apartment</div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <button
-                            className="px-2 py-1 border rounded"
-                            onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity - 1)}
-                            disabled={item.quantity <= 1}
-                          >-</button>
-                          <span className="w-6 text-center">{item.quantity}</span>
-                          <button
-                            className="px-2 py-1 border rounded"
-                            onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity + 1)}
-                            disabled={item.quantity >= item.maxAvailable}
-                          >+</button>
+                    <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xl font-bold text-gray-900">{item.roomName}</span>
+                          </div>
+                          <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-gray-400 font-medium mb-1">Quantity</span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity - 1)}
+                                disabled={item.quantity <= 1}
+                              >-</button>
+                              <span className="w-6 text-center text-base">{item.quantity}</span>
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity + 1)}
+                                disabled={item.quantity >= item.maxAvailable}
+                              >+</button>
+                            </div>
+                          </div>
                         </div>
+                        <button
+                          className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
+                          onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                          aria-label="Remove from cart"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
                       </div>
-                      <button
-                        className="text-red-500 hover:underline"
-                        onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                        aria-label="Remove from cart"
-                      >Remove</button>
                     </div>
                   ))}
-                  <div className="flex justify-between mb-4 mt-4">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-bold">MYR {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                  <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                    <span className="text-base text-gray-500 font-semibold">Total</span>
+                    <span className="text-2xl font-bold text-gray-900">MYR {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
                   </div>
-                  <Button
-                    className="w-full h-12 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center"
-                    disabled={cart.length === 0 || proceeding}
-                    onClick={() => {
-                      setProceeding(true);
-                      handleProceed();
-                    }}
-                    style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
-                  >
-                    {proceeding ? (
-                      <span className="flex items-center gap-2">
-                        <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        Processing...
-                      </span>
-                    ) : (
-                      'Proceed to Guest Details'
-                    )}
-                  </Button>
+                  <div className="pt-2">
+                    <Button
+                      className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
+                      disabled={cart.length === 0 || proceeding}
+                      onClick={() => {
+                        setProceeding(true);
+                        handleProceed();
+                      }}
+                      style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+                    >
+                      {proceeding ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          Processing...
+                        </span>
+                      ) : (
+                        'Proceed to Guest Details'
+                      )}
+                    </Button>
+                  </div>
                 </>
               )}
             </Card>
           </div>
         </div>
         {selectedRoomImages && (() => {
-          console.error('Modal images:', selectedRoomImages);
           return (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
