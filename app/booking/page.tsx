@@ -306,9 +306,10 @@ function BookingForm() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Guest Contact details</h1>
-          <Button 
+          <h1 className="text-3xl font-bold mb-8">Guest Contact Details</h1>
+          <Button
             variant="outline"
+            className="rounded-full px-5 py-2 font-medium border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center gap-2 shadow-sm"
             onClick={() => {
               if (typeof window !== 'undefined') {
                 const lastSearchParams = sessionStorage.getItem('lastSearchParams');
@@ -342,16 +343,15 @@ function BookingForm() {
                 router.push('/search');
               }
             }}
-            className="flex items-center gap-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Back to Search
           </Button>
         </div>
         <div className="grid gap-8 md:grid-cols-3">
           {/* Booking Form */}
           <div className="md:col-span-2">
-            <Card className="p-6">
+            <Card className="p-8 bg-gray-50 rounded-2xl shadow-lg">
               {successMessage && (
                 <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
                   <p>{successMessage}</p>
@@ -362,30 +362,24 @@ function BookingForm() {
                   <p>{error}</p>
                 </div>
               )}
-              {loadingMessage && (
-                <div className="text-center p-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-gray-600">{loadingMessage}</p>
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-1">First Name</label>
+                    <label className="block text-base font-medium mb-2">First Name</label>
                     <Input required value={bookingData.firstName} onChange={e => setBookingData(prev => ({ ...prev, firstName: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Last Name</label>
+                    <label className="block text-base font-medium mb-2">Last Name</label>
                     <Input required value={bookingData.lastName} onChange={e => setBookingData(prev => ({ ...prev, lastName: e.target.value }))} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <label className="block text-base font-medium mb-2">Email</label>
                   <Input type="email" required value={bookingData.email} onChange={e => setBookingData(prev => ({ ...prev, email: e.target.value }))} />
                 </div>
                 {/* Estimated Arrival Time */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Estimated Arrival Time (optional)</label>
+                  <label className="block text-base font-medium mb-2">Estimated Arrival Time (optional)</label>
                   <Select value={bookingData.estimatedArrivalTime || ''} onValueChange={value => setBookingData(prev => ({ ...prev, estimatedArrivalTime: value }))}>
                     <SelectTrigger className={cn("w-full text-left", !bookingData.estimatedArrivalTime && "text-gray-400")}> 
                       <SelectValue placeholder="Select time (optional)" />
@@ -399,7 +393,7 @@ function BookingForm() {
                 </div>
                 {/* Country */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Country</label>
+                  <label className="block text-base font-medium mb-2">Country</label>
                   <Select value={bookingData.country || ''} onValueChange={value => setBookingData(prev => ({ ...prev, country: value }))}>
                     <SelectTrigger className={cn("w-full text-left", !bookingData.country && "text-gray-400")}> 
                       <SelectValue placeholder="Select country" />
@@ -413,14 +407,14 @@ function BookingForm() {
                 </div>
                 {/* Add account creation section for non-authenticated users */}
                 {!user && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="mt-8 p-4 bg-gray-100 rounded-lg">
                     <div className="flex items-center gap-2 mb-4">
                       <input type="checkbox" id="createAccount" checked={bookingData.createAccount} onChange={e => setBookingData(prev => ({ ...prev, createAccount: e.target.checked, password: e.target.checked ? prev.password : '' }))} className="h-4 w-4" />
-                      <label htmlFor="createAccount" className="text-sm font-medium">Create an account to manage your bookings</label>
+                      <label htmlFor="createAccount" className="text-base font-medium">Create an account to manage your bookings</label>
                     </div>
                     {bookingData.createAccount && (
                       <div className="space-y-2">
-                        <label className="block text-sm font-medium">Password</label>
+                        <label className="block text-base font-medium">Password</label>
                         <Input type="password" value={bookingData.password} onChange={e => setBookingData(prev => ({ ...prev, password: e.target.value }))} required={bookingData.createAccount} placeholder="••••••••" minLength={6} />
                         <p className="text-xs text-gray-500">Must be at least 6 characters long</p>
                       </div>
@@ -430,7 +424,7 @@ function BookingForm() {
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full h-12 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center"
+                  className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center mt-4 transition"
                   style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
                 >
                   {submitting ? (
@@ -450,43 +444,45 @@ function BookingForm() {
           </div>
           {/* Booking Summary */}
           <div>
-            <Card className="p-6 sticky top-6">
-              <h2 className="font-semibold mb-4">Booking Summary</h2>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Check-in</span>
-                  <span className="font-medium">{bookingCart?.checkIn ? format(parseISO(bookingCart.checkIn), 'MMM d, yyyy') : '-'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Check-out</span>
-                  <span className="font-medium">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Number of adults</span>
-                  <span className="font-medium">{bookingCart?.adults}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Number of children</span>
-                  <span className="font-medium">{bookingCart?.children}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Number of nights</span>
-                  <span className="font-medium">{numberOfNights}</span>
+            <Card className="p-8 bg-gray-50 rounded-2xl shadow-lg sticky top-6">
+              <h2 className="font-semibold text-2xl mb-6">Booking Summary</h2>
+              <div className="space-y-2 text-base">
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Check-in</span>
+                    <span className="font-medium">{bookingCart?.checkIn ? format(parseISO(bookingCart.checkIn), 'MMM d, yyyy') : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Check-out</span>
+                    <span className="font-medium">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Number of adults</span>
+                    <span className="font-medium">{bookingCart?.adults}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Number of children</span>
+                    <span className="font-medium">{bookingCart?.children}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Number of nights</span>
+                    <span className="font-medium">{numberOfNights}</span>
+                  </div>
                 </div>
                 {bookingCart && bookingCart.cart && bookingCart.cart.length > 0 && (
                   <>
-                    <div className="pt-2 mt-2 border-t">
-                      <span className="font-semibold">Apartments</span>
+                    <div className="pt-4 mt-4 border-t border-gray-200">
+                      <span className="font-semibold text-base">Apartments</span>
                     </div>
                     {bookingCart.cart.map((item: CartItem) => (
-                      <div key={item.roomTypeID} className="flex justify-between">
+                      <div key={item.roomTypeID} className="flex justify-between text-base mt-1">
                         <span>{item.quantity} x {item.roomName}</span>
                         <span>MYR {(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
-                    <div className="pt-2 mt-2 border-t flex justify-between">
-                      <span className="font-semibold">Total</span>
-                      <span className="font-semibold">MYR {bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                    <div className="pt-4 mt-4 border-t border-gray-200 flex justify-between items-center">
+                      <span className="font-semibold text-lg">Total</span>
+                      <span className="font-bold text-2xl text-gray-900">MYR {bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
                     </div>
                   </>
                 )}
