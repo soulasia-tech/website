@@ -268,20 +268,177 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode }:
     margin: '0',
   };
 
+  if (!hydrated) {
+    // Optionally, return a skeleton or null
+    return null;
+  }
+
   if (isMobile && !isExpanded) {
+    // Collapsed summary bar with visible background and shadow, consistent width and spacing
     return (
       <div
-        className="mx-4 mb-2 mt-0 w-auto max-w-xl flex items-center gap-4 cursor-pointer backdrop-blur-md"
+        className="mx-auto mb-2 mt-0 flex items-center gap-4 cursor-pointer"
+        style={{
+          width: '100%',
+          maxWidth: '95vw',
+          minWidth: 0,
+          background: 'rgba(255,255,255,0.85)',
+          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.12)',
+          borderRadius: '1.5rem',
+          backdropFilter: 'blur(8px)',
+          padding: '20px 24px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
         onClick={() => setIsExpanded(true)}
-        style={{ minHeight: 72 }}
       >
-        <div className="flex-1">
-          <div className="font-semibold text-lg text-gray-900">Find your stay</div>
-          <div className="text-gray-500 text-sm mt-1">{previewSummary()}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="font-semibold text-xl text-gray-900 mb-1" style={{lineHeight: 1.2}}>Find your stay</div>
+          <div className="text-gray-500 text-base truncate" style={{lineHeight: 1.3}}>{previewSummary()}</div>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center ml-4">
           <Search className="w-7 h-7 text-gray-700" />
         </div>
+      </div>
+    );
+  }
+
+  if (isMobile && isExpanded) {
+    // Expanded form, inline (not modal), with top padding for navbar
+    return (
+      <div className="fixed inset-0 z-50 bg-white/100 overflow-y-auto flex flex-col px-4 py-6" style={{maxWidth: '100vw', background: '#fff', paddingTop: '80px'}}>
+        <div className="flex justify-end mb-4">
+          <button
+            aria-label="Close booking form"
+            className="text-3xl text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 shadow focus:outline-none focus:ring-2 focus:ring-primary"
+            onClick={() => setIsExpanded(false)}
+            style={{ minWidth: 44, minHeight: 44 }}
+          >
+            &times;
+          </button>
+        </div>
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-col gap-4 w-full"
+        >
+          {/* City */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2 text-left">City</label>
+            <Select
+              value={searchParams.city}
+              onValueChange={handleCityChange}
+              disabled={loading}
+            >
+              <SelectTrigger className="w-full border rounded-lg p-3 text-base">
+                <SelectValue placeholder="Select a city" />
+              </SelectTrigger>
+              <SelectContent>
+                {cities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Dates */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2 text-left">Dates</label>
+            <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start p-3 text-base font-normal text-left flex items-center gap-2 border rounded-lg",
+                    !date?.from && "text-gray-400"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-5 w-5" />
+                  {date?.from && date?.to
+                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
+                    : <span>Pick dates</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={date}
+                  onSelect={handleDateChange}
+                  numberOfMonths={1}
+                  initialFocus
+                  className="rounded-lg border border-border p-2"
+                  disabled={{ before: new Date() }}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* Guests & Apartments */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2 text-left">Guests & Apartments</label>
+            <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start p-3 text-base font-normal text-left flex items-center gap-2 border rounded-lg"
+                >
+                  {`${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}, ${apartments} apartment${apartments === 1 ? '' : 's'}`}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Adults</div>
+                      <div className="text-xs text-gray-500">Ages 18 or above</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.adults) <= 1} onClick={() => handleAdultsChange((parseInt(searchParams.adults) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.adults}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleAdultsChange((parseInt(searchParams.adults) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Kids</div>
+                      <div className="text-xs text-gray-500">Ages 3-17</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={parseInt(searchParams.children) <= 0} onClick={() => handleChildrenChange((parseInt(searchParams.children) - 1).toString())}>-</Button>
+                      <span className="w-6 text-center">{searchParams.children}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => handleChildrenChange((parseInt(searchParams.children) + 1).toString())}>+</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">Apartments</div>
+                      <div className="text-xs text-gray-500">Number of apartments</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="icon" variant="outline" disabled={apartments <= 1} onClick={() => setApartments(apartments - 1)}>-</Button>
+                      <span className="w-6 text-center">{apartments}</span>
+                      <Button type="button" size="icon" variant="outline" onClick={() => setApartments(apartments + 1)}>+</Button>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+          {/* Search Button */}
+          <div className="flex items-center justify-center mt-4">
+            <Button
+              type="submit"
+              className="h-14 w-full rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white shadow-xl flex items-center justify-center text-lg font-bold"
+              disabled={submitting}
+              style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+            >
+              {submitting ? (
+                <Loader2 className="w-6 h-6 animate-spin" />
+              ) : (
+                <span className="flex items-center gap-2"><Search className="w-6 h-6" /> Search</span>
+              )}
+            </Button>
+          </div>
+        </form>
       </div>
     );
   }
