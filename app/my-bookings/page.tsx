@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
 import Link from "next/link";
-import { RoomCard } from '@/components/room-card';
 import { PropertyInformation } from '@/components/property-information';
 import { ChevronDown, ChevronUp, BedDouble } from 'lucide-react';
 
@@ -18,6 +17,7 @@ interface CloudbedsReservationDetails {
   startDate?: string;
   endDate?: string;
   total?: number;
+  numberOfChildren?: number;
   // Add other fields as needed
 }
 
@@ -68,6 +68,35 @@ interface AssignedRoom {
   roomName?: string;
   rate?: number;
   photos?: { url: string; caption?: string }[];
+}
+
+// Minimal RoomCard for MyBookingsPage (no images)
+function MinimalRoomCard({ roomName, amenities, rate }: { roomName: string; amenities?: string[]; rate?: number }) {
+  return (
+    <div className="w-full group">
+      <div className="flex flex-col gap-1">
+        <h3 className="font-medium text-[15px] leading-5">{roomName}</h3>
+        {rate !== undefined && (
+          <p className="text-[15px] leading-5 mt-1">
+            <span className="font-medium">MYR {rate.toFixed(2)}</span>
+            <span className="text-gray-500"> night</span>
+          </p>
+        )}
+        {amenities && amenities.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {amenities.slice(0, 6).map((amenity: string, idx: number) => (
+              <span key={idx} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                {amenity}
+              </span>
+            ))}
+            {amenities.length > 6 && (
+              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">+{amenities.length - 6} more</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function MyBookingsPage() {
@@ -248,6 +277,18 @@ export default function MyBookingsPage() {
                     <div className="text-gray-500 text-xs">Check-out</div>
                     <div className="font-medium text-base">{cb?.endDate || formatDate(booking.check_out)}</div>
                   </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Adults</div>
+                    <div className="font-medium text-base">{booking.number_of_guests || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Children</div>
+                    <div className="font-medium text-base">{cb?.numberOfChildren ?? 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Apartments</div>
+                    <div className="font-medium text-base">{rooms.length}</div>
+                  </div>
                   <div className="ml-auto text-right">
                     <div className="text-gray-500 text-xs">Total</div>
                     <div className="font-bold text-lg">MYR {cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-')}</div>
@@ -262,7 +303,7 @@ export default function MyBookingsPage() {
                         const cacheKey = propertyId && room.roomName ? `${propertyId}_${room.roomName}` : undefined;
                         const roomTypeDetails = cacheKey ? roomTypeDetailsMap[cacheKey] : undefined;
                         return (
-                          <RoomCard
+                          <MinimalRoomCard
                             key={idx}
                             roomName={room.roomName || roomTypeDetails?.roomTypeName || '-'}
                             amenities={roomTypeDetails?.amenities || []}

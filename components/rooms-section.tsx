@@ -170,6 +170,7 @@ export function RoomsSection() {
             <RoomCard
               roomName={room.roomTypeName}
               propertyName={room.propertyName}
+              photos={room.roomTypePhotos.map(url => ({ url, caption: '' }))}
               rate={room.rate}
             />
           </div>
