@@ -542,7 +542,6 @@ function FeaturedApartmentsCarousel() {
             <RoomCard
               roomName={room.roomTypeName}
               propertyName={room.propertyName}
-              photos={room.roomTypePhotos}
               rate={room.rate}
             />
           </CarouselItem>

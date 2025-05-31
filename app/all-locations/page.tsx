@@ -349,7 +349,6 @@ export default function AllLocationsPage() {
                         key={room.roomTypeID}
                         roomName={room.roomTypeName}
                         propertyName={room.propertyName}
-                        photos={room.roomTypePhotos}
                         rate={room.rate}
                       />
                     ))
