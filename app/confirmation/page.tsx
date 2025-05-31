@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from "next/link";
 import { PropertyInformation } from '@/components/property-information';
 import { Card } from "@/components/ui/card";
 
@@ -52,10 +51,12 @@ function ConfirmationContent() {
   const [booking, setBooking] = useState<BookingPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bookingToken, setBookingToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const bookingToken = searchParams.get('bookingToken');
-    if (!bookingToken) {
+    const token = searchParams.get('bookingToken');
+    setBookingToken(token);
+    if (!token) {
       setLoading(false);
       setError('Missing booking token.');
       return;
@@ -64,7 +65,7 @@ function ConfirmationContent() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/booking-session?token=${bookingToken}`);
+        const res = await fetch(`/api/booking-session?token=${token}`);
         const data = await res.json();
         if (!data.success || !data.bookingData) {
           setError('Booking not found. Please try your booking again.');
@@ -89,26 +90,72 @@ function ConfirmationContent() {
   if (!booking) {
     return <div className="min-h-screen flex items-center justify-center">No booking found.</div>;
   }
-  // Render booking summary and status
+
+  // Extract useful info
+  const guestName = `${booking.bookingData?.firstName} ${booking.bookingData?.lastName}`;
+  const guestEmail = booking.bookingData?.email;
+  const checkIn = booking.bookingCart?.checkIn;
+  const checkOut = booking.bookingCart?.checkOut;
+  const adults = booking.bookingCart?.adults;
+  const children = booking.bookingCart?.children;
+  const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
+  const roomType = booking.bookingCart?.cart?.[0]?.roomName;
+  const totalPrice = booking.bookingCart?.cart?.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
   return (
-    <div className="min-h-screen flex items-center justify-center flex-col">
-      <Card className="bg-white rounded-xl shadow-md p-8 max-w-md w-full text-center">
-        <h2 className="text-2xl font-bold mb-4 text-green-600">Booking Confirmed!</h2>
-        <div className="mb-4">Thank you for your reservation.</div>
-        <div className="mb-2">Name: {booking.bookingData?.firstName} {booking.bookingData?.lastName}</div>
-        <div className="mb-2">Email: {booking.bookingData?.email}</div>
-        <div className="mb-2">Check-in: {booking.bookingCart?.checkIn}</div>
-        <div className="mb-2">Check-out: {booking.bookingCart?.checkOut}</div>
-        <div className="mb-2">Guests: {booking.bookingCart?.adults} adults, {booking.bookingCart?.children} children</div>
-        <div className="mb-2">Property: {booking.bookingCart?.propertyId}</div>
-        <Link href="/" className="mt-4 inline-block text-blue-600 underline">Back to Home</Link>
-      </Card>
-      {/* Property Information Section, aligned with Card */}
-      {booking.bookingCart?.propertyId && (
-        <div className="max-w-md w-full mt-8 mx-auto">
-          <PropertyInformation propertyId={booking.bookingCart.propertyId} />
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 flex flex-col items-center">
+        <Card className="bg-white rounded-2xl shadow-lg p-6 w-full mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-green-600 text-left">Booking Confirmed!</h2>
+          <div className="mb-4 text-left text-base md:text-lg">
+            Thank you, {booking.bookingData?.firstName}! Your booking is confirmed.<br />
+            <span className="text-sm text-gray-500">You&apos;ll receive a confirmation email shortly.</span>
+          </div>
+
+          {/* Booking Reference */}
+          {bookingToken && (
+            <div className="mb-4 text-sm text-gray-500 text-left">Booking Reference: <span className="font-mono text-gray-700">{bookingToken}</span></div>
+          )}
+
+          {/* Details Grid - Multi-apartment support */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-left mb-4">
+            <div><span className="font-medium text-gray-600">Guest:</span> <span className="font-semibold">{guestName}</span></div>
+            <div><span className="font-medium text-gray-600">Email:</span> <span className="font-semibold">{guestEmail}</span></div>
+            <div><span className="font-medium text-gray-600">Property:</span> <span className="font-semibold">{propertyName}</span></div>
+            <div><span className="font-medium text-gray-600">Check-in:</span> <span className="font-semibold">{checkIn}</span></div>
+            <div><span className="font-medium text-gray-600">Check-out:</span> <span className="font-semibold">{checkOut}</span></div>
+            <div><span className="font-medium text-gray-600">Guests:</span> <span className="font-semibold">{adults} adults, {children} children</span></div>
+            {Array.isArray(booking.bookingCart?.cart) && booking.bookingCart.cart.length > 1 ? (
+              <div className="md:col-span-2 mt-2">
+                <div className="font-medium text-gray-600 mb-1">Apartments/Rooms Booked:</div>
+                <ul className="list-disc pl-5 space-y-1">
+                  {booking.bookingCart.cart.map((item, idx) => (
+                    <li key={item.roomTypeID + idx} className="text-sm text-gray-800">
+                      <span className="font-semibold">{item.quantity} x {item.roomName}</span> (MYR {(item.price * item.quantity).toFixed(2)})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div><span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">{roomType}</span></div>
+            )}
+            {typeof totalPrice === 'number' && (
+              <div><span className="font-medium text-gray-600">Total:</span> <span className="font-semibold">MYR {totalPrice.toFixed(2)}</span></div>
+            )}
+          </div>
+
+          {/* Next Steps / Help */}
+          <div className="mt-4 text-sm text-gray-500 text-left">
+            Need help? Contact us at <a href="mailto:info@soulasia.com.my" className="text-blue-600 underline">info@soulasia.com.my</a>
+          </div>
+        </Card>
+        {/* Property Information Section, aligned with Card */}
+        {booking.bookingCart?.propertyId && (
+          <div className="w-full mt-8 mx-auto">
+            <PropertyInformation propertyId={booking.bookingCart.propertyId} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
