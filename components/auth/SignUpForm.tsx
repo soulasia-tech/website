@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import Link from 'next/link';
+import Image from 'next/image';
 
 function SignUpFormContent() {
   const router = useRouter();
@@ -146,10 +147,11 @@ function SignUpFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 flex flex-col items-center justify-center">
+      <Image src="/Brand/logo.svg" alt="Soulasia Logo" width={120} height={32} className="mx-auto mb-8" />
       <div className="container mx-auto px-4">
-        <Card className="max-w-md mx-auto p-6">
-          <h1 className="text-2xl font-bold mb-6">Create an Account</h1>
+        <Card className="max-w-md mx-auto p-8 rounded-2xl shadow-lg">
+          <h1 className="text-2xl font-bold text-center mb-6">Create an Account</h1>
 
           {error && (
             <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6">
@@ -232,7 +234,7 @@ function SignUpFormContent() {
               Already have an account?{' '}
               <Link 
                 href={`/auth/sign-in${searchParams.get('redirect') ? `?redirect=${searchParams.get('redirect')}` : ''}`}
-                className="text-blue-600 hover:underline"
+                className="text-blue-700 underline font-medium hover:text-blue-900 transition"
               >
                 Sign in
               </Link>

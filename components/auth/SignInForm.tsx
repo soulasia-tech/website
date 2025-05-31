@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import React from 'react';
+import Image from 'next/image';
 
 export default function SignInForm() {
   const [email, setEmail] = useState('');
@@ -63,63 +64,64 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 flex flex-col items-center justify-center">
+      <Image src="/Brand/logo.svg" alt="Soulasia Logo" width={120} height={32} className="mx-auto mb-8" />
       <div className="container mx-auto px-4">
-        <Card className="max-w-lg w-full mx-auto p-6">
-          <h1 className="text-2xl font-bold mb-6">Sign In</h1>
-      <form onSubmit={handleSignIn} className="space-y-4">
-        {success && (
-          <Alert>
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="email">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium" htmlFor="password">
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-          />
-        </div>
-        <Button 
-          type="submit"
-          className="w-full h-12 text-white"
-          style={{ backgroundColor: '#0E3599', border: 'none' }}
-          onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
-          onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
-          disabled={loading}
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </Button>
+        <Card className="max-w-md w-full mx-auto p-8 rounded-2xl shadow-lg">
+          <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
+          <form onSubmit={handleSignIn} className="space-y-4">
+            {success && (
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="email">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </div>
+            <Button 
+              type="submit"
+              className="w-full h-12 text-white"
+              style={{ backgroundColor: '#0E3599', border: 'none' }}
+              onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+              onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
             <p className="text-sm text-gray-500 text-center mt-4">
               Don&apos;t have an account?{' '}
-              <a href="/auth/sign-up" className="text-blue-600 hover:underline">Create one</a>
+              <a href="/auth/sign-up" className="text-blue-700 underline font-medium hover:text-blue-900 transition">Create one</a>
             </p>
-      </form>
-    </Card>
+          </form>
+        </Card>
       </div>
     </div>
   );
