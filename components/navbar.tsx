@@ -68,53 +68,59 @@ export function Navbar() {
         
         <div className="flex items-center gap-2">
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="rounded-full"
-                  aria-label="User menu"
-                >
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span className="font-normal text-sm text-muted-foreground">Signed in as</span>
-                    <span className="truncate">{user.email}</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/my-bookings" className="flex items-center cursor-pointer">
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    My bookings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/for-owners" className="flex items-center cursor-pointer">
-                    For Owners
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/sustainability" className="flex items-center cursor-pointer">
-                    Sustainability
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/contact-us" className="flex items-center cursor-pointer">
-                    Contact Us
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <span className="font-medium text-sm text-gray-700 max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg mr-2 whitespace-normal">
+                {(() => {
+                  const firstName = user.user_metadata?.first_name;
+                  const fullName = user.user_metadata?.full_name;
+                  if (firstName) return `Welcome to Soulasia, ${firstName}`;
+                  if (fullName) return `Welcome to Soulasia, ${fullName.split(' ')[0]}`;
+                  if (user.email) return `Welcome to Soulasia, ${user.email.split('@')[0]}`;
+                  return 'Welcome to Soulasia';
+                })()}
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="rounded-full"
+                    aria-label="User menu"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-bookings" className="flex items-center cursor-pointer">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      My bookings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/for-owners" className="flex items-center cursor-pointer">
+                      For Owners
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/sustainability" className="flex items-center cursor-pointer">
+                      Sustainability
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/contact-us" className="flex items-center cursor-pointer">
+                      Contact Us
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <>
               {/* Desktop: show buttons, Mobile: hide */}
