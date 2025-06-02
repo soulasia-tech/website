@@ -332,7 +332,7 @@ export default function MyBookingsPage() {
           <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">
             <Info className="w-6 h-6 text-blue-500 flex-shrink-0" />
             <div className="text-blue-900 text-base font-medium">
-              If you want to modify your booking, please refer to your confirmation email or <a href="/contact-us" className="underline text-blue-700 hover:text-blue-900">contact support</a>.
+              If you want to modify your booking, please refer to your confirmation email or contact support@soulasia.com.my
             </div>
           </div>
         </div>
