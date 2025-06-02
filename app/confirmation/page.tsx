@@ -14,6 +14,8 @@ interface CartItem {
   propertyId: string;
   propertyName: string;
   rateId?: string;
+  adults: number;
+  children: number;
 }
 interface BookingCart {
   cart: CartItem[];
@@ -59,24 +61,30 @@ function ConfirmationContent() {
     if (!token) {
       setLoading(false);
       setError('Missing booking token.');
+      console.error('[ConfirmationPage] Missing booking token');
       return;
     }
     (async () => {
       try {
         setLoading(true);
         setError(null);
+        console.log('[ConfirmationPage] Fetching booking session for token:', token);
         const res = await fetch(`/api/booking-session?token=${token}`);
         const data = await res.json();
         if (!data.success || !data.bookingData) {
           setError('Booking not found. Please try your booking again.');
           setLoading(false);
+          console.error('[ConfirmationPage] Booking not found for token:', token);
           return;
         }
         setBooking(data.bookingData as BookingPayload);
-      } catch {
+        console.log('[ConfirmationPage] Booking payload:', data.bookingData);
+      } catch (err) {
         setError('Booking not found. Please try your booking again.');
+        console.error('[ConfirmationPage] Error fetching booking session:', err);
       } finally {
         setLoading(false);
+        console.log('[ConfirmationPage] Loading finished');
       }
     })();
   }, [searchParams]);
@@ -96,8 +104,6 @@ function ConfirmationContent() {
   const guestEmail = booking.bookingData?.email;
   const checkIn = booking.bookingCart?.checkIn;
   const checkOut = booking.bookingCart?.checkOut;
-  const adults = booking.bookingCart?.adults;
-  const children = booking.bookingCart?.children;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
   const roomType = booking.bookingCart?.cart?.[0]?.roomName;
   const totalPrice = booking.bookingCart?.cart?.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -124,7 +130,6 @@ function ConfirmationContent() {
             <div><span className="font-medium text-gray-600">Property:</span> <span className="font-semibold">{propertyName}</span></div>
             <div><span className="font-medium text-gray-600">Check-in:</span> <span className="font-semibold">{checkIn}</span></div>
             <div><span className="font-medium text-gray-600">Check-out:</span> <span className="font-semibold">{checkOut}</span></div>
-            <div><span className="font-medium text-gray-600">Guests:</span> <span className="font-semibold">{adults} adults, {children} children</span></div>
             {Array.isArray(booking.bookingCart?.cart) && booking.bookingCart.cart.length > 1 ? (
               <div className="md:col-span-2 mt-2">
                 <div className="font-medium text-gray-600 mb-1">Apartments/Rooms Booked:</div>
@@ -132,12 +137,18 @@ function ConfirmationContent() {
                   {booking.bookingCart.cart.map((item, idx) => (
                     <li key={item.roomTypeID + idx} className="text-sm text-gray-800">
                       <span className="font-semibold">{item.quantity} x {item.roomName}</span> (MYR {(item.price * item.quantity).toFixed(2)})
+                      <span className="ml-2 text-xs text-gray-600">[Adults: {item.adults}, Children: {item.children}]</span>
                     </li>
                   ))}
                 </ul>
               </div>
             ) : (
-              <div><span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">{roomType}</span></div>
+              <div>
+                <span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">{roomType}</span>
+                {booking.bookingCart.cart && booking.bookingCart.cart[0] && (
+                  <span className="ml-2 text-xs text-gray-600">[Adults: {booking.bookingCart.cart[0].adults}, Children: {booking.bookingCart.cart[0].children}]</span>
+                )}
+              </div>
             )}
             {typeof totalPrice === 'number' && (
               <div><span className="font-medium text-gray-600">Total:</span> <span className="font-semibold">MYR {totalPrice.toFixed(2)}</span></div>

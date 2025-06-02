@@ -45,20 +45,20 @@ const COUNTRIES = [
 const ARRIVAL_TIMES = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
 
 // Define a type for cart items
-interface CartItem {
+type CartItem = {
   roomTypeID: string;
   roomName: string;
   price: number;
   quantity: number;
   maxAvailable: number;
-}
+  adults: number;
+  children: number;
+};
 
 interface BookingCart {
   cart: CartItem[];
   checkIn: string;
   checkOut: string;
-  adults: number;
-  children: number;
   propertyId: string;
   city?: string;
 }
@@ -98,6 +98,7 @@ function BookingForm() {
     async function tryRestoreCart() {
       if (typeof window !== 'undefined') {
         const cartStr = sessionStorage.getItem('bookingCart');
+        console.log('[BookingPage] Attempting to restore cart from sessionStorage:', cartStr);
         if (cartStr) {
           try {
             const cartObj: BookingCart = JSON.parse(cartStr);
@@ -106,16 +107,16 @@ function BookingForm() {
               ...prev,
               checkIn: cartObj.checkIn || '',
               checkOut: cartObj.checkOut || '',
-              adults: cartObj.adults || 2,
-              children: cartObj.children || 0,
             }));
             setLoading(false);
             setCartChecked(true);
+            console.log('[BookingPage] Cart restored:', cartObj);
             return;
-          } catch {
+          } catch (err) {
             setError('Booking data is corrupted. Please return to the search page and try again.');
             setLoading(false);
             setCartChecked(true);
+            console.error('[BookingPage] Error parsing cart from sessionStorage:', err);
             return;
           }
         }
@@ -138,8 +139,6 @@ function BookingForm() {
                 ...prev,
                 checkIn: data.bookingData.bookingCart.checkIn || '',
                 checkOut: data.bookingData.bookingCart.checkOut || '',
-                adults: data.bookingData.bookingCart.adults || 2,
-                children: data.bookingData.bookingCart.children || 0,
               }));
               setLoading(false);
               setCartChecked(true);
@@ -193,9 +192,11 @@ function BookingForm() {
     setError(null);
     setSuccessMessage('');
     try {
+      console.log('[BookingPage] Submitting booking form');
       if (!bookingCart || !bookingCart.cart || !bookingCart.propertyId) {
         setError('Booking data is missing. Please return to the search page and try again.');
         setSubmitting(false);
+        console.error('[BookingPage] Booking data missing:', { bookingCart });
         return;
       }
       // --- Generate a random token and store booking data in localStorage ---
@@ -206,20 +207,22 @@ function BookingForm() {
         propertyId,
         userId: user?.id
       };
-      console.log('[Booking] bookingCart:', bookingCart);
-      console.log('[Booking] bookingPayload:', bookingPayload);
+      console.log('[BookingPage] bookingCart:', bookingCart);
+      console.log('[BookingPage] bookingPayload:', bookingPayload);
       localStorage.setItem(`booking_${bookingToken}`, JSON.stringify(bookingPayload));
       // --- Save booking session to backend ---
+      console.log('[BookingPage] Saving booking session to backend');
       const sessionRes = await fetch('/api/booking-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: bookingToken, bookingData: bookingPayload }),
       });
       const sessionData = await sessionRes.json();
-      console.log('[Booking] booking-session POST response:', sessionData);
+      console.log('[BookingPage] booking-session POST response:', sessionData);
       if (!sessionData.success) {
         setError(sessionData.error || 'Failed to save booking session. Please try again.');
         setSubmitting(false);
+        console.error('[BookingPage] Failed to save booking session:', sessionData.error);
         return;
       }
       // --- Billplz Payment Flow (mocked) ---
@@ -233,8 +236,9 @@ function BookingForm() {
         redirect_url: `${window.location.origin}/confirmation?bookingToken=${bookingToken}`,
         reference_1: bookingToken,
         reference_2: propertyId,
+        cart: bookingCart.cart, // Pass cart with per-room guests
       };
-      console.log('[Booking] billPayload:', billPayload);
+      console.log('[BookingPage] Creating Billplz bill with payload:', billPayload);
       // Call our API route to create the Billplz bill
       const billRes = await fetch('/api/payment/create-bill', {
         method: 'POST',
@@ -242,7 +246,7 @@ function BookingForm() {
         body: JSON.stringify(billPayload),
       });
       const billData = await billRes.json();
-      console.log('[Booking] create-bill response:', billData);
+      console.log('[BookingPage] create-bill response:', billData);
       if (!billData.success || !billData.bill?.url) {
         throw new Error(billData.error || 'Failed to create payment bill');
       }
@@ -250,6 +254,7 @@ function BookingForm() {
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
       setSubmitting(false);
+      console.error('[BookingPage] Error during booking process:', error);
     }
   };
 
@@ -317,8 +322,6 @@ function BookingForm() {
                     if (paramsObj.city) params.set('city', paramsObj.city);
                     if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
                     if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
-                    if (paramsObj.adults) params.set('adults', paramsObj.adults);
-                    if (paramsObj.children) params.set('children', paramsObj.children);
                     if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
                     router.push(`/search?${params.toString()}`);
                     return;
@@ -332,8 +335,6 @@ function BookingForm() {
                 if (bookingCart.city) params.set('city', bookingCart.city);
                 if (bookingCart.checkIn) params.set('startDate', bookingCart.checkIn);
                 if (bookingCart.checkOut) params.set('endDate', bookingCart.checkOut);
-                if (bookingCart.adults) params.set('adults', bookingCart.adults.toString());
-                if (bookingCart.children) params.set('children', bookingCart.children.toString());
                 if (bookingCart.propertyId) params.set('propertyId', bookingCart.propertyId);
                 router.push(`/search?${params.toString()}`);
               } else {
@@ -454,14 +455,6 @@ function BookingForm() {
                     <span className="font-medium">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Number of adults</span>
-                    <span className="font-medium">{bookingCart?.adults}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Number of children</span>
-                    <span className="font-medium">{bookingCart?.children}</span>
-                  </div>
-                  <div className="flex justify-between">
                     <span>Number of nights</span>
                     <span className="font-medium">{numberOfNights}</span>
                   </div>
@@ -472,9 +465,15 @@ function BookingForm() {
                       <span className="font-semibold text-base">Apartments</span>
                     </div>
                     {bookingCart.cart.map((item: CartItem) => (
-                      <div key={item.roomTypeID} className="flex justify-between text-base mt-1">
-                        <span>{item.quantity} x {item.roomName}</span>
-                        <span>MYR {(item.price * item.quantity).toFixed(2)}</span>
+                      <div key={item.roomTypeID} className="flex flex-col gap-1 mt-1 border-b border-gray-100 pb-2">
+                        <div className="flex justify-between text-base">
+                          <span>{item.quantity} x {item.roomName}</span>
+                          <span>MYR {(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                        <div className="flex gap-4 text-xs text-gray-600 pl-2">
+                          <span>Adults: {item.adults}</span>
+                          <span>Children: {item.children}</span>
+                        </div>
                       </div>
                     ))}
                     <div className="pt-4 mt-4 border-t border-gray-200 flex justify-between items-center">

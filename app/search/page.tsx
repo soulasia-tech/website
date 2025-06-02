@@ -37,8 +37,8 @@ interface RatePlan {
   [key: string]: unknown; // For any extra fields
 }
 
-// Add cart item type
-interface CartItem {
+// Update CartItem type
+type CartItem = {
   roomTypeID: string;
   roomName: string;
   price: number;
@@ -46,7 +46,11 @@ interface CartItem {
   maxAvailable: number;
   propertyId: string;
   propertyName: string;
-}
+  adults: number;
+  children: number;
+  roomIDs: string[];
+  rateId: string;
+};
 
 function SearchResults() {
   const router = useRouter();
@@ -67,6 +71,8 @@ function SearchResults() {
   const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
   const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
   const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
+  const [roomGuests, setRoomGuests] = useState<{ [roomTypeID: string]: { adults: number; children: number } }>({});
+  const [roomsByType, setRoomsByType] = useState<{ [roomTypeID: string]: string[] }>({});
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -134,7 +140,17 @@ function SearchResults() {
           // Fetch room types
           const roomRes = await fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`);
           const roomData = await roomRes.json();
+          const propertyRoomsByType: { [roomTypeID: string]: string[] } = {};
           if (roomData.success && Array.isArray(roomData.roomTypes)) {
+            // Fetch actual rooms for this property
+            const roomsRes = await fetch(`/api/cloudbeds/rooms?propertyId=${property.propertyId}`);
+            const roomsData = await roomsRes.json();
+            if (roomsData.success && Array.isArray(roomsData.rooms)) {
+              roomsData.rooms.forEach((room: unknown) => {
+                if (!propertyRoomsByType[(room as { roomTypeID: string }).roomTypeID]) propertyRoomsByType[(room as { roomTypeID: string }).roomTypeID] = [];
+                propertyRoomsByType[(room as { roomTypeID: string }).roomTypeID].push((room as { roomID: string }).roomID);
+              });
+            }
             // Fetch rates for this property
             const rateRes = await fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`);
             const rateData = await rateRes.json();
@@ -171,6 +187,7 @@ function SearchResults() {
               });
             });
           }
+          setRoomsByType(prev => ({ ...prev, ...propertyRoomsByType }));
         }));
         setResults(allRooms);
         setRates(allRates);
@@ -227,17 +244,36 @@ function SearchResults() {
   // Calculate number of nights
   const numberOfNights = startDate && endDate ? Math.max(1, Math.ceil((parseISO(endDate).getTime() - parseISO(startDate).getTime()) / (1000 * 60 * 60 * 24))) : 1;
 
-  // Add to cart handler
+  // Add to cart handler (updated)
   const handleAddToCart = (room: RoomResult) => {
     const qty = quantities[room.id] || 1;
+    const guests = roomGuests[room.id] || { adults: 2, children: 0 };
     if (!rates[room.id] || qty < 1) return;
+    // Validate maxGuests
+    if ((guests.adults + guests.children) > room.maxGuests) {
+      alert(`Cannot add more than ${room.maxGuests} guests to this room.`);
+      return;
+    }
+    // Select the next available roomIDs for this roomType
+    const roomIDs = roomsByType[room.id] ? roomsByType[room.id].slice(0, qty) : [];
+    const rateId = rates[room.id]?.id ? String(rates[room.id].id) : '';
     setCart(prev => {
       const existing = prev.find(item => item.roomTypeID === room.id);
       if (existing) {
-        // Update quantity (but not above maxAvailable), keep all fields
+        // Calculate new roomIDs (avoid duplicates)
+        const alreadyUsed = new Set(existing.roomIDs);
+        const availableRoomIDs = roomsByType[room.id]?.filter((id: string) => !alreadyUsed.has(id)) || [];
+        const newRoomIDs = availableRoomIDs.slice(0, qty);
         return prev.map(item =>
           item.roomTypeID === room.id
-            ? { ...item, quantity: Math.min(item.quantity + qty, rates[room.id].roomsAvailable) }
+            ? {
+                ...item,
+                quantity: Math.min(item.quantity + qty, rates[room.id].roomsAvailable),
+                adults: guests.adults,
+                children: guests.children,
+                roomIDs: [...item.roomIDs, ...newRoomIDs].slice(0, rates[room.id].roomsAvailable),
+                rateId,
+              }
             : item
         );
       } else {
@@ -251,21 +287,16 @@ function SearchResults() {
             maxAvailable: rates[room.id].roomsAvailable,
             propertyId: room.propertyId,
             propertyName: room.propertyName,
+            adults: guests.adults,
+            children: guests.children,
+            roomIDs,
+            rateId,
           },
         ];
       }
     });
     // Reset quantity for this room
     setQuantities(q => ({ ...q, [room.id]: 1 }));
-  };
-
-  // Cart item quantity adjustment
-  const handleCartQtyChange = (roomTypeID: string, newQty: number) => {
-    setCart(prev => prev.map(item =>
-      item.roomTypeID === roomTypeID
-        ? { ...item, quantity: Math.max(1, Math.min(newQty, item.maxAvailable)) }
-        : item
-    ));
   };
 
   // Remove item from cart
@@ -442,17 +473,32 @@ function SearchResults() {
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2 mt-2">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-4">
+                              <label className="text-xs text-gray-500">Adults</label>
                               <button
                                 className="px-2 py-1 border rounded"
-                                onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
-                                disabled={(quantities[room.id] || 1) <= 1 || isOtherProperty}
+                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.max(1, (g[room.id]?.adults ?? 2) - 1), children: g[room.id]?.children ?? 0 } }))}
+                                disabled={(roomGuests[room.id]?.adults ?? 2) <= 1}
                               >-</button>
-                              <span className="w-6 text-center text-base">{quantities[room.id] || 1}</span>
+                              <span className="w-6 text-center">{roomGuests[room.id]?.adults ?? 2}</span>
                               <button
                                 className="px-2 py-1 border rounded"
-                                onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id].roomsAvailable, (q[room.id] || 1) + 1) }))}
-                                disabled={(quantities[room.id] || 1) >= rates[room.id].roomsAvailable || isOtherProperty}
+                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.min(room.maxGuests, (g[room.id]?.adults ?? 2) + 1), children: g[room.id]?.children ?? 0 } }))}
+                                disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
+                              >+</button>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <label className="text-xs text-gray-500">Children</label>
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.max(0, (g[room.id]?.children ?? 0) - 1) } }))}
+                                disabled={(roomGuests[room.id]?.children ?? 0) <= 0}
+                              >-</button>
+                              <span className="w-6 text-center">{roomGuests[room.id]?.children ?? 0}</span>
+                              <button
+                                className="px-2 py-1 border rounded"
+                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.min(room.maxGuests - (g[room.id]?.adults ?? 2), (g[room.id]?.children ?? 0) + 1) } }))}
+                                disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
                               >+</button>
                             </div>
                             <Button
@@ -489,21 +535,9 @@ function SearchResults() {
                             <span className="text-xl font-bold text-gray-900">{item.roomName}</span>
                           </div>
                           <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
-                          <div className="flex flex-col gap-1">
-                            <span className="text-xs text-gray-400 font-medium mb-1">Quantity</span>
-                            <div className="flex items-center gap-2">
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity - 1)}
-                                disabled={item.quantity <= 1}
-                              >-</button>
-                              <span className="w-6 text-center text-base">{item.quantity}</span>
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => handleCartQtyChange(item.roomTypeID, item.quantity + 1)}
-                                disabled={item.quantity >= item.maxAvailable}
-                              >+</button>
-                            </div>
+                          <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
+                            <span>Adults: {item.adults}</span>
+                            <span>Children: {item.children}</span>
                           </div>
                         </div>
                         <button
@@ -547,66 +581,64 @@ function SearchResults() {
             </Card>
           </div>
         </div>
-        {selectedRoomImages && (() => {
-          return (
+        {selectedRoomImages && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={() => {
+              setSelectedRoomImages(null);
+              setCarouselIndex(0);
+            }}
+            tabIndex={-1}
+            aria-modal="true"
+            role="dialog"
+          >
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-              onClick={() => {
-                setSelectedRoomImages(null);
-                setCarouselIndex(0);
-              }}
-              tabIndex={-1}
-              aria-modal="true"
-              role="dialog"
+              className="relative max-w-2xl w-full mx-4"
+              onClick={e => e.stopPropagation()}
             >
-              <div
-                className="relative max-w-2xl w-full mx-4"
-                onClick={e => e.stopPropagation()}
+              <button
+                className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                onClick={() => {
+                  setSelectedRoomImages(null);
+                  setCarouselIndex(0);
+                  swiperInitialized.current = false;
+                }}
+                aria-label="Close image preview"
               >
-                <button
-                  className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
-                  onClick={() => {
-                    setSelectedRoomImages(null);
-                    setCarouselIndex(0);
-                    swiperInitialized.current = false;
-                  }}
-                  aria-label="Close image preview"
-                >
-                  ✕
-                </button>
-                <Swiper
-                  modules={[Navigation, Pagination]}
-                  navigation
-                  pagination={{ clickable: true }}
-                  className="rounded-xl"
-                  initialSlide={carouselIndex}
-                  onSlideChange={swiper => setCarouselIndex(swiper.activeIndex)}
-                  onSwiper={swiper => {
-                    swiperRef.current = swiper;
-                    if (!swiperInitialized.current) {
-                      swiper.slideTo(carouselIndex);
-                      swiperInitialized.current = true;
-                    }
-                  }}
-                >
-                  {selectedRoomImages.map((img, idx) => (
-                    <SwiperSlide key={idx}>
-                      <div style={{ position: 'relative', width: '100%', height: '60vw', maxHeight: '80vh' }}>
-                        <Image
-                          src={img}
-                          alt={`Room image ${idx + 1}`}
-                          fill
-                          className="object-contain rounded-xl"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
+                ✕
+              </button>
+              <Swiper
+                modules={[Navigation, Pagination]}
+                navigation
+                pagination={{ clickable: true }}
+                className="rounded-xl"
+                initialSlide={carouselIndex}
+                onSlideChange={swiper => setCarouselIndex(swiper.activeIndex)}
+                onSwiper={swiper => {
+                  swiperRef.current = swiper;
+                  if (!swiperInitialized.current) {
+                    swiper.slideTo(carouselIndex);
+                    swiperInitialized.current = true;
+                  }
+                }}
+              >
+                {selectedRoomImages.map((img, idx) => (
+                  <SwiperSlide key={idx}>
+                    <div style={{ position: 'relative', width: '100%', height: '60vw', maxHeight: '80vh' }}>
+                      <Image
+                        src={img}
+                        alt={`Room image ${idx + 1}`}
+                        fill
+                        className="object-contain rounded-xl"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
-          );
-        })()}
+          </div>
+        )}
       </div>
     </div>
   );

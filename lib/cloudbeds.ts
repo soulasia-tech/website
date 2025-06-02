@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { calculateTotalGuests } from './guest-utils';
 
 const CLOUDBEDS_API_BASE = 'https://hotels.cloudbeds.com/api/v1.2';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -109,20 +108,26 @@ export async function getReservation(propertyId: string, reservationId: string) 
   return data.data;
 }
 
+export interface RoomData {
+  roomTypeID: string;
+  roomID: string;
+  quantity: string;
+  roomRateID: string;
+}
+
 export interface BookingData {
   propertyId: string;
-  roomId: string;
+  rooms: RoomData[];
   checkIn: string;
   checkOut: string;
-  guests: number;
   guestFirstName: string;
   guestLastName: string;
   guestEmail: string;
   country: string;
-  rateId: string;
   phone?: string;
   estimatedArrivalTime?: string;
-  children?: number;
+  adults: number;
+  children: number;
 }
 
 export async function createReservation(bookingData: BookingData) {
@@ -132,21 +137,6 @@ export async function createReservation(bookingData: BookingData) {
   const requestHeaders = new Headers();
   requestHeaders.append('Authorization', `Bearer ${property.api_key}`);
   requestHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-
-  // Prepare room and guest data
-  const rooms = [{
-    roomTypeID: bookingData.roomId,
-    roomID: `${bookingData.roomId}-1`,
-    quantity: '1',
-    roomRateID: bookingData.rateId,
-  }];
-  const totalGuests = calculateTotalGuests(Number(bookingData.guests ?? 0), Number(bookingData.children ?? 0));
-  const adults = Array.from({ length: totalGuests }).map(() => ({
-    roomTypeID: bookingData.roomId,
-    roomID: `${bookingData.roomId}-1`,
-    quantity: '1',
-  }));
-  const children: { roomTypeID: string; roomID: string; quantity: string }[] = [];
 
   // Convert to URLSearchParams
   const params = new URLSearchParams();
@@ -158,33 +148,45 @@ export async function createReservation(bookingData: BookingData) {
   params.append('guestEmail', bookingData.guestEmail);
   params.append('guestCountry', bookingData.country);
   params.append('guestZip', '00000');
-  params.append('paymentMethod', 'cash');
+  params.append('paymentMethod', 'credit_card');
   params.append('sendEmailConfirmation', 'true');
   if (bookingData.phone) params.append('guestPhone', bookingData.phone);
   if (bookingData.estimatedArrivalTime) params.append('estimatedArrivalTime', bookingData.estimatedArrivalTime);
 
-  rooms.forEach((room, index) => {
+  // Add all rooms
+  bookingData.rooms.forEach((room, index) => {
     params.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
     params.append(`rooms[${index}][roomID]`, room.roomID);
     params.append(`rooms[${index}][quantity]`, room.quantity);
     params.append(`rooms[${index}][roomRateID]`, room.roomRateID);
   });
-  adults.forEach((adult, index) => {
-    params.append(`adults[${index}][roomTypeID]`, adult.roomTypeID);
-    params.append(`adults[${index}][roomID]`, adult.roomID);
-    params.append(`adults[${index}][quantity]`, adult.quantity);
-  });
-  // Always add children as an empty array
-  params.append('children', JSON.stringify(children));
+
+  // Add adults and children (total for all rooms)
+  params.append('adults', bookingData.adults.toString());
+  params.append('children', bookingData.children.toString());
 
   // Call Cloudbeds API
+  console.log('[createReservation] Sending reservation to Cloudbeds:', {
+    url: cloudbedsUrl,
+    params: params.toString(),
+    bookingData
+  });
   const response = await fetch(cloudbedsUrl, {
     method: 'POST',
     headers: requestHeaders,
     body: params,
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+    console.log('[createReservation] Cloudbeds API response:', data);
+  } catch {
+    const text = await response.text();
+    console.error('[createReservation] Cloudbeds API returned non-JSON:', text);
+    throw new Error('Cloudbeds API returned non-JSON: ' + text);
+  }
   if (!response.ok) {
+    console.error('[createReservation] Cloudbeds API error:', data);
     throw new Error(data.message || 'Failed to create reservation');
   }
   return {
