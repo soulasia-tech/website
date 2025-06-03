@@ -6,7 +6,22 @@ import { saveBookingInDB } from '@/lib/booking';
 export async function POST(request: Request) {
   try {
     console.log('[billplz-callback] Callback received');
-    const { bill_id, x_signature } = await request.json();
+    let bill_id, x_signature;
+    const contentType = request.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const body = await request.json();
+      bill_id = body.bill_id || body.id;
+      x_signature = body.x_signature;
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      const formData = await request.formData();
+      bill_id = formData.get('id'); // Billplz uses 'id' for bill_id
+      x_signature = formData.get('x_signature');
+    } else {
+      // fallback: try formData
+      const formData = await request.formData();
+      bill_id = formData.get('id');
+      x_signature = formData.get('x_signature');
+    }
 
     if (!bill_id || !x_signature) {
       console.error('[billplz-callback] Missing required fields', { bill_id, x_signature });
