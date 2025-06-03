@@ -159,8 +159,13 @@ export async function createReservation(bookingData: BookingData) {
   bookingData.rooms.forEach((room, index) => {
     params.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
     params.append(`rooms[${index}][roomID]`, room.roomID);
-    params.append(`rooms[${index}][quantity]`, room.quantity);
-    params.append(`rooms[${index}][roomRateID]`, room.roomRateID);
+    // Send quantity as a number
+    const qty = typeof room.quantity === 'string' ? parseInt(room.quantity, 10) : room.quantity;
+    params.append(`rooms[${index}][quantity]`, qty.toString());
+    // Only include roomRateID if it is non-empty
+    if (room.roomRateID && room.roomRateID.trim() !== '') {
+      params.append(`rooms[${index}][roomRateID]`, room.roomRateID);
+    }
   });
 
   // Add adults and children (total for all rooms)
@@ -187,13 +192,14 @@ export async function createReservation(bookingData: BookingData) {
     console.error('[createReservation] Cloudbeds API returned non-JSON:', text);
     throw new Error('Cloudbeds API returned non-JSON: ' + text);
   }
-  if (!response.ok) {
+  if (!response.ok || !data.reservationID) {
     console.error('[createReservation] Cloudbeds API error:', data);
-    throw new Error(data.message || 'Failed to create reservation');
+    return { success: false, message: data.message || 'Failed to create reservation', cloudbedsResponse: data };
   }
   return {
     reservationID: data.reservationID,
     status: data.status,
+    success: true,
   };
 }
 

@@ -89,6 +89,10 @@ export async function POST(request: Request) {
     console.log('[billplz-callback] Creating reservation in Cloudbeds', reservationData);
     const reservation = await createReservation(reservationData);
     console.log('[billplz-callback] Cloudbeds reservation created:', reservation);
+    if (!reservation || reservation.success === false || !reservation.reservationID) {
+      console.error('[billplz-callback] Failed to create reservation in Cloudbeds:', reservation);
+      return NextResponse.json({ success: false, error: 'Failed to create reservation in Cloudbeds', details: reservation }, { status: 500 });
+    }
 
     // Add payment to reservation
     type CartItem = { price: number; quantity: number; [key: string]: unknown };
