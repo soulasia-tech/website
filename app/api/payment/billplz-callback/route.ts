@@ -56,6 +56,19 @@ export async function POST(request: Request) {
     }
     const bookingPayload = sessionData.bookingData;
 
+    // Delete the booking session after use
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      await supabase.from('booking_sessions').delete().eq('token', bookingToken);
+      console.log('[billplz-callback] Booking session deleted from Supabase:', bookingToken);
+    } catch (err) {
+      console.error('[billplz-callback] Failed to delete booking session from Supabase:', err);
+    }
+
     // Build rooms array from cart (each roomID gets its own entry)
     const rooms = bookingPayload.bookingCart.cart.flatMap((item: { roomIDs?: string[]; roomTypeID: string; rateId?: string; quantity?: number }) =>
       (item.roomIDs || []).map((roomID: string) => ({
