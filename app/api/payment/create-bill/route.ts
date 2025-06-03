@@ -12,11 +12,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    // --- TESTING OVERRIDE: Always use amount = 100 (1 MYR) for payment provider ---
-    const testAmount = 100; // 1 MYR in cents
-    console.log(`[create-bill] Sending Billplz payment request for 1 MYR (amount: ${testAmount})`, { name, email, callback_url, redirect_url, reference_1, reference_2 });
-    // Use the real Billplz utility
-    const bill = await createBill({ amount: testAmount, name, email, callback_url, redirect_url, reference_1, reference_2 });
+    console.log(`[create-bill] Sending Billplz payment request for amount: ${amount}`, { name, email, callback_url, redirect_url, reference_1, reference_2 });
+    const bill = await createBill({ amount, name, email, callback_url, redirect_url, reference_1, reference_2 });
     console.log('[create-bill] Billplz response:', bill);
 
     return NextResponse.json({ success: true, bill });

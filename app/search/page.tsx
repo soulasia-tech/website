@@ -52,6 +52,19 @@ type CartItem = {
   rateId: string;
 };
 
+// Add type for CloudbedsQuote
+interface Breakdown {
+  subtotal: number;
+  sst: number;
+  grandTotal: number;
+}
+interface CloudbedsQuote {
+  subtotal: number;
+  sst: number;
+  grandTotal: number;
+  breakdown?: Breakdown;
+}
+
 function SearchResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,6 +86,7 @@ function SearchResults() {
   const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
   const [roomGuests, setRoomGuests] = useState<{ [roomTypeID: string]: { adults: number; children: number } }>({});
   const [roomsByType, setRoomsByType] = useState<{ [roomTypeID: string]: string[] }>({});
+  const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -373,6 +387,19 @@ function SearchResults() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredRooms]);
 
+  useEffect(() => {
+    async function fetchCloudbedsQuote() {
+      if (!cart.length || !cart[0].propertyId || !startDate || !endDate) return;
+      // Call a new API endpoint to get a quote from Cloudbeds
+      const res = await fetch(`/api/cloudbeds/quote?propertyId=${cart[0].propertyId}&checkIn=${startDate}&checkOut=${endDate}&cart=${encodeURIComponent(JSON.stringify(cart))}`);
+      if (res.ok) {
+        const data: { success: boolean; quote?: CloudbedsQuote } = await res.json();
+        if (data.success && data.quote) setCloudbedsQuote(data.quote);
+      }
+    }
+    fetchCloudbedsQuote();
+  }, [cart, startDate, endDate]);
+
   if (propertyLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
@@ -558,8 +585,18 @@ function SearchResults() {
                   ))}
                   <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
                     <span className="text-base text-gray-500 font-semibold">Total</span>
-                    <span className="text-2xl font-bold text-gray-900">MYR {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-gray-900">
+                      {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                    </span>
                   </div>
+                  {cloudbedsQuote && (
+                    <div className="text-xs text-gray-600 mt-2">
+                      <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                      <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                      <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                      <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
+                    </div>
+                  )}
                   <div className="pt-2">
                     <Button
                       className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"

@@ -123,7 +123,7 @@ function ConfirmationContent() {
   const checkOut = booking.bookingCart?.checkOut;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
   const roomType = booking.bookingCart?.cart?.[0]?.roomName;
-  const totalPrice = typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0) || 0);
+  const totalPrice = typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0) || 0);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -170,12 +170,13 @@ function ConfirmationContent() {
             {typeof totalPrice === 'number' && (
               <div><span className="font-medium text-gray-600">Total:</span> <span className="font-semibold">MYR {totalPrice.toFixed(2)}</span></div>
             )}
-            {/* Optionally show breakdown if available */}
+            {/* Always show breakdown if available */}
             {cloudbedsBreakdown && (
               <div className="md:col-span-2 mt-2 text-xs text-gray-600">
-                <div>Subtotal: MYR {cloudbedsBreakdown.subtotal || '-'}</div>
-                <div>SST/Tax: MYR {cloudbedsBreakdown.sst || cloudbedsBreakdown.tax || '-'}</div>
-                <div>Grand Total: MYR {cloudbedsBreakdown.grandTotal || cloudbedsBreakdown.total || '-'}</div>
+                <div>Subtotal: MYR {cloudbedsBreakdown.subtotal !== undefined ? cloudbedsBreakdown.subtotal : '-'}</div>
+                <div>SST/Tax: MYR {cloudbedsBreakdown.sst !== undefined ? cloudbedsBreakdown.sst : (cloudbedsBreakdown.tax !== undefined ? cloudbedsBreakdown.tax : '-')}</div>
+                <div>Grand Total: MYR {cloudbedsBreakdown.grandTotal !== undefined ? cloudbedsBreakdown.grandTotal : (cloudbedsBreakdown.total !== undefined ? cloudbedsBreakdown.total : '-')}</div>
+                <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
               </div>
             )}
           </div>

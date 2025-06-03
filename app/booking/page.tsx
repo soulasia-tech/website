@@ -64,6 +64,20 @@ interface BookingCart {
   city?: string;
 }
 
+// Add type for CloudbedsQuote
+interface Breakdown {
+  subtotal: number;
+  sst: number;
+  grandTotal: number;
+}
+
+interface CloudbedsQuote {
+  subtotal: number;
+  sst: number;
+  grandTotal: number;
+  breakdown?: Breakdown;
+}
+
 function BookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,7 +87,7 @@ function BookingForm() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [bookingCart, setBookingCart] = useState<BookingCart | null>(null);
-  const [cartChecked, setCartChecked] = useState(false);
+  const [cartChecked, setCartChecked] = useState<boolean>(false);
   const [bookingData, setBookingData] = useState<BookingFormData>({
     firstName: '',
     lastName: '',
@@ -90,6 +104,7 @@ function BookingForm() {
     country: '',
   });
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
 
   // Always get propertyId from searchParams or bookingCart
   const propertyId = searchParams.get('propertyId') || bookingCart?.propertyId || '';
@@ -113,7 +128,7 @@ function BookingForm() {
             setCartChecked(true);
             console.log('[BookingPage] Cart restored:', cartObj);
             return;
-          } catch (err) {
+          } catch (err: unknown) {
             setError('Booking data is corrupted. Please return to the search page and try again.');
             setLoading(false);
             setCartChecked(true);
@@ -240,9 +255,9 @@ function BookingForm() {
         console.error('[BookingPage] Failed to save booking session:', sessionData.error);
         return;
       }
-      // --- Billplz Payment Flow (mocked) ---
+      // --- Billplz Payment Flow ---
       // Use propertyId for Billplz
-      const totalAmount = bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
+      const totalAmount = cloudbedsQuote?.grandTotal ?? bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
       const billPayload = {
         amount: Math.round(totalAmount * 100), // Billplz expects amount in cents
         name: `${bookingData.firstName} ${bookingData.lastName}`,
@@ -291,6 +306,19 @@ function BookingForm() {
     }
   }, [searchParams, bookingCart, propertyId]);
 
+  useEffect(() => {
+    async function fetchCloudbedsQuote() {
+      if (!bookingCart || !bookingCart.propertyId || !bookingCart.checkIn || !bookingCart.checkOut || !bookingCart.cart.length) return;
+      // Call a new API endpoint to get a quote from Cloudbeds
+      const res = await fetch(`/api/cloudbeds/quote?propertyId=${bookingCart.propertyId}&checkIn=${bookingCart.checkIn}&checkOut=${bookingCart.checkOut}&cart=${encodeURIComponent(JSON.stringify(bookingCart.cart))}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.quote) setCloudbedsQuote(data.quote);
+      }
+    }
+    fetchCloudbedsQuote();
+  }, [bookingCart]);
+
   if (loading || !cartChecked) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
@@ -329,6 +357,11 @@ function BookingForm() {
             className="rounded-full px-5 py-2 font-medium border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center gap-2 shadow-sm"
             onClick={() => {
               if (typeof window !== 'undefined') {
+                const lastSearchUrl = sessionStorage.getItem('lastSearchUrl');
+                if (lastSearchUrl) {
+                  router.push(lastSearchUrl);
+                  return;
+                }
                 const lastSearchParams = sessionStorage.getItem('lastSearchParams');
                 if (lastSearchParams) {
                   try {
@@ -338,6 +371,9 @@ function BookingForm() {
                     if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
                     if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
                     if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
+                    if (paramsObj.adults) params.set('adults', paramsObj.adults);
+                    if (paramsObj.children) params.set('children', paramsObj.children);
+                    if (paramsObj.guests) params.set('guests', paramsObj.guests);
                     router.push(`/search?${params.toString()}`);
                     return;
                   } catch {
@@ -353,7 +389,7 @@ function BookingForm() {
                 if (bookingCart.propertyId) params.set('propertyId', bookingCart.propertyId);
                 router.push(`/search?${params.toString()}`);
               } else {
-                router.push('/search');
+                router.push('/search?city=Kuala Lumpur');
               }
             }}
           >
@@ -419,6 +455,7 @@ function BookingForm() {
                   </Select>
                 </div>
                 {/* Add account creation section for non-authenticated users */}
+                {/*
                 {!user && (
                   <div className="mt-8 p-4 bg-gray-100 rounded-lg">
                     <div className="flex items-center gap-2 mb-4">
@@ -434,6 +471,7 @@ function BookingForm() {
                     )}
                   </div>
                 )}
+                */}
                 <Button
                   type="submit"
                   disabled={submitting}
@@ -493,8 +531,18 @@ function BookingForm() {
                     ))}
                     <div className="pt-4 mt-4 border-t border-gray-200 flex justify-between items-center">
                       <span className="font-semibold text-lg">Total</span>
-                      <span className="font-bold text-2xl text-gray-900">MYR {bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0).toFixed(2)}</span>
+                      <span className="font-bold text-2xl text-gray-900">
+                        {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : `MYR ${bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0).toFixed(2)}`}
+                      </span>
                     </div>
+                    {cloudbedsQuote && (
+                      <div className="text-xs text-gray-600 mt-2">
+                        <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                        <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                        <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                        <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
