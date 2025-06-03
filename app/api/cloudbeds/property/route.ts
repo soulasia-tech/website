@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, hotel });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[cloudbeds/property] Error:', error);
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 } 
