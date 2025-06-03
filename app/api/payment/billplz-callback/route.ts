@@ -78,6 +78,10 @@ export async function POST(request: Request) {
         roomRateID: item.rateId || '',
       }))
     );
+    if (!rooms.length) {
+      console.error('[billplz-callback] No rooms found in booking cart. Cannot create reservation.', { bookingToken, bookingCart: bookingPayload.bookingCart });
+      return NextResponse.json({ success: false, error: 'No rooms found in booking cart. Cannot create reservation.' }, { status: 400 });
+    }
     // Calculate total adults and children from all rooms
     const adults = bookingPayload.bookingCart.cart.reduce((sum: number, item: { adults?: number; quantity?: number }) => sum + (item.adults || 0) * (item.quantity || 1), 0);
     const children = bookingPayload.bookingCart.cart.reduce((sum: number, item: { children?: number; quantity?: number }) => sum + (item.children || 0) * (item.quantity || 1), 0);

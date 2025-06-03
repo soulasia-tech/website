@@ -199,6 +199,12 @@ function BookingForm() {
         console.error('[BookingPage] Booking data missing:', { bookingCart });
         return;
       }
+      if (!bookingCart.cart.length) {
+        setError('You must select at least one room to proceed with your booking.');
+        setSubmitting(false);
+        console.error('[BookingPage] No rooms selected in cart:', { bookingCart });
+        return;
+      }
       // --- Generate a random token and store booking data in localStorage ---
       const bookingToken = crypto.randomUUID();
       const bookingPayload = {
