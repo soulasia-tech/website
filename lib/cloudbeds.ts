@@ -131,6 +131,8 @@ export interface BookingData {
 }
 
 export async function createReservation(bookingData: BookingData) {
+  // Remove local mock, always use real API
+  console.log('[createReservation] Creating reservation for:', bookingData.guestEmail);
   // Fetch property API key
   const property = await getCloudbedsProperty(bookingData.propertyId);
   const cloudbedsUrl = 'https://hotels.cloudbeds.com/api/v1.1/postReservation';

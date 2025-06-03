@@ -57,6 +57,7 @@ export async function verifyPayment({ bill_id, x_signature: _x_signature }: Veri
     throw new Error('Missing BILLPLZ_API_KEY');
   }
   void _x_signature; // In production, verify the signature as per Billplz docs
+  console.log('[verifyPayment] Fetching Billplz bill:', bill_id);
   const res = await fetch(`https://www.billplz.com/api/v3/bills/${bill_id}`, {
     headers: {
       Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64'),
@@ -64,6 +65,7 @@ export async function verifyPayment({ bill_id, x_signature: _x_signature }: Veri
     },
   });
   const data = await res.json();
+  console.log('[verifyPayment] Billplz API response:', data);
   if (!res.ok) {
     throw new Error(data.error?.message || 'Failed to verify Billplz payment');
   }
