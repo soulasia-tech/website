@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyPayment } from '@/lib/billplz';
-import { createReservation, addPaymentToReservation } from '@/lib/cloudbeds';
+import { createReservation, addPaymentToReservation, getReservation } from '@/lib/cloudbeds';
 import { saveBookingInDB } from '@/lib/booking';
 
 export async function POST(request: Request) {
@@ -95,10 +95,12 @@ export async function POST(request: Request) {
     }
 
     // Add payment to reservation
-    type CartItem = { price: number; quantity: number; [key: string]: unknown };
-    const totalAmount = bookingPayload.bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
-    console.log('[billplz-callback] Adding payment to Cloudbeds reservation', { propertyId, reservationId: reservation.reservationID, amount: Math.round(totalAmount * 100) });
-    await addPaymentToReservation({ propertyId, reservationId: reservation.reservationID, amount: Math.round(totalAmount * 100), paymentMethod: 'credit_card' });
+    // Fetch reservation details to get the grand total
+    const { getReservation } = await import('@/lib/cloudbeds');
+    const reservationDetails = await getReservation(propertyId, reservation.reservationID);
+    const grandTotal = reservationDetails.grandTotal || reservationDetails.total || reservationDetails.grand_total;
+    console.log('[billplz-callback] Adding payment to Cloudbeds reservation', { propertyId, reservationId: reservation.reservationID, amount: grandTotal });
+    await addPaymentToReservation({ propertyId, reservationId: reservation.reservationID, amount: grandTotal, paymentMethod: 'credit_card' });
     console.log('[billplz-callback] Payment added to Cloudbeds reservation');
 
     // Save booking in DB only if userId is present
