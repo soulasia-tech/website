@@ -19,6 +19,10 @@ interface CloudbedsReservationDetails {
   total?: number;
   numberOfChildren?: number;
   // Add other fields as needed
+  grandTotal?: number;
+  subtotal?: number;
+  sst?: number;
+  tax?: number;
 }
 
 function formatDate(dateString: string | undefined | null): string {
@@ -291,7 +295,15 @@ export default function MyBookingsPage() {
                   </div>
                   <div className="ml-auto text-right">
                     <div className="text-gray-500 text-xs">Total</div>
-                    <div className="font-bold text-lg">MYR {cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-')}</div>
+                    <div className="font-bold text-lg">MYR {cb?.grandTotal !== undefined ? cb.grandTotal.toFixed(2) : (cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-'))}</div>
+                    {/* Show breakdown if available */}
+                    {(cb?.subtotal || cb?.sst || cb?.tax || cb?.grandTotal) && (
+                      <div className="mt-1 text-xs text-gray-600 text-right">
+                        <div>Subtotal: MYR {cb?.subtotal !== undefined ? cb.subtotal : '-'}</div>
+                        <div>SST/Tax: MYR {cb?.sst !== undefined ? cb.sst : (cb?.tax !== undefined ? cb.tax : '-')}</div>
+                        <div>Grand Total: MYR {cb?.grandTotal !== undefined ? cb.grandTotal : (cb?.total !== undefined ? cb.total : '-')}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Expandable Section */}

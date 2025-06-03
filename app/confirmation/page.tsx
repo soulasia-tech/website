@@ -5,90 +5,106 @@ import { useSearchParams } from 'next/navigation';
 import { PropertyInformation } from '@/components/property-information';
 import { Card } from "@/components/ui/card";
 
-interface CartItem {
-  roomTypeID: string;
-  roomName: string;
-  price: number;
-  quantity: number;
-  maxAvailable: number;
-  propertyId: string;
-  propertyName: string;
-  rateId?: string;
-  adults: number;
-  children: number;
-  roomIDs: string[];
-}
-interface BookingCart {
-  cart: CartItem[];
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  children: number;
-  propertyId: string;
-  city?: string;
-}
-interface BookingFormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  checkIn: string;
-  checkOut: string;
-  adults: number;
-  children: number;
-  roomId: string;
-  createAccount: boolean;
-  password: string;
-  phone?: string;
-  estimatedArrivalTime?: string;
-  country: string;
-}
-interface BookingPayload {
-  bookingData: BookingFormData;
-  bookingCart: BookingCart;
-  propertyId: string;
-  userId?: string;
-}
-
 function ConfirmationContent() {
   const searchParams = useSearchParams();
-  const [booking, setBooking] = useState<BookingPayload | null>(null);
+  const bookingToken = searchParams.get('bookingToken');
+  // Define explicit types for booking and cloudbedsBreakdown
+  type CartItem = {
+    roomTypeID: string;
+    roomName: string;
+    price: number;
+    quantity: number;
+    maxAvailable: number;
+    propertyId: string;
+    propertyName: string;
+    rateId?: string;
+    adults: number;
+    children: number;
+    roomIDs: string[];
+  };
+  type BookingCart = {
+    cart: CartItem[];
+    checkIn: string;
+    checkOut: string;
+    adults: number;
+    children: number;
+    propertyId: string;
+    city?: string;
+  };
+  type BookingFormData = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    checkIn: string;
+    checkOut: string;
+    adults: number;
+    children: number;
+    roomId: string;
+    createAccount: boolean;
+    password: string;
+    phone?: string;
+    estimatedArrivalTime?: string;
+    country: string;
+  };
+  type BookingSession = {
+    bookingData: BookingFormData;
+    bookingCart: BookingCart;
+    propertyId: string;
+    userId?: string;
+    cloudbedsResId?: string;
+    cloudbedsBreakdown?: CloudbedsBreakdown;
+  };
+  type CloudbedsBreakdown = {
+    grandTotal?: number;
+    total?: number;
+    grand_total?: number;
+    subtotal?: number;
+    sst?: number;
+    tax?: number;
+    [key: string]: unknown;
+  };
+
+  const [booking, setBooking] = useState<BookingSession | null>(null);
+  const [cloudbedsTotal, setCloudbedsTotal] = useState<number | null>(null);
+  const [cloudbedsBreakdown, setCloudbedsBreakdown] = useState<CloudbedsBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookingToken, setBookingToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = searchParams.get('bookingToken');
-    setBookingToken(token);
-    if (!token) {
-      setLoading(false);
-      setError('Missing booking token.');
-      console.error('[ConfirmationPage] Missing booking token');
-      return;
-    }
-    (async () => {
+    async function fetchBooking() {
+      if (!bookingToken) {
+        setLoading(false);
+        setError('Missing booking token.');
+        return;
+      }
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
-        setError(null);
-        console.log('[ConfirmationPage] Fetching booking session for token:', token);
-        const res = await fetch(`/api/booking-session?token=${token}`);
+        // Fetch booking session as before
+        const res = await fetch(`/api/booking-session?token=${bookingToken}`);
         const data = await res.json();
-        if (!data.success || !data.bookingData) {
-          setError('Booking not found. Please try your booking again.');
-          setLoading(false);
-          console.error('[ConfirmationPage] Booking not found for token:', token);
-          return;
+        setBooking(data.bookingData);
+        // Fetch Cloudbeds reservation details if available
+        if (data.bookingData?.cloudbedsResId && data.bookingData?.propertyId) {
+          try {
+            const cbRes = await fetch(`/api/fetch-cloudbeds-reservation?propertyId=${data.bookingData.propertyId}&reservationId=${data.bookingData.cloudbedsResId}`);
+            const cbData = await cbRes.json();
+            if (cbData.success && cbData.data) {
+              setCloudbedsTotal(cbData.data.grandTotal || cbData.data.total || cbData.data.grand_total);
+              setCloudbedsBreakdown(cbData.data);
+            }
+          } catch {
+            // Ignore Cloudbeds fetch errors for now
+          }
         }
-        setBooking(data.bookingData as BookingPayload);
-        console.log('[ConfirmationPage] Booking payload:', data.bookingData);
-      } catch (err) {
+      } catch {
         setError('Booking not found. Please try your booking again.');
-        console.error('[ConfirmationPage] Error fetching booking session:', err);
       } finally {
         setLoading(false);
-        console.log('[ConfirmationPage] Loading finished');
       }
-    })();
-  }, [searchParams]);
+    }
+    fetchBooking();
+  }, [bookingToken]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -97,7 +113,7 @@ function ConfirmationContent() {
     return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
   }
   if (!booking) {
-    return <div className="min-h-screen flex items-center justify-center">No booking found.</div>;
+    return <div className="min-h-screen flex items-center justify-center">Booking not found.</div>;
   }
 
   // Extract useful info
@@ -107,7 +123,7 @@ function ConfirmationContent() {
   const checkOut = booking.bookingCart?.checkOut;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
   const roomType = booking.bookingCart?.cart?.[0]?.roomName;
-  const totalPrice = booking.bookingCart?.cart?.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalPrice = typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0) || 0);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -153,6 +169,14 @@ function ConfirmationContent() {
             )}
             {typeof totalPrice === 'number' && (
               <div><span className="font-medium text-gray-600">Total:</span> <span className="font-semibold">MYR {totalPrice.toFixed(2)}</span></div>
+            )}
+            {/* Optionally show breakdown if available */}
+            {cloudbedsBreakdown && (
+              <div className="md:col-span-2 mt-2 text-xs text-gray-600">
+                <div>Subtotal: MYR {cloudbedsBreakdown.subtotal || '-'}</div>
+                <div>SST/Tax: MYR {cloudbedsBreakdown.sst || cloudbedsBreakdown.tax || '-'}</div>
+                <div>Grand Total: MYR {cloudbedsBreakdown.grandTotal || cloudbedsBreakdown.total || '-'}</div>
+              </div>
             )}
           </div>
 
