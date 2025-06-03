@@ -256,6 +256,10 @@ function SearchResults() {
     }
     // Select the next available roomIDs for this roomType
     const roomIDs = roomsByType[room.id] ? roomsByType[room.id].slice(0, qty) : [];
+    if (roomIDs.length < qty) {
+      alert('Not enough available apartments/rooms for your selection. Please try a different room or reduce the quantity.');
+      return;
+    }
     const rateId = rates[room.id]?.id ? String(rates[room.id].id) : '';
     setCart(prev => {
       const existing = prev.find(item => item.roomTypeID === room.id);
