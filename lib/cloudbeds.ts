@@ -113,6 +113,8 @@ export interface RoomData {
   roomID: string;
   quantity: string;
   roomRateID: string;
+  adults?: number;
+  children?: number;
 }
 
 export interface BookingData {
@@ -131,57 +133,52 @@ export interface BookingData {
 }
 
 export async function createReservation(bookingData: BookingData) {
-  // Remove local mock, always use real API
-  console.log('[createReservation] Creating reservation for:', bookingData.guestEmail);
   // Fetch property API key
   const property = await getCloudbedsProperty(bookingData.propertyId);
-  const cloudbedsUrl = 'https://hotels.cloudbeds.com/api/v1.1/postReservation';
+  const cloudbedsUrl = 'https://hotels.cloudbeds.com/api/v1.2/postReservation';
   const requestHeaders = new Headers();
   requestHeaders.append('Authorization', `Bearer ${property.api_key}`);
-  requestHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+  // Do NOT set Content-Type; fetch will set it for FormData
 
-  // Convert to URLSearchParams
-  const params = new URLSearchParams();
-  params.append('propertyID', bookingData.propertyId);
-  params.append('startDate', bookingData.checkIn);
-  params.append('endDate', bookingData.checkOut);
-  params.append('guestFirstName', bookingData.guestFirstName);
-  params.append('guestLastName', bookingData.guestLastName);
-  params.append('guestEmail', bookingData.guestEmail);
-  params.append('guestCountry', bookingData.country);
-  params.append('guestZip', '00000');
-  params.append('paymentMethod', 'credit_card');
-  params.append('sendEmailConfirmation', 'true');
-  if (bookingData.phone) params.append('guestPhone', bookingData.phone);
-  if (bookingData.estimatedArrivalTime) params.append('estimatedArrivalTime', bookingData.estimatedArrivalTime);
+  // Prepare FormData
+  const formData = new FormData();
+  formData.append('propertyID', bookingData.propertyId);
+  formData.append('startDate', bookingData.checkIn);
+  formData.append('endDate', bookingData.checkOut);
+  formData.append('guestFirstName', bookingData.guestFirstName);
+  formData.append('guestLastName', bookingData.guestLastName);
+  formData.append('guestEmail', bookingData.guestEmail);
+  formData.append('guestCountry', bookingData.country);
+  formData.append('guestZip', '00000');
+  formData.append('paymentMethod', 'credit_card');
+  formData.append('sendEmailConfirmation', 'true');
+  if (bookingData.phone) formData.append('guestPhone', bookingData.phone);
+  if (bookingData.estimatedArrivalTime) formData.append('estimatedArrivalTime', bookingData.estimatedArrivalTime);
 
-  // Add all rooms
+  // Add rooms, adults, and children as arrays of objects
   bookingData.rooms.forEach((room, index) => {
-    params.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
-    params.append(`rooms[${index}][roomID]`, room.roomID);
-    // Send quantity as a number
-    const qty = typeof room.quantity === 'string' ? parseInt(room.quantity, 10) : room.quantity;
-    params.append(`rooms[${index}][quantity]`, qty.toString());
-    // Only include roomRateID if it is non-empty
+    formData.append(`rooms[${index}][roomTypeID]`, room.roomTypeID);
+    formData.append(`rooms[${index}][roomID]`, room.roomID);
+    formData.append(`rooms[${index}][quantity]`, room.quantity.toString());
     if (room.roomRateID && room.roomRateID.trim() !== '') {
-      params.append(`rooms[${index}][roomRateID]`, room.roomRateID);
+      formData.append(`rooms[${index}][roomRateID]`, room.roomRateID);
     }
+    // Adults per room
+    formData.append(`adults[${index}][roomTypeID]`, room.roomTypeID);
+    formData.append(`adults[${index}][roomID]`, room.roomID);
+    formData.append(`adults[${index}][quantity]`, (room.adults || 2).toString());
+    // Children per room
+    formData.append(`children[${index}][roomTypeID]`, room.roomTypeID);
+    formData.append(`children[${index}][roomID]`, room.roomID);
+    formData.append(`children[${index}][quantity]`, (room.children || 0).toString());
   });
-
-  // Add adults and children (total for all rooms)
-  params.append('adults', bookingData.adults.toString());
-  params.append('children', bookingData.children.toString());
 
   // Call Cloudbeds API
-  console.log('[createReservation] Sending reservation to Cloudbeds:', {
-    url: cloudbedsUrl,
-    params: params.toString(),
-    bookingData
-  });
+  console.log('[createReservation] Sending reservation to Cloudbeds (multipart/form-data)', { url: cloudbedsUrl, bookingData });
   const response = await fetch(cloudbedsUrl, {
     method: 'POST',
     headers: requestHeaders,
-    body: params,
+    body: formData,
   });
   let data;
   try {
