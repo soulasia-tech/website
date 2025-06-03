@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyPayment } from '@/lib/billplz';
-import { createReservation, addPaymentToReservation, getReservation } from '@/lib/cloudbeds';
+import { createReservation, addPaymentToReservation } from '@/lib/cloudbeds';
 import { saveBookingInDB } from '@/lib/booking';
 
 export async function POST(request: Request) {
