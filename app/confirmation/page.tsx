@@ -16,6 +16,7 @@ interface CartItem {
   rateId?: string;
   adults: number;
   children: number;
+  roomIDs: string[];
 }
 interface BookingCart {
   cart: CartItem[];

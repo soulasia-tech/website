@@ -53,6 +53,7 @@ type CartItem = {
   maxAvailable: number;
   adults: number;
   children: number;
+  roomIDs: string[];
 };
 
 interface BookingCart {
@@ -203,6 +204,14 @@ function BookingForm() {
         setError('You must select at least one room to proceed with your booking.');
         setSubmitting(false);
         console.error('[BookingPage] No rooms selected in cart:', { bookingCart });
+        return;
+      }
+      // Validate that every CartItem has non-empty roomIDs
+      const invalidRoomIDs = bookingCart.cart.some((item: CartItem) => !item.roomIDs || !Array.isArray(item.roomIDs) || item.roomIDs.length === 0);
+      if (invalidRoomIDs) {
+        setError('One or more rooms in your cart are missing room assignments. Please return to the search page and select your rooms again.');
+        setSubmitting(false);
+        console.error('[BookingPage] One or more CartItems missing roomIDs:', bookingCart.cart);
         return;
       }
       // --- Generate a random token and store booking data in localStorage ---
