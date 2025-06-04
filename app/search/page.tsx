@@ -496,11 +496,6 @@ function SearchResults() {
                               <span className="text-base font-medium text-gray-700">
                                 {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
                               </span>
-                              {rates[room.id] !== undefined && typeof rates[room.id].roomsAvailable === 'number' && (
-                                <span className="text-xs text-green-700">
-                                  {rates[room.id].roomsAvailable} apartment{rates[room.id].roomsAvailable === 1 ? '' : 's'} available
-                                </span>
-                              )}
                             </div>
                           </div>
                           <div className="flex flex-col items-end gap-2 mt-2">
@@ -594,7 +589,6 @@ function SearchResults() {
                       <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
                       <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
                       <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
-                      <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
                     </div>
                   )}
                   <div className="pt-2">

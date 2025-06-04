@@ -10,47 +10,47 @@ function ConfirmationContent() {
   const bookingToken = searchParams.get('bookingToken');
   // Define explicit types for booking and cloudbedsBreakdown
   type CartItem = {
-    roomTypeID: string;
-    roomName: string;
-    price: number;
-    quantity: number;
-    maxAvailable: number;
-    propertyId: string;
-    propertyName: string;
-    rateId?: string;
-    adults: number;
-    children: number;
+  roomTypeID: string;
+  roomName: string;
+  price: number;
+  quantity: number;
+  maxAvailable: number;
+  propertyId: string;
+  propertyName: string;
+  rateId?: string;
+  adults: number;
+  children: number;
     roomIDs: string[];
   };
   type BookingCart = {
-    cart: CartItem[];
-    checkIn: string;
-    checkOut: string;
-    adults: number;
-    children: number;
-    propertyId: string;
-    city?: string;
+  cart: CartItem[];
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  children: number;
+  propertyId: string;
+  city?: string;
   };
   type BookingFormData = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    checkIn: string;
-    checkOut: string;
-    adults: number;
-    children: number;
-    roomId: string;
-    createAccount: boolean;
-    password: string;
-    phone?: string;
-    estimatedArrivalTime?: string;
-    country: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  children: number;
+  roomId: string;
+  createAccount: boolean;
+  password: string;
+  phone?: string;
+  estimatedArrivalTime?: string;
+  country: string;
   };
   type BookingSession = {
-    bookingData: BookingFormData;
-    bookingCart: BookingCart;
-    propertyId: string;
-    userId?: string;
+  bookingData: BookingFormData;
+  bookingCart: BookingCart;
+  propertyId: string;
+  userId?: string;
     cloudbedsResId?: string;
     cloudbedsBreakdown?: CloudbedsBreakdown;
   };
@@ -73,12 +73,12 @@ function ConfirmationContent() {
   useEffect(() => {
     async function fetchBooking() {
       if (!bookingToken) {
-        setLoading(false);
-        setError('Missing booking token.');
-        return;
-      }
-      setLoading(true);
-      setError(null);
+      setLoading(false);
+      setError('Missing booking token.');
+      return;
+    }
+        setLoading(true);
+        setError(null);
       try {
         // Fetch booking session as before
         const res = await fetch(`/api/booking-session?token=${bookingToken}`);
