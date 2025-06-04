@@ -14,6 +14,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
+import { AvailablePropertiesMap } from '@/components/AvailablePropertiesMap';
 
 interface RoomResult {
   id: string;
@@ -580,7 +581,7 @@ function SearchResults() {
             </div>
           </div>
           {/* Right: Booking Cart */}
-          <div className="md:w-1/3 w-full">
+          <div className="md:w-1/3 w-full flex flex-col gap-6">
             <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
               <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
               {cart.length === 0 ? (
@@ -648,6 +649,10 @@ function SearchResults() {
                 </>
               )}
             </Card>
+            {/* Available Properties Map - sticky below summary */}
+            <div className="sticky top-8 rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
+              <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
+            </div>
           </div>
         </div>
         {selectedRoomImages && (
