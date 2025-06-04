@@ -492,50 +492,84 @@ function SearchResults() {
                               </span>
                               <span className="text-gray-500 text-sm">per night</span>
                             </div>
-                            <div className="flex flex-wrap items-center gap-4 mt-1">
+                            <div className="flex flex-wrap items-center gap-4 mt-1 mb-2">
                               <span className="text-base font-medium text-gray-700">
                                 {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
                               </span>
                             </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-2 mt-2">
-                            <div className="flex items-center gap-4">
-                              <label className="text-xs text-gray-500">Adults</label>
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.max(1, (g[room.id]?.adults ?? 2) - 1), children: g[room.id]?.children ?? 0 } }))}
-                                disabled={(roomGuests[room.id]?.adults ?? 2) <= 1}
-                              >-</button>
-                              <span className="w-6 text-center">{roomGuests[room.id]?.adults ?? 2}</span>
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.min(room.maxGuests, (g[room.id]?.adults ?? 2) + 1), children: g[room.id]?.children ?? 0 } }))}
-                                disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
-                              >+</button>
+                            {/* Grouped Selectors Row - now with Reserve button in the same row */}
+                            <div className="flex flex-row gap-2 items-end w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2">
+                              {/* Selectors Group */}
+                              <div className="flex flex-row gap-2 flex-1">
+                                {/* Apartments Selector */}
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[11px] text-gray-500 mb-0.5">Apartments</span>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
+                                      disabled={(quantities[room.id] || 1) <= 1}
+                                      type="button"
+                                    >-</button>
+                                    <span className="w-5 text-center text-xs">{quantities[room.id] || 1}</span>
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id]?.roomsAvailable || 1, (q[room.id] || 1) + 1) }))}
+                                      disabled={(quantities[room.id] || 1) >= (rates[room.id]?.roomsAvailable || 1)}
+                                      type="button"
+                                    >+</button>
+                                  </div>
+                                </div>
+                                {/* Adults Selector */}
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[11px] text-gray-500 mb-0.5">Adults</span>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.max(1, (g[room.id]?.adults ?? 2) - 1), children: g[room.id]?.children ?? 0 } }))}
+                                      disabled={(roomGuests[room.id]?.adults ?? 2) <= 1}
+                                      type="button"
+                                    >-</button>
+                                    <span className="w-5 text-center text-xs">{roomGuests[room.id]?.adults ?? 2}</span>
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.min(room.maxGuests, (g[room.id]?.adults ?? 2) + 1), children: g[room.id]?.children ?? 0 } }))}
+                                      disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
+                                      type="button"
+                                    >+</button>
+                                  </div>
+                                </div>
+                                {/* Children Selector */}
+                                <div className="flex flex-col items-center">
+                                  <span className="text-[11px] text-gray-500 mb-0.5">Children</span>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.max(0, (g[room.id]?.children ?? 0) - 1) } }))}
+                                      disabled={(roomGuests[room.id]?.children ?? 0) <= 0}
+                                      type="button"
+                                    >-</button>
+                                    <span className="w-5 text-center text-xs">{roomGuests[room.id]?.children ?? 0}</span>
+                                    <button
+                                      className="px-1.5 py-0.5 border rounded text-xs"
+                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.min(room.maxGuests - (g[room.id]?.adults ?? 2), (g[room.id]?.children ?? 0) + 1) } }))}
+                                      disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
+                                      type="button"
+                                    >+</button>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Reserve Button */}
+                              <Button
+                                onClick={() => handleAddToCart(room)}
+                                disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
+                                size="sm"
+                                variant="default"
+                                className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition ml-auto"
+                              >
+                                Reserve
+                              </Button>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <label className="text-xs text-gray-500">Children</label>
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.max(0, (g[room.id]?.children ?? 0) - 1) } }))}
-                                disabled={(roomGuests[room.id]?.children ?? 0) <= 0}
-                              >-</button>
-                              <span className="w-6 text-center">{roomGuests[room.id]?.children ?? 0}</span>
-                              <button
-                                className="px-2 py-1 border rounded"
-                                onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.min(room.maxGuests - (g[room.id]?.adults ?? 2), (g[room.id]?.children ?? 0) + 1) } }))}
-                                disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
-                              >+</button>
-                            </div>
-                            <Button
-                              onClick={() => handleAddToCart(room)}
-                              disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
-                              size="sm"
-                              variant="default"
-                              className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition"
-                            >
-                              Reserve
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -558,7 +592,7 @@ function SearchResults() {
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xl font-bold text-gray-900">{item.roomName}</span>
+                            <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
                           </div>
                           <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
                           <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
