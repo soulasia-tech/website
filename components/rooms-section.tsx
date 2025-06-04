@@ -63,16 +63,19 @@ export function RoomsSection() {
           const property = propertiesData.properties[i] as CloudbedsPropertyListItem
           const roomsData = roomsDataArr[i]
           const ratesData = ratesDataArr[i]
-            // Create a map of room type ID to lowest rate
-            const rateMap: { [roomTypeID: string]: number } = {}
-            if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-              ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
-                if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                  rateMap[rate.roomTypeID] = Math.round(rate.totalRate)
-                }
-              })
-            }
-            // Transform room data to match our interface
+          // Create a map of room type ID to discounted rate
+          const rateMap: { [roomTypeID: string]: number } = {}
+          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+            ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
+              if (
+                rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!" ||
+                rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!"
+              ) {
+                rateMap[rate.roomTypeID] = rate.totalRate
+              }
+            })
+          }
+          // Transform room data to match our interface
           if (roomsData.success && roomsData.roomTypes) {
             const transformedRooms = roomsData.roomTypes.map((room: CloudbedsRoomType) => ({
               roomTypeID: room.roomTypeID,

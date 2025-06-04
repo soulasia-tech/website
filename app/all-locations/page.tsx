@@ -138,20 +138,20 @@ function AllPropertiesMap() {
 
   if (loading) {
     return (
-      <div className="w-full h-[80vh] rounded-xl shadow bg-white flex items-center justify-center">
+      <div className="w-full h-full rounded-xl shadow bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
       </div>
     );
   }
   if (!center || propertyMarkers.length === 0) {
     return (
-      <div className="w-full h-[80vh] rounded-xl shadow bg-white flex items-center justify-center text-gray-400">
+      <div className="w-full h-full rounded-xl shadow bg-white flex items-center justify-center text-gray-400">
         No properties found on the map.
       </div>
     );
   }
   return (
-    <div className="w-full h-[80vh] rounded-xl shadow bg-white">
+    <div className="w-full h-full rounded-xl shadow bg-white">
       <Map
         key={center.lat + ',' + center.lng}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -322,7 +322,7 @@ export default function AllLocationsPage() {
             <div className="flex flex-col gap-8">
               <section>
                 <h2 className="text-2xl font-semibold mb-4">Properties</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="property-cards-anchor">
                   {(loadingProperties) ? (
                     [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
                   ) : (
@@ -359,7 +359,8 @@ export default function AllLocationsPage() {
             </div>
             {/* Right: Map (loads in parallel, not blocking cards) */}
             <div className="h-full flex items-start">
-              <div className="sticky top-8 w-full" style={{ maxHeight: '80vh' }}>
+              <div className="sticky top-8 w-full lg:mt-[56px]" style={{ height: 'calc(100vh - 2rem)' }}>
+                {/* The lg:mt-[56px] aligns the map with the top of the property cards, not the section header */}
                 <AllPropertiesMap />
               </div>
             </div>
