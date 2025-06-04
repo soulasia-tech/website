@@ -92,10 +92,10 @@ export default function PropertiesPage() {
     if (isMobile) {
       return [propertyImages[carouselIndex % total]];
     } else {
-      if (total < 2) return propertyImages;
-      const idx1 = carouselIndex % total;
-      const idx2 = (carouselIndex + 1) % total;
-      return [propertyImages[idx1], propertyImages[idx2]];
+      if (total < 4) return propertyImages;
+      // Show 4 images
+      const idxs = [0, 1, 2, 3].map(i => (carouselIndex + i) % total);
+      return idxs.map(idx => propertyImages[idx]);
     }
   };
   const visibleImages: string[] = getVisibleImages();
@@ -157,11 +157,11 @@ export default function PropertiesPage() {
       <title>{pageTitle}</title>
       <div className="flex flex-col min-h-screen bg-white">
         <main className="flex-1">
-          {/* Hero Section: Carousel with two images */}
+          {/* Hero Section: Carousel with four square images on desktop, one square image on mobile */}
           <section className="relative w-full bg-gray-100 px-2 md:px-4">
             <div className="w-full">
-              <div className="relative w-full aspect-[16/7] rounded-b-2xl overflow-hidden flex items-center">
-                {/* Carousel with two images and smooth animation */}
+              {/* Mobile: one square image, Desktop: four square images */}
+              <div className="relative w-full aspect-square md:aspect-[4/1] rounded-b-2xl overflow-hidden flex items-center">
                 <div className="relative w-full h-full">
                   <AnimatePresence initial={false} custom={direction}>
                     <motion.div
@@ -178,8 +178,8 @@ export default function PropertiesPage() {
                           key={idx}
                           className={
                             isMobile
-                              ? "relative h-full w-full min-w-0 rounded-2xl overflow-hidden"
-                              : "relative h-full w-1/2 min-w-0 rounded-2xl overflow-hidden"
+                              ? "relative h-full w-full min-w-0 aspect-square rounded-2xl overflow-hidden"
+                              : "relative h-full w-1/4 min-w-0 aspect-square rounded-2xl overflow-hidden"
                           }
                         >
                           <Image
@@ -187,7 +187,7 @@ export default function PropertiesPage() {
                             alt={`Property image ${carouselIndex + idx + 1}`}
                             fill
                             className="object-cover object-center"
-                            sizes={isMobile ? "100vw" : "50vw"}
+                            sizes={isMobile ? "100vw" : "25vw"}
                             priority={carouselIndex === 0 && idx === 0}
                           />
                         </div>
