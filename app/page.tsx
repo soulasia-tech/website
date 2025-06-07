@@ -433,10 +433,19 @@ export default function Home() {
         <section className="py-16 bg-white border-t border-gray-100">
           <div className="container mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-8">We are listed on</h2>
-            <div className="flex flex-wrap justify-center items-center gap-8">
-              <Image src="/OTA/airbnb.png" alt="Airbnb" width={140} height={56} className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
-              <Image src="/OTA/booking.png" alt="Booking.com" width={140} height={56} className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
-              <Image src="/OTA/expedia.png" alt="Expedia" width={140} height={56} className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition" style={{ maxWidth: 140 }} />
+            <div className="flex flex-wrap md:flex-nowrap justify-center items-center gap-8 overflow-x-auto scrollbar-hide">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <Image
+                  key={idx}
+                  src={`/OTA/${idx + 1}.png`}
+                  alt={`OTA Logo ${idx + 1}`}
+                  width={140}
+                  height={56}
+                  className="h-14 w-auto object-contain grayscale hover:grayscale-0 transition bg-white rounded-lg p-2"
+                  style={{ maxWidth: 140, minWidth: 80 }}
+                  priority={false}
+                />
+              ))}
             </div>
           </div>
         </section>
