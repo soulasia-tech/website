@@ -88,6 +88,7 @@ function SearchResults() {
   const [roomGuests, setRoomGuests] = useState<{ [roomTypeID: string]: { adults: number; children: number } }>({});
   const [roomsByType, setRoomsByType] = useState<{ [roomTypeID: string]: string[] }>({});
   const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
+  const [reserveStatus, setReserveStatus] = useState<{ [roomId: string]: 'idle' | 'loading' | 'added' }>({});
 
   // Get search parameters
   const city = searchParams.get('city');
@@ -261,18 +262,24 @@ function SearchResults() {
 
   // Add to cart handler (updated)
   const handleAddToCart = (room: RoomResult) => {
+    setReserveStatus(prev => ({ ...prev, [room.id]: 'loading' }));
     const qty = quantities[room.id] || 1;
     const guests = roomGuests[room.id] || { adults: 2, children: 0 };
-    if (!rates[room.id] || qty < 1) return;
+    if (!rates[room.id] || qty < 1) {
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
+      return;
+    }
     // Validate maxGuests
     if ((guests.adults + guests.children) > room.maxGuests) {
       alert(`Cannot add more than ${room.maxGuests} guests to this room.`);
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
       return;
     }
     // Select the next available roomIDs for this roomType
     const roomIDs = roomsByType[room.id] ? roomsByType[room.id].slice(0, qty) : [];
     if (roomIDs.length < qty) {
       alert('Not enough available apartments/rooms for your selection. Please try a different room or reduce the quantity.');
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
       return;
     }
     const rateId = rates[room.id]?.id ? String(rates[room.id].id) : '';
@@ -316,6 +323,12 @@ function SearchResults() {
     });
     // Reset quantity for this room
     setQuantities(q => ({ ...q, [room.id]: 1 }));
+    setTimeout(() => {
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'added' }));
+      setTimeout(() => {
+        setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
+      }, 1000);
+    }, 400);
   };
 
   // Remove item from cart
@@ -499,7 +512,7 @@ function SearchResults() {
                               </span>
                             </div>
                             {/* Grouped Selectors Row - now with Reserve button in the same row */}
-                            <div className="flex flex-row gap-2 items-end w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2">
+                            <div className="flex flex-col md:flex-row gap-2 items-stretch md:items-end w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2">
                               {/* Selectors Group */}
                               <div className="flex flex-row gap-2 flex-1">
                                 {/* Apartments Selector */}
@@ -563,12 +576,24 @@ function SearchResults() {
                               {/* Reserve Button */}
                               <Button
                                 onClick={() => handleAddToCart(room)}
-                                disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0}
+                                disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0 || reserveStatus[room.id] === 'loading'}
                                 size="sm"
                                 variant="default"
-                                className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition ml-auto"
+                                className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition w-full md:w-auto md:ml-auto mt-2 md:mt-0"
                               >
-                                Reserve
+                                {reserveStatus[room.id] === 'loading' ? (
+                                  <span className="flex items-center gap-2">
+                                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                    Adding...
+                                  </span>
+                                ) : reserveStatus[room.id] === 'added' ? (
+                                  <span className="flex items-center gap-2 text-green-200">
+                                    <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                    Added!
+                                  </span>
+                                ) : (
+                                  'Reserve'
+                                )}
                               </Button>
                             </div>
                           </div>
@@ -582,76 +607,153 @@ function SearchResults() {
           </div>
           {/* Right: Booking Cart */}
           <div className="md:w-1/3 w-full flex flex-col gap-6">
-            <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
-              <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
-              {cart.length === 0 ? (
-                <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
-              ) : (
-                <>
-                  {cart.map(item => (
-                    <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
-                          </div>
-                          <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
-                          <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
-                            <span>Adults: {item.adults}</span>
-                            <span>Children: {item.children}</span>
+            {/* Sticky container for desktop */}
+            <div className="hidden md:block sticky top-8">
+              <div className="flex flex-col gap-6">
+                <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
+                  <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
+                  {cart.length === 0 ? (
+                    <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
+                  ) : (
+                    <>
+                      {cart.map(item => (
+                        <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
+                              </div>
+                              <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
+                              <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
+                                <span>Adults: {item.adults}</span>
+                                <span>Children: {item.children}</span>
+                              </div>
+                            </div>
+                            <button
+                              className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
+                              onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                              aria-label="Remove from cart"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
-                        <button
-                          className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
-                          onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                          aria-label="Remove from cart"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                    <span className="text-base text-gray-500 font-semibold">Total</span>
-                    <span className="text-2xl font-bold text-gray-900">
-                      {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
-                    </span>
-                  </div>
-                  {cloudbedsQuote && (
-                    <div className="text-xs text-gray-600 mt-2">
-                      <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
-                      <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
-                      <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
-                    </div>
-                  )}
-                  <div className="pt-2">
-                    <Button
-                      className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
-                      disabled={cart.length === 0 || proceeding}
-                      onClick={() => {
-                        setProceeding(true);
-                        handleProceed();
-                      }}
-                      style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
-                    >
-                      {proceeding ? (
-                        <span className="flex items-center gap-2">
-                          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          Processing...
+                      ))}
+                      <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                        <span className="text-base text-gray-500 font-semibold">Total</span>
+                        <span className="text-2xl font-bold text-gray-900">
+                          {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
                         </span>
-                      ) : (
-                        'Proceed to Guest Details'
+                      </div>
+                      {cloudbedsQuote && (
+                        <div className="text-xs text-gray-600 mt-2">
+                          <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                          <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                          <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                        </div>
                       )}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </Card>
-            {/* Available Properties Map - sticky below summary */}
-            <div className="sticky top-8 rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
-              <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
+                      <div className="pt-2">
+                        <Button
+                          className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
+                          disabled={cart.length === 0 || proceeding}
+                          onClick={() => {
+                            setProceeding(true);
+                            handleProceed();
+                          }}
+                          style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+                        >
+                          {proceeding ? (
+                            <span className="flex items-center gap-2">
+                              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                              Processing...
+                            </span>
+                          ) : (
+                            'Proceed to Guest Details'
+                          )}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </Card>
+                <div className="rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
+                  <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
+                </div>
+              </div>
+            </div>
+            {/* Mobile fallback: show non-sticky on mobile */}
+            <div className="block md:hidden flex flex-col gap-6">
+              <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
+                <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
+                {cart.length === 0 ? (
+                  <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
+                ) : (
+                  <>
+                    {cart.map(item => (
+                      <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
+                            </div>
+                            <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
+                            <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
+                              <span>Adults: {item.adults}</span>
+                              <span>Children: {item.children}</span>
+                            </div>
+                          </div>
+                          <button
+                            className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
+                            onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                            aria-label="Remove from cart"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                      <span className="text-base text-gray-500 font-semibold">Total</span>
+                      <span className="text-2xl font-bold text-gray-900">
+                        {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                      </span>
+                    </div>
+                    {cloudbedsQuote && (
+                      <div className="text-xs text-gray-600 mt-2">
+                        <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                        <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                        <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                      </div>
+                    )}
+                    <div className="pt-2">
+                      <Button
+                        className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
+                        disabled={cart.length === 0 || proceeding}
+                        onClick={() => {
+                          setProceeding(true);
+                          handleProceed();
+                        }}
+                        style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
+                      >
+                        {proceeding ? (
+                          <span className="flex items-center gap-2">
+                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            Processing...
+                          </span>
+                        ) : (
+                          'Proceed to Guest Details'
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </Card>
+              <div className="rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
+                <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
+              </div>
             </div>
           </div>
         </div>
