@@ -143,7 +143,6 @@ function ConfirmationContent() {
   const checkIn = booking.bookingCart?.checkIn;
   const checkOut = booking.bookingCart?.checkOut;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
-  const roomType = booking.bookingCart?.cart?.[0]?.roomName;
   const totalPrice = typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0) || 0);
 
   return (
@@ -174,7 +173,7 @@ function ConfirmationContent() {
                 <ul className="list-disc pl-5 space-y-1">
                   {booking.bookingCart.cart.map((item, idx) => (
                     <li key={item.roomTypeID + idx} className="text-sm text-gray-800">
-                      <span className="font-semibold">{item.quantity} x {item.roomName}</span> (MYR {(item.price * item.quantity).toFixed(2)})
+                      <span className="font-semibold">{item.quantity} x Room {idx + 1}</span> (MYR {(item.price * item.quantity).toFixed(2)})
                       <span className="ml-2 text-xs text-gray-600">[Adults: {item.adults}, Children: {item.children}]</span>
                     </li>
                   ))}
@@ -182,7 +181,7 @@ function ConfirmationContent() {
               </div>
             ) : (
               <div>
-                <span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">{roomType}</span>
+                <span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">Room 1</span>
                 {booking.bookingCart.cart && booking.bookingCart.cart[0] && (
                   <span className="ml-2 text-xs text-gray-600">[Adults: {booking.bookingCart.cart[0].adults}, Children: {booking.bookingCart.cart[0].children}]</span>
                 )}

@@ -257,11 +257,6 @@ export default function MyBookingsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-wrap">
                     <BedDouble className="w-5 h-5 text-primary" />
-                    <span className="text-base">
-                      {rooms.length > 0 ? rooms.map((room, idx) => (
-                        <span key={idx}>{room.roomName || '-'}{idx < rooms.length - 1 ? ', ' : ''}</span>
-                      )) : 'Room info loading...'}
-                    </span>
                   </div>
                   <button onClick={() => setExpandedBookingId(expanded ? null : booking.id)} className="ml-auto p-2 rounded hover:bg-gray-100 transition">
                     {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -313,17 +308,16 @@ export default function MyBookingsPage() {
                     {/* Room Cards */}
                     <div className="grid gap-4 md:grid-cols-2">
                       {rooms.length > 0 ? rooms.map((room: AssignedRoom, idx: number) => {
-                        const cacheKey = propertyId && room.roomName ? `${propertyId}_${room.roomName}` : undefined;
-                        const roomTypeDetails = cacheKey ? roomTypeDetailsMap[cacheKey] : undefined;
+                        // No name shown in MinimalRoomCard
                         return (
                           <MinimalRoomCard
                             key={idx}
-                            roomName={room.roomName || roomTypeDetails?.roomTypeName || '-'}
-                            amenities={roomTypeDetails?.amenities || []}
+                            roomName={''}
+                            amenities={[]}
                             rate={typeof room.rate === 'number' ? room.rate : undefined}
                           />
                         );
-                      }) : <div className="text-gray-400">No room info</div>}
+                      }) : <div className="text-gray-400">Room info loading...</div>}
                     </div>
                     {/* Property Information */}
                     {propertyId && (
