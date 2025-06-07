@@ -69,21 +69,27 @@ function ConfirmationContent() {
   const [cloudbedsBreakdown, setCloudbedsBreakdown] = useState<CloudbedsBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+  const [reservationStatus, setReservationStatus] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchBooking() {
       if (!bookingToken) {
-      setLoading(false);
-      setError('Missing booking token.');
-      return;
-    }
-        setLoading(true);
-        setError(null);
+        setLoading(false);
+        setError('Missing booking token.');
+        return;
+      }
+      setLoading(true);
+      setError(null);
       try {
         // Fetch booking session as before
         const res = await fetch(`/api/booking-session?token=${bookingToken}`);
         const data = await res.json();
         setBooking(data.bookingData);
+        setPaymentStatus(data.payment_status || null);
+        setReservationStatus(data.reservation_status || null);
+        setErrorMessage(data.error_message || null);
         // Fetch Cloudbeds reservation details if available
         if (data.bookingData?.cloudbedsResId && data.bookingData?.propertyId) {
           try {
@@ -114,6 +120,21 @@ function ConfirmationContent() {
   }
   if (!booking) {
     return <div className="min-h-screen flex items-center justify-center">Booking not found.</div>;
+  }
+  if (paymentStatus === 'failed' || reservationStatus === 'failed') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-lg text-center">
+          <h2 className="text-2xl font-bold mb-4 text-red-600">There was a problem with your payment or reservation</h2>
+          <div className="mb-2 text-base text-gray-700">Reservation was not complete. Please try again later.</div>
+          {errorMessage && <div className="mb-2 text-sm text-red-500">{errorMessage}</div>}
+          <div className="mt-4 text-sm text-gray-500">Need help? Contact us at <a href="mailto:info@soulasia.com.my" className="text-blue-600 underline">info@soulasia.com.my</a></div>
+        </Card>
+      </div>
+    );
+  }
+  if (paymentStatus !== 'succeeded' || reservationStatus !== 'succeeded') {
+    return <div className="min-h-screen flex items-center justify-center">Processing your booking...</div>;
   }
 
   // Extract useful info
