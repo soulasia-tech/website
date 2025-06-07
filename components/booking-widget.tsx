@@ -202,7 +202,12 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchParams.city || !date?.from || !date?.to) {
+    if (
+      !searchParams.city ||
+      !date?.from ||
+      !date?.to ||
+      date.from.getTime() === date.to.getTime() // Prevent same-day check-in and checkout
+    ) {
       return
     }
     setSubmitting(true)
@@ -226,14 +231,7 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
 
   // Restore original handleDateChange
   function handleDateChange(newDate: DateRange | undefined) {
-    if (newDate?.from && !newDate?.to) {
-      // Auto-assign next day as checkout
-      const nextDay = new Date(newDate.from);
-      nextDay.setDate(nextDay.getDate() + 1);
-      setDate({ from: newDate.from, to: nextDay });
-    } else {
-      setDate(newDate);
-    }
+    setDate(newDate);
   }
 
   // Restore original handleAdultsChange
@@ -342,12 +340,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
               open={datePopoverOpen}
               onOpenChange={(open) => {
                 setDatePopoverOpen(open);
-                // If closing and only check-in is selected, auto-assign next day as checkout
-                if (!open && date?.from && !date?.to) {
-                  const nextDay = new Date(date.from);
-                  nextDay.setDate(nextDay.getDate() + 1);
-                  setDate({ from: date.from, to: nextDay });
-                }
               }}
             >
               <PopoverTrigger asChild>
@@ -359,9 +351,13 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
                   )}
                 >
                   <CalendarIcon className="mr-2 h-5 w-5" />
-                  {date?.from && date?.to
-                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
-                    : <span>Pick dates</span>}
+                  {date?.from && date?.to && date.from.getTime() !== date.to.getTime() ? (
+                    `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
+                  ) : date?.from ? (
+                    `${format(date.from, "MMM d")} - Select checkout`
+                  ) : (
+                    <span>Pick dates</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -491,12 +487,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
               open={datePopoverOpen}
               onOpenChange={(open) => {
                 setDatePopoverOpen(open);
-                // If closing and only check-in is selected, auto-assign next day as checkout
-                if (!open && date?.from && !date?.to) {
-                  const nextDay = new Date(date.from);
-                  nextDay.setDate(nextDay.getDate() + 1);
-                  setDate({ from: date.from, to: nextDay });
-                }
               }}
             >
               <PopoverTrigger asChild>
@@ -509,9 +499,13 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
                   )}
                 >
                   <CalendarIcon className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                  {date?.from && date?.to
-                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
-                    : <span>Pick dates</span>}
+                  {date?.from && date?.to && date.from.getTime() !== date.to.getTime() ? (
+                    `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
+                  ) : date?.from ? (
+                    `${format(date.from, "MMM d")} - Select checkout`
+                  ) : (
+                    <span>Pick dates</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -650,12 +644,6 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
               open={datePopoverOpen}
               onOpenChange={(open) => {
                 setDatePopoverOpen(open);
-                // If closing and only check-in is selected, auto-assign next day as checkout
-                if (!open && date?.from && !date?.to) {
-                  const nextDay = new Date(date.from);
-                  nextDay.setDate(nextDay.getDate() + 1);
-                  setDate({ from: date.from, to: nextDay });
-                }
               }}
             >
               <PopoverTrigger asChild>
@@ -668,9 +656,13 @@ export function BookingWidget({ initialSearchParams, alwaysSticky, stickyMode, h
                   )}
                 >
                   <CalendarIcon className="mr-2 h-5 w-5 md:h-4 md:w-4" />
-                  {date?.from && date?.to
-                    ? `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
-                    : <span>Pick dates</span>}
+                  {date?.from && date?.to && date.from.getTime() !== date.to.getTime() ? (
+                    `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
+                  ) : date?.from ? (
+                    `${format(date.from, "MMM d")} - Select checkout`
+                  ) : (
+                    <span>Pick dates</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
