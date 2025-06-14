@@ -30,9 +30,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Missing one or more required fields: startDate, endDate, guestFirstName, guestLastName, guestEmail, paymentMethod, rooms' }, { status: 400 });
     }
     // Validate all roomTypeIDs belong to the property
-    let rooms: RoomSelection[];
+    let rooms: RoomSelection[] = [];
     try {
-      rooms = JSON.parse(roomsRaw as string);
+      if (typeof roomsRaw === 'string') {
+        rooms = JSON.parse(roomsRaw as string);
+      } else {
+        return NextResponse.json({ success: false, message: 'Invalid rooms format. Must be a JSON array.' }, { status: 400 });
+      }
     } catch {
       return NextResponse.json({ success: false, message: 'Invalid rooms format. Must be a JSON array.' }, { status: 400 });
     }

@@ -352,26 +352,23 @@ function BookingForm() {
       if (typeof window !== 'undefined') {
         const cartStr = sessionStorage.getItem('bookingCart');
         console.log('[BookingPage] Attempting to restore cart from sessionStorage:', cartStr);
-        if (cartStr) {
-          try {
-            const cartObj: BookingCart = JSON.parse(cartStr);
-            setBookingCart(cartObj);
-            setBookingData((prev: BookingFormData) => ({
-              ...prev,
-              checkIn: cartObj.checkIn || '',
-              checkOut: cartObj.checkOut || '',
-            }));
-            setLoading(false);
-            setCartChecked(true);
-            console.log('[BookingPage] Cart restored:', cartObj);
-            return;
-          } catch (err: unknown) {
-            setError('Booking data is corrupted. Please return to the search page and try again.');
-            setLoading(false);
-            setCartChecked(true);
-            console.error('[BookingPage] Error parsing cart from sessionStorage:', err);
-            return;
+        let cartObj: BookingCart | null = null;
+        try {
+          if (typeof cartStr === 'string') {
+            cartObj = JSON.parse(cartStr);
           }
+        } catch {}
+        if (cartObj) {
+          setBookingCart(cartObj);
+          setBookingData((prev: BookingFormData) => ({
+            ...prev,
+            checkIn: cartObj.checkIn || '',
+            checkOut: cartObj.checkOut || '',
+          }));
+          setLoading(false);
+          setCartChecked(true);
+          console.log('[BookingPage] Cart restored:', cartObj);
+          return;
         }
         // Try to recover from backend session store using latest booking token
         let latestToken = null;
@@ -601,21 +598,22 @@ function BookingForm() {
                 }
                 const lastSearchParams = sessionStorage.getItem('lastSearchParams');
                 if (lastSearchParams) {
+                  let paramsObj: Record<string, string> | null = null;
                   try {
-                    const paramsObj = JSON.parse(lastSearchParams);
-                    const params = new URLSearchParams();
-                    if (paramsObj.city) params.set('city', paramsObj.city);
-                    if (paramsObj.startDate) params.set('startDate', paramsObj.startDate);
-                    if (paramsObj.endDate) params.set('endDate', paramsObj.endDate);
-                    if (paramsObj.apartments) params.set('apartments', paramsObj.apartments);
-                    if (paramsObj.adults) params.set('adults', paramsObj.adults);
-                    if (paramsObj.children) params.set('children', paramsObj.children);
-                    if (paramsObj.guests) params.set('guests', paramsObj.guests);
-                    router.push(`/search?${params.toString()}`);
-                    return;
-                  } catch {
-                    // fallback to below
-                  }
+                    if (typeof lastSearchParams === 'string') {
+                      paramsObj = JSON.parse(lastSearchParams);
+                    }
+                  } catch {}
+                  const params = new URLSearchParams();
+                  if (paramsObj && paramsObj.city) params.set('city', paramsObj.city);
+                  if (paramsObj && paramsObj.startDate) params.set('startDate', paramsObj.startDate);
+                  if (paramsObj && paramsObj.endDate) params.set('endDate', paramsObj.endDate);
+                  if (paramsObj && paramsObj.apartments) params.set('apartments', paramsObj.apartments);
+                  if (paramsObj && paramsObj.adults) params.set('adults', paramsObj.adults);
+                  if (paramsObj && paramsObj.children) params.set('children', paramsObj.children);
+                  if (paramsObj && paramsObj.guests) params.set('guests', paramsObj.guests);
+                  router.push(`/search?${params.toString()}`);
+                  return;
                 }
               }
               if (bookingCart) {

@@ -33,9 +33,31 @@ export async function POST(request: Request) {
     const estimatedArrivalTime = formData.get('estimatedArrivalTime');
     
     // Parse JSON strings back to objects
-    const rooms = JSON.parse(formData.get('rooms') as string) as RoomData[];
-    const adults = JSON.parse(formData.get('adults') as string) as GuestData[];
-    const children = formData.get('children') ? JSON.parse(formData.get('children') as string) as GuestData[] : [];
+    let rooms: RoomData[] = [];
+    let adults: GuestData[] = [];
+    let children: GuestData[] = [];
+    try {
+      const roomsRaw = formData.get('rooms');
+      if (typeof roomsRaw === 'string') {
+        rooms = JSON.parse(roomsRaw) as RoomData[];
+      } else {
+        return NextResponse.json({ success: false, error: 'Invalid or missing rooms data' }, { status: 400 });
+      }
+      const adultsRaw = formData.get('adults');
+      if (typeof adultsRaw === 'string') {
+        adults = JSON.parse(adultsRaw) as GuestData[];
+      } else {
+        return NextResponse.json({ success: false, error: 'Invalid or missing adults data' }, { status: 400 });
+      }
+      const childrenRaw = formData.get('children');
+      if (childrenRaw && typeof childrenRaw === 'string') {
+        children = JSON.parse(childrenRaw) as GuestData[];
+      } else {
+        children = [];
+      }
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON in rooms, adults, or children' }, { status: 400 });
+    }
 
     // Validate required fields
     if (!propertyId || !startDate || !endDate || !guestFirstName || 

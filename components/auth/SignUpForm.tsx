@@ -129,7 +129,9 @@ function SignUpFormContent() {
         // Type guard for 'message' property
         const hasMessage = Object.prototype.hasOwnProperty.call(error, 'message');
         const message = hasMessage ? (error as { message: string }).message : '';
-        if (
+        if (message === 'Passwords do not match' || message === 'Password must be at least 6 characters long') {
+          errorMessage = message;
+        } else if (
           (message &&
             (message.toLowerCase().includes('user already registered') ||
              message.toLowerCase().includes('user already exists') ||

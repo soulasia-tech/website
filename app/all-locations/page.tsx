@@ -253,7 +253,7 @@ export default function AllLocationsPage() {
         );
         const roomsDataArr = await Promise.all(roomTypePromises);
         const startDate = new Date().toISOString().slice(0, 10);
-        const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const endDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
         );

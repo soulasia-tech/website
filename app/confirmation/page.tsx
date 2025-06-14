@@ -143,7 +143,11 @@ function ConfirmationContent() {
   const checkIn = booking.bookingCart?.checkIn;
   const checkOut = booking.bookingCart?.checkOut;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
-  const totalPrice = typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0) || 0);
+  const totalPrice =
+    cloudbedsBreakdown?.grandTotal ??
+    cloudbedsBreakdown?.total ??
+    cloudbedsBreakdown?.grand_total ??
+    (typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0) || 0));
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">

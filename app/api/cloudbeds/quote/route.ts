@@ -9,6 +9,9 @@ export async function GET(request: Request) {
   if (!propertyId || !checkIn || !checkOut || !cartRaw) {
     return NextResponse.json({ success: false, message: 'Missing required parameters' }, { status: 400 });
   }
+  if (!cartRaw || typeof cartRaw !== 'string') {
+    return NextResponse.json({ success: false, message: 'Missing or invalid cart parameter' }, { status: 400 });
+  }
   let cart;
   try {
     cart = JSON.parse(cartRaw);

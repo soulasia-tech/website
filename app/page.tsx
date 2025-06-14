@@ -58,7 +58,7 @@ export default function Home() {
             allLocationsCache.setRooms(roomResults);
           });
           const startDate = new Date().toISOString().slice(0, 10);
-          const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+          const endDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
           const ratePlanPromises = data.properties.map((property) =>
             fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json() as Promise<CachedRates>)
           );
@@ -476,7 +476,7 @@ function FeaturedApartmentsCarousel() {
         );
         const roomsDataArr = await Promise.all(roomTypePromises);
         const startDate = new Date().toISOString().slice(0, 10);
-        const endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        const endDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         const ratePlanPromises = propertiesData.properties.map((property: unknown) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${(property as { propertyId: string }).propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
         );
