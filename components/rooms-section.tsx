@@ -50,11 +50,11 @@ export function RoomsSection() {
         const roomsDataArr = await Promise.all(roomTypePromises)
 
         // Fetch rates for all properties in parallel
-            const startDate = format(new Date(), 'yyyy-MM-dd')
-            const endDate = format(addDays(new Date(), 5), 'yyyy-MM-dd')
+        const startDate = format(new Date(), 'yyyy-MM-dd')
+        const endDate = format(addDays(new Date(), 1), 'yyyy-MM-dd')
         const ratePlanPromises = propertiesData.properties.map((property: CloudbedsPropertyListItem) =>
           fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
-            )
+        )
         const ratesDataArr = await Promise.all(ratePlanPromises)
 
         // Combine room and rate data
