@@ -69,7 +69,8 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="font-medium text-sm text-gray-700 max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg mr-2 whitespace-normal">
+              {/* Desktop only: show welcome text */}
+              <span className="hidden md:inline font-medium text-sm text-gray-700 max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg mr-2 whitespace-normal truncate">
                 {(() => {
                   const firstName = user.user_metadata?.first_name;
                   const fullName = user.user_metadata?.full_name;
@@ -91,6 +92,19 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  {/* Mobile only: show welcome text in dropdown */}
+                  <DropdownMenuLabel className="block md:hidden">
+                    <span className="font-medium text-sm text-gray-700">
+                      {(() => {
+                        const firstName = user.user_metadata?.first_name;
+                        const fullName = user.user_metadata?.full_name;
+                        if (firstName) return `Welcome to Soulasia, ${firstName}`;
+                        if (fullName) return `Welcome to Soulasia, ${fullName.split(' ')[0]}`;
+                        if (user.email) return `Welcome to Soulasia, ${user.email.split('@')[0]}`;
+                        return 'Welcome to Soulasia';
+                      })()}
+                    </span>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/my-bookings" className="flex items-center cursor-pointer">
