@@ -191,9 +191,6 @@ function ConfirmationContent() {
                 )}
               </div>
             )}
-            {typeof totalPrice === 'number' && (
-              <div><span className="font-medium text-gray-600">Total:</span> <span className="font-semibold">MYR {totalPrice.toFixed(2)}</span></div>
-            )}
             {/* Always show breakdown if available */}
             {cloudbedsBreakdown && (
               <div className="md:col-span-2 mt-2 text-xs text-gray-600">
