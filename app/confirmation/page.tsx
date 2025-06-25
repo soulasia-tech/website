@@ -65,7 +65,6 @@ function ConfirmationContent() {
   };
 
   const [booking, setBooking] = useState<BookingSession | null>(null);
-  const [cloudbedsTotal, setCloudbedsTotal] = useState<number | null>(null);
   const [cloudbedsBreakdown, setCloudbedsBreakdown] = useState<CloudbedsBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +95,6 @@ function ConfirmationContent() {
             const cbRes = await fetch(`/api/fetch-cloudbeds-reservation?propertyId=${data.bookingData.propertyId}&reservationId=${data.bookingData.cloudbedsResId}`);
             const cbData = await cbRes.json();
             if (cbData.success && cbData.data) {
-              setCloudbedsTotal(cbData.data.grandTotal || cbData.data.total || cbData.data.grand_total);
               setCloudbedsBreakdown(cbData.data);
             }
           } catch {
@@ -143,11 +141,6 @@ function ConfirmationContent() {
   const checkIn = booking.bookingCart?.checkIn;
   const checkOut = booking.bookingCart?.checkOut;
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
-  const totalPrice =
-    cloudbedsBreakdown?.grandTotal ??
-    cloudbedsBreakdown?.total ??
-    cloudbedsBreakdown?.grand_total ??
-    (typeof cloudbedsTotal === 'number' ? cloudbedsTotal : (booking?.bookingCart?.cart?.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0) || 0));
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">

@@ -149,8 +149,12 @@ export async function POST(request: Request) {
     const { getReservation } = await import('@/lib/cloudbeds');
     const reservationDetails = await getReservation(propertyId, reservation.reservationID);
     const grandTotal = reservationDetails.grandTotal || reservationDetails.total || reservationDetails.grand_total;
-    console.log('[billplz-callback] Adding payment to Cloudbeds reservation', { propertyId, reservationId: reservation.reservationID, amount: grandTotal });
-    await addPaymentToReservation({ propertyId, reservationId: reservation.reservationID, amount: grandTotal, paymentMethod: 'credit_card' });
+    const paidAmount = payment.amount;
+    if (Number(paidAmount) !== Number(grandTotal)) {
+      console.warn('[billplz-callback] WARNING: Paid amount does not match Cloudbeds grand total', { paidAmount, grandTotal, propertyId, reservationId: reservation.reservationID });
+    }
+    console.log('[billplz-callback] Adding payment to Cloudbeds reservation', { propertyId, reservationId: reservation.reservationID, amount: paidAmount });
+    await addPaymentToReservation({ propertyId, reservationId: reservation.reservationID, amount: paidAmount, paymentMethod: 'credit_card' });
     console.log('[billplz-callback] Payment added to Cloudbeds reservation');
 
     // Save booking in DB only if userId is present

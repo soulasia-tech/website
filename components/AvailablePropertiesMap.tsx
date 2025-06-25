@@ -28,20 +28,20 @@ interface PropertyMarker {
   address: string;
 }
 
+// Malaysia bounding box (approximate)
+const MALAYSIA_BOUNDS = {
+  minLat: 0.8,
+  maxLat: 7.5,
+  minLng: 99.6,
+  maxLng: 119.3,
+};
+
 export function AvailablePropertiesMap({ propertyIds }: { propertyIds: string[] }) {
   const [propertyMarkers, setPropertyMarkers] = useState<PropertyMarker[]>([]);
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const lastIdsRef = useRef<string>("");
-
-  // Malaysia bounding box (approximate)
-  const MALAYSIA_BOUNDS = {
-    minLat: 0.8,
-    maxLat: 7.5,
-    minLng: 99.6,
-    maxLng: 119.3,
-  };
 
   useEffect(() => {
     // Sort and stringify for stable comparison
