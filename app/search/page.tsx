@@ -51,6 +51,7 @@ type CartItem = {
   children: number;
   roomIDs: string[];
   rateId: string;
+  ratePlanName: string;
 };
 
 // Add type for CloudbedsQuote
@@ -173,9 +174,16 @@ function SearchResults() {
             const propertyRates: { [roomTypeID: string]: RatePlan } = {};
             if (rateData.success && Array.isArray(rateData.ratePlans)) {
               rateData.ratePlans.forEach((rate: RatePlan) => {
-                if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!" || rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!") {
-                  propertyRates[rate.roomTypeID] = rate;
-                  allRates[rate.roomTypeID] = rate;
+                const is35Percent = rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!";
+                const is30Percent = rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
+                
+                if (is35Percent || is30Percent) {
+                  // Only set if we don't already have a 35% rate for this room
+                  if (!propertyRates[rate.roomTypeID] || is35Percent) {
+                    propertyRates[rate.roomTypeID] = rate;
+                    allRates[rate.roomTypeID] = rate;
+                    console.log(`[Rate Selection] Room ${rate.roomTypeID}: Selected rate "${rate.ratePlanNamePublic}" with totalRate ${rate.totalRate}`);
+                  }
                 }
               });
             }
@@ -269,6 +277,19 @@ function SearchResults() {
       setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
       return;
     }
+    
+    // Validate rate is a preferred rate
+    const rate = rates[room.id];
+    const isPreferredRate = rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" ||
+                           rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
+    
+    if (!isPreferredRate) {
+      console.error(`Invalid rate for room ${room.id}: ${rate.ratePlanNamePublic}`);
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
+      return;
+    }
+    
+    console.log(`[Cart] Adding room with rate: ${rate.ratePlanNamePublic}`);
     // Validate maxGuests
     if ((guests.adults + guests.children) > room.maxGuests) {
       alert(`Cannot add more than ${room.maxGuests} guests to this room.`);
@@ -299,6 +320,7 @@ function SearchResults() {
                 children: guests.children,
                 roomIDs: [...item.roomIDs, ...newRoomIDs].slice(0, rates[room.id].roomsAvailable),
                 rateId,
+                ratePlanName: rates[room.id].ratePlanNamePublic || '',
               }
             : item
         );
@@ -317,6 +339,7 @@ function SearchResults() {
             children: guests.children,
             roomIDs,
             rateId,
+            ratePlanName: rates[room.id].ratePlanNamePublic || '',
           },
         ];
       }

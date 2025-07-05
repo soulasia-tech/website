@@ -291,6 +291,7 @@ type CartItem = {
   adults: number;
   children: number;
   roomIDs: string[];
+  ratePlanName?: string;
 };
 
 interface BookingCart {
@@ -463,6 +464,22 @@ function BookingForm() {
         console.error('[BookingPage] One or more CartItems missing roomIDs:', bookingCart.cart);
         return;
       }
+      
+      // Validate that all cart items have preferred rates
+      const invalidRates = bookingCart.cart.some((item: CartItem) => {
+        if (!item.ratePlanName) return true;
+        return item.ratePlanName !== "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" && 
+               item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
+      });
+      
+      if (invalidRates) {
+        setError('Some rooms in your cart have invalid rates. Please return to search and try again.');
+        setSubmitting(false);
+        console.error('[BookingPage] Invalid rates in cart:', bookingCart.cart.map(item => ({ roomName: item.roomName, ratePlanName: item.ratePlanName })));
+        return;
+      }
+      
+      console.log('[BookingPage] Proceeding with rates:', bookingCart.cart.map(item => `${item.roomName}: ${item.ratePlanName}`));
       // --- Generate a random token and store booking data in localStorage ---
       const bookingToken = crypto.randomUUID();
       const bookingPayload = {
