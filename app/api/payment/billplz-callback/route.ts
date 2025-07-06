@@ -83,13 +83,33 @@ export async function POST(request: Request) {
     const bookingPayload = sessionData.bookingData;
 
     // Build rooms array from cart (each roomID gets its own entry)
-    const rooms = bookingPayload.bookingCart.cart.flatMap((item: { roomIDs?: string[]; roomTypeID: string; rateId?: string; quantity?: number }) =>
-      (item.roomIDs || []).map((roomID: string) => ({
-        roomTypeID: item.roomTypeID,
-        roomID,
-        quantity: '1',
-        roomRateID: item.rateId || '',
-      }))
+    const rooms = bookingPayload.bookingCart.cart.flatMap((item: { roomIDs?: string[]; roomTypeID: string; rateId?: string; ratePlanName?: string; quantity?: number; roomName?: string }) =>
+      (item.roomIDs || []).map((roomID: string) => {
+        // Strict validation: ensure rateId and ratePlanName are present and valid
+        if (!item.rateId || !item.ratePlanName ||
+          (item.ratePlanName !== "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" &&
+           item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!")) {
+          console.error('[billplz-callback] ERROR: Missing or invalid discounted rateId or ratePlanName for room', {
+            roomTypeID: item.roomTypeID,
+            roomName: item.roomName,
+            rateId: item.rateId,
+            ratePlanName: item.ratePlanName
+          });
+          throw new Error(`Cannot create reservation: missing or invalid discounted rateId for room ${item.roomTypeID}`);
+        }
+        console.log('[billplz-callback] Using discounted rateId for room', {
+          roomTypeID: item.roomTypeID,
+          roomName: item.roomName,
+          rateId: item.rateId,
+          ratePlanName: item.ratePlanName
+        });
+        return {
+          roomTypeID: item.roomTypeID,
+          roomID,
+          quantity: '1',
+          roomRateID: item.rateId,
+        };
+      })
     );
     if (!rooms.length) {
       // Update booking session: reservation failed (no rooms)

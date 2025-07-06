@@ -282,14 +282,20 @@ function SearchResults() {
     const rate = rates[room.id];
     const isPreferredRate = rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" ||
                            rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
-    
     if (!isPreferredRate) {
       console.error(`Invalid rate for room ${room.id}: ${rate.ratePlanNamePublic}`);
       setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
       return;
     }
-    
-    console.log(`[Cart] Adding room with rate: ${rate.ratePlanNamePublic}`);
+    // Ensure rateId is present and valid
+    const rateId = rate.rateID ? String(rate.rateID) : '';
+    if (!rateId) {
+      console.error(`[Cart] ERROR: Missing rateId for discounted rate. Rate object:`, rate);
+      alert('Sorry, there was a problem fetching the correct rate for this room. Please try again or contact support.');
+      setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
+      return;
+    }
+    console.log(`[Cart] Adding room with rate: ${rate.ratePlanNamePublic}, rateId: ${rateId}`);
     // Validate maxGuests
     if ((guests.adults + guests.children) > room.maxGuests) {
       alert(`Cannot add more than ${room.maxGuests} guests to this room.`);
@@ -303,7 +309,6 @@ function SearchResults() {
       setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));
       return;
     }
-    const rateId = rates[room.id]?.id ? String(rates[room.id].id) : '';
     setCart(prev => {
       const existing = prev.find(item => item.roomTypeID === room.id);
       if (existing) {
