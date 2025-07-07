@@ -87,8 +87,7 @@ export async function POST(request: Request) {
       (item.roomIDs || []).map((roomID: string) => {
         // Strict validation: ensure rateId and ratePlanName are present and valid
         if (!item.rateId || !item.ratePlanName ||
-          (item.ratePlanName !== "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" &&
-           item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!")) {
+          (item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!")) {
           console.error('[billplz-callback] ERROR: Missing or invalid discounted rateId or ratePlanName for room', {
             roomTypeID: item.roomTypeID,
             roomName: item.roomName,

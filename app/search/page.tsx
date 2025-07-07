@@ -174,16 +174,10 @@ function SearchResults() {
             const propertyRates: { [roomTypeID: string]: RatePlan } = {};
             if (rateData.success && Array.isArray(rateData.ratePlans)) {
               rateData.ratePlans.forEach((rate: RatePlan) => {
-                const is35Percent = rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!";
-                const is30Percent = rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
-                
-                if (is35Percent || is30Percent) {
-                  // Only set if we don't already have a 35% rate for this room
-                  if (!propertyRates[rate.roomTypeID] || is35Percent) {
-                    propertyRates[rate.roomTypeID] = rate;
-                    allRates[rate.roomTypeID] = rate;
-                    console.log(`[Rate Selection] Room ${rate.roomTypeID}: Selected rate "${rate.ratePlanNamePublic}" with totalRate ${rate.totalRate}`);
-                  }
+                if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
+                  propertyRates[rate.roomTypeID] = rate;
+                  allRates[rate.roomTypeID] = rate;
+                  console.log(`[Rate Selection] Room ${rate.roomTypeID}: Selected rate \"${rate.ratePlanNamePublic}\" with totalRate ${rate.totalRate}`);
                 }
               });
             }
@@ -280,8 +274,7 @@ function SearchResults() {
     
     // Validate rate is a preferred rate
     const rate = rates[room.id];
-    const isPreferredRate = rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" ||
-                           rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
+    const isPreferredRate = rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
     if (!isPreferredRate) {
       console.error(`Invalid rate for room ${room.id}: ${rate.ratePlanNamePublic}`);
       setReserveStatus(prev => ({ ...prev, [room.id]: 'idle' }));

@@ -467,9 +467,7 @@ function BookingForm() {
       
       // Validate that all cart items have preferred rates
       const invalidRates = bookingCart.cart.some((item: CartItem) => {
-        if (!item.ratePlanName) return true;
-        return item.ratePlanName !== "Book Direct and Save – Up to 35% Cheaper Than Online Rates!" && 
-               item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
+        return item.ratePlanName !== "Book Direct and Save – Up to 30% Cheaper Than Online Rates!";
       });
       
       if (invalidRates) {

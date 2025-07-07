@@ -67,10 +67,7 @@ export function RoomsSection() {
           const rateMap: { [roomTypeID: string]: number } = {}
           if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
             ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number; ratePlanNamePublic?: string }) => {
-              if (
-                rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!" ||
-                rate.ratePlanNamePublic === "Book Direct and Save – Up to 35% Cheaper Than Online Rates!"
-              ) {
+              if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
                 rateMap[rate.roomTypeID] = rate.totalRate
               }
             })
