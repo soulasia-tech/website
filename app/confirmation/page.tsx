@@ -73,6 +73,8 @@ function ConfirmationContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    let stopped = false;
     async function fetchBooking() {
       if (!bookingToken) {
         setLoading(false);
@@ -82,7 +84,6 @@ function ConfirmationContent() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch booking session as before
         const res = await fetch(`/api/booking-session?token=${bookingToken}`);
         const data = await res.json();
         setBooking(data.bookingData);
@@ -101,6 +102,10 @@ function ConfirmationContent() {
             // Ignore Cloudbeds fetch errors for now
           }
         }
+        // If status is not final, schedule next poll
+        if (!stopped && data.payment_status !== 'succeeded' && data.payment_status !== 'failed' && data.reservation_status !== 'succeeded' && data.reservation_status !== 'failed') {
+          interval = setTimeout(fetchBooking, 2000);
+        }
       } catch {
         setError('Booking not found. Please try your booking again.');
       } finally {
@@ -108,6 +113,10 @@ function ConfirmationContent() {
       }
     }
     fetchBooking();
+    return () => {
+      stopped = true;
+      if (interval) clearTimeout(interval);
+    };
   }, [bookingToken]);
 
   if (loading) {
