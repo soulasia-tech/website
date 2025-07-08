@@ -185,15 +185,7 @@ function ConfirmationContent() {
               <div><span className="font-medium text-gray-600">Check-out:</span> <span className="font-semibold">{checkOut}</span></div>
             </div>
             {/* Room/rooms breakdown removed as per user request */}
-            {/* Always show breakdown if available */}
-            {cloudbedsBreakdown && (
-              <div className="md:col-span-2 mt-2 text-xs text-gray-600">
-                <div>Subtotal: MYR {cloudbedsBreakdown.subtotal !== undefined ? cloudbedsBreakdown.subtotal : '-'}</div>
-                <div>SST/Tax: MYR {cloudbedsBreakdown.sst !== undefined ? cloudbedsBreakdown.sst : (cloudbedsBreakdown.tax !== undefined ? cloudbedsBreakdown.tax : '-')}</div>
-                <div>Grand Total: MYR {cloudbedsBreakdown.grandTotal !== undefined ? cloudbedsBreakdown.grandTotal : (cloudbedsBreakdown.total !== undefined ? cloudbedsBreakdown.total : '-')}</div>
-                <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
-              </div>
-            )}
+            {/* Remove price breakdown section entirely */}
           </div>
 
           {/* Next Steps / Help */}
