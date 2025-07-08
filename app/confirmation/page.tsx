@@ -65,7 +65,6 @@ function ConfirmationContent() {
   };
 
   const [booking, setBooking] = useState<BookingSession | null>(null);
-  const [cloudbedsBreakdown, setCloudbedsBreakdown] = useState<CloudbedsBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
@@ -96,7 +95,7 @@ function ConfirmationContent() {
             const cbRes = await fetch(`/api/fetch-cloudbeds-reservation?propertyId=${data.bookingData.propertyId}&reservationId=${data.bookingData.cloudbedsResId}`);
             const cbData = await cbRes.json();
             if (cbData.success && cbData.data) {
-              setCloudbedsBreakdown(cbData.data);
+              // setCloudbedsBreakdown(cbData.data); // This line was removed
             }
           } catch {
             // Ignore Cloudbeds fetch errors for now
