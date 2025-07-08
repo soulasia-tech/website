@@ -181,28 +181,11 @@ function ConfirmationContent() {
             <div><span className="font-medium text-gray-600">Guest:</span> <span className="font-semibold">{guestName}</span></div>
             <div><span className="font-medium text-gray-600">Email:</span> <span className="font-semibold">{guestEmail}</span></div>
             <div><span className="font-medium text-gray-600">Property:</span> <span className="font-semibold">{propertyName}</span></div>
-            <div><span className="font-medium text-gray-600">Check-in:</span> <span className="font-semibold">{checkIn}</span></div>
-            <div><span className="font-medium text-gray-600">Check-out:</span> <span className="font-semibold">{checkOut}</span></div>
-            {Array.isArray(booking.bookingCart?.cart) && booking.bookingCart.cart.length > 1 ? (
-              <div className="md:col-span-2 mt-2">
-                <div className="font-medium text-gray-600 mb-1">Apartments/Rooms Booked:</div>
-                <ul className="list-disc pl-5 space-y-1">
-                  {booking.bookingCart.cart.map((item, idx) => (
-                    <li key={item.roomTypeID + idx} className="text-sm text-gray-800">
-                      <span className="font-semibold">{item.quantity} x Room {idx + 1}</span> (MYR {(item.price * item.quantity).toFixed(2)})
-                      <span className="ml-2 text-xs text-gray-600">[Adults: {item.adults}, Children: {item.children}]</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div>
-                <span className="font-medium text-gray-600">Room:</span> <span className="font-semibold">Room 1</span>
-                {booking.bookingCart.cart && booking.bookingCart.cart[0] && (
-                  <span className="ml-2 text-xs text-gray-600">[Adults: {booking.bookingCart.cart[0].adults}, Children: {booking.bookingCart.cart[0].children}]</span>
-                )}
-              </div>
-            )}
+            <div>
+              <div><span className="font-medium text-gray-600">Check-in:</span> <span className="font-semibold">{checkIn}</span></div>
+              <div><span className="font-medium text-gray-600">Check-out:</span> <span className="font-semibold">{checkOut}</span></div>
+            </div>
+            {/* Room/rooms breakdown removed as per user request */}
             {/* Always show breakdown if available */}
             {cloudbedsBreakdown && (
               <div className="md:col-span-2 mt-2 text-xs text-gray-600">
