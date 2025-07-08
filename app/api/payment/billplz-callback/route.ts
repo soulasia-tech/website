@@ -169,8 +169,10 @@ export async function POST(request: Request) {
     const reservationDetails = await getReservation(propertyId, reservation.reservationID);
     const grandTotal = reservationDetails.grandTotal || reservationDetails.total || reservationDetails.grand_total;
     const paidAmount = payment.amount;
-    if (Number(paidAmount) !== Number(grandTotal)) {
-      console.warn('[billplz-callback] WARNING: Paid amount does not match Cloudbeds grand total', { paidAmount, grandTotal, propertyId, reservationId: reservation.reservationID });
+    // Convert Billplz paid amount from cents to MYR for comparison
+    const paidAmountMYR = Number(paidAmount) / 100;
+    if (Number(paidAmountMYR) !== Number(grandTotal)) {
+      console.warn('[billplz-callback] WARNING: Paid amount does not match Cloudbeds grand total', { paidAmount: paidAmountMYR, grandTotal, propertyId, reservationId: reservation.reservationID });
     }
     console.log('[billplz-callback] Adding payment to Cloudbeds reservation', { propertyId, reservationId: reservation.reservationID, amount: grandTotal });
     await addPaymentToReservation({ propertyId, reservationId: reservation.reservationID, amount: grandTotal, paymentMethod: 'credit_card' });
