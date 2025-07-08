@@ -119,9 +119,7 @@ function ConfirmationContent() {
     };
   }, [bookingToken]);
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
+  // Remove the separate Loading state; always show processing until final status
   if (error) {
     return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
   }
