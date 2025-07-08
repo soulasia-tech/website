@@ -82,6 +82,12 @@ export async function POST(request: Request) {
     }
     const bookingPayload = sessionData.bookingData;
 
+    // Idempotency check: if cloudbedsResId exists, do not create a new reservation
+    if (bookingPayload.cloudbedsResId) {
+      console.log('[billplz-callback] Idempotency: Reservation already exists for this booking token:', bookingPayload.cloudbedsResId);
+      return NextResponse.json({ success: true, message: 'Reservation already exists for this booking token', reservationId: bookingPayload.cloudbedsResId });
+    }
+
     // Build rooms array from cart (each roomID gets its own entry)
     const rooms = bookingPayload.bookingCart.cart.flatMap((item: { roomIDs?: string[]; roomTypeID: string; rateId?: string; ratePlanName?: string; quantity?: number; roomName?: string }) =>
       (item.roomIDs || []).map((roomID: string) => {
@@ -186,13 +192,13 @@ export async function POST(request: Request) {
       console.log('[billplz-callback] Booking saved in Supabase:', booking);
     }
 
-    // Update booking session: all succeeded
+    // Update booking session: all succeeded, and store cloudbedsResId for idempotency
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         token: bookingToken,
-        bookingData: bookingPayload,
+        bookingData: { ...bookingPayload, cloudbedsResId: reservation.reservationID },
         payment_status: 'succeeded',
         reservation_status: 'succeeded',
         error_message: null,

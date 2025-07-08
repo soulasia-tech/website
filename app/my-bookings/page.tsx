@@ -276,18 +276,7 @@ export default function MyBookingsPage() {
                     <div className="text-gray-500 text-xs">Check-out</div>
                     <div className="font-medium text-base">{cb?.endDate || formatDate(booking.check_out)}</div>
                   </div>
-                  <div>
-                    <div className="text-gray-500 text-xs">Adults</div>
-                    <div className="font-medium text-base">{booking.number_of_guests || 0}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 text-xs">Children</div>
-                    <div className="font-medium text-base">{cb?.numberOfChildren ?? 0}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 text-xs">Apartments</div>
-                    <div className="font-medium text-base">{rooms.length}</div>
-                  </div>
+                  {/* Removed Adults, Children, Apartments fields */}
                   <div className="ml-auto text-right">
                     <div className="text-gray-500 text-xs">Total</div>
                     <div className="font-bold text-lg">MYR {cb?.grandTotal !== undefined ? cb.grandTotal.toFixed(2) : (cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-'))}</div>

@@ -123,8 +123,9 @@ function ConfirmationContent() {
   if (error) {
     return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
   }
+  // If booking is not loaded yet, show nothing (no message or spinner)
   if (!booking) {
-    return <div className="min-h-screen flex items-center justify-center">Booking not found.</div>;
+    return null;
   }
   if (paymentStatus === 'failed' || reservationStatus === 'failed') {
     return (
