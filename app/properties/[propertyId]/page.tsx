@@ -50,6 +50,9 @@ const propertyImagesMap: Record<string, string[]> = {
     "/properties/Vortex/vortex_photo_gym_fitness.jpg",
     "/properties/Vortex/2332762_17082017030055533596.jpg",
   ],
+  '318151': [
+    "/properties/188/card.jpg",
+  ],
 };
 
 export default function PropertiesPage() {
