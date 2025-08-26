@@ -225,7 +225,11 @@ export default function PropertiesPage() {
             <div className="flex-1 min-w-0">
               <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
-                  {isVortex ? 'Vortex KLCC Apartments' : 'Scarletz KLCC Apartments by Soulasia'}
+                 {propertyId === '19928'
+  ? 'Vortex KLCC Apartments'
+  : propertyId === '318151'
+    ? '188 Suites KLCC by Soulasia'
+    : 'Scarletz KLCC Apartments by Soulasia'}
                   <span className="ml-2 text-base font-normal text-gray-400">(ID: {propertyId})</span>
                 </h1>
                 <div className="flex flex-wrap gap-4 text-gray-600 text-base mb-2">
