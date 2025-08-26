@@ -56,8 +56,12 @@ const propertyImagesMap: Record<string, string[]> = {
 };
 
 export default function PropertiesPage() {
-  const params = useParams();
-  const propertyId = params.propertyId || "270917";
+  const p = useParams() as { propertyId?: string | string[] };
+const propertyId = typeof p.propertyId === 'string'
+  ? p.propertyId
+  : Array.isArray(p.propertyId)
+    ? p.propertyId[0]
+    : '270917';
   let pageTitle = 'Soulasia | Property';
   if (propertyId === '270917') pageTitle = 'Soulasia | Scarletz KLCC Apartments by Soulasia';
   else if (propertyId === '19928') pageTitle = 'Soulasia | Vortex KLCC Apartments by Soulasia';
