@@ -47,11 +47,11 @@ const data = [
   },
   {
     id: "location-3",
-    propertyId: "188-id",
-    title: "188 Suites",
+    propertyId: "318151",
+    title: "188 Suites KLCC",
     description:
       "Luxury serviced apartments at 188 Suites, Kuala Lumpur. Enjoy premium amenities and comfort.",
-    href: "/properties/188-id",
+    href: "/properties/318151",
     image: "/properties/188/card.jpg",
   },
   {
