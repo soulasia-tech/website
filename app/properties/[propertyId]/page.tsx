@@ -63,6 +63,7 @@ export default function PropertiesPage() {
   else if (propertyId === '19928') pageTitle = 'Soulasia | Vortex KLCC Apartments by Soulasia';
   else if (propertyId === '318151') pageTitle = 'Soulasia | 188 Suites KLCC by Soulasia';
   const isVortex = propertyId === "19928";
+  const is188 = propertyId === "318151";
   const propertyImages = propertyImagesMap[String(propertyId)] || propertyImagesMap['270917'];
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
