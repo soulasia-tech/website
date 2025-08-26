@@ -30,6 +30,7 @@ const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
   '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
   '19928': { lat: 3.1579, lng: 101.7075 }, // Vortex KLCC (example coordinates)
   '318151': { lat: 3.1595, lng: 101.7051 }, // 188 Suites KLCC By Soulasia
+  '318256': { lat: 3.1376, lng: 101.6998 }, // Opus Residences
 };
 
 // Images for each property
@@ -53,6 +54,9 @@ const propertyImagesMap: Record<string, string[]> = {
   '318151': [
     "/properties/188/card.jpg",
   ],
+  '318256': [
+  "/properties/Opus/opus-by-soulasia-1.jpg",
+],
 };
 
 export default function PropertiesPage() {
