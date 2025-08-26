@@ -256,41 +256,46 @@ const propertyId = typeof p.propertyId === 'string'
     
     {/* Intro paragraph */}
     <p>
-      {propertyId === '19928'
-        ? "Welcome to Vortex KLCC Apartments, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you're close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space provides fast internet and panoramic views, ideal for productivity."
-        : propertyId === '318151'
-          ? "Welcome to 188 Suites KLCC by Soulasia. Spacious layouts, a practical kitchenette, and floor-to-ceiling windows make it a solid choice for both short and extended stays. You’re a short walk from KLCC and Pavilion, with dining and transit right at your doorstep."
-          : "Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you're close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor provides fast internet and panoramic views, ideal for productivity."}
+{propertyId === '19928'
+  ? "Welcome to Vortex KLCC Apartments, ..."
+  : propertyId === '318151'
+    ? "Welcome to 188 Suites KLCC by Soulasia. ..."
+    : propertyId === '318256'
+      ? "Welcome to Opus Residences by Soulasia. Modern apartments with functional layouts, floor-to-ceiling windows, and a compact kitchenette. Minutes to Petaling Street and Bukit Bintang with easy LRT/MRT access."
+      : "Welcome to Scarletz KLCC Apartments by Soulasia, ..."}
     </p>
 
     {/* Co-working Space */}
     <p>
-      <strong>Co-working Space</strong><br />
-      {propertyId === '19928'
-        ? "Discover our modern co-working space, designed to inspire creativity and productivity. This bright, stylish area offers a comfortable environment for focused work or collaborative projects, perfect for freelancers, remote workers, or those seeking a change of scenery. Enjoy panoramic views and fast internet, making it an ideal spot to boost your productivity and connect with like-minded professionals."
-        : propertyId === '318151'
-          ? "At 188 Suites, you’ll have fast in-room Wi-Fi suitable for remote work. If you prefer a full co-working setup, several KLCC shared offices and cafes are within walking distance."
-          : "Head up to the 44th floor and discover our modern co-working space, designed to inspire creativity and productivity. This bright, stylish area offers a comfortable environment for focused work or collaborative projects, perfect for freelancers, remote workers, or those seeking a change of scenery. What's more, access to this space is included in your rent, providing flexibility and convenience to work on your schedule. Enjoy panoramic views and fast internet, making it an ideal spot to boost your productivity and connect with like-minded professionals."}
+{propertyId === '19928'
+  ? "Discover our modern co-working space, ..."
+  : propertyId === '318151'
+    ? "At 188 Suites, you’ll have fast in-room Wi-Fi ..."
+    : propertyId === '318256'
+      ? "Fast in-room Wi-Fi suitable for remote work. If you need a full office setup, coworking spaces and cafés are within walking distance around the city center."
+      : "Head up to the 44th floor and discover our modern co-working space, ..."}
     </p>
 
     {/* Water Filter */}
     <p>
-      <strong>Water Filter</strong><br />
-      {propertyId === '19928'
-        ? "In Vortex KLCC, convenience and comfort are top priorities. That's why each apartment is equipped with water filters, providing you with clean and refreshing water right from your tap. Not only does this save you time and energy, but it also eliminates the need to carry heavy water bottles. Enjoy the ease and sustainability of having filtered water on hand whenever you need it."
-        : propertyId === '318151'
-          ? "At 188 Suites KLCC by Soulasia, selected units include in-room water filters for convenient, clean drinking water. Where not available, complimentary bottled water is provided on arrival."
-          : "In Scarletz KLCC by Soulasia convenience and comfort are top priorities. That's why each apartment is equipped with Cuckoo water filters, providing you with clean and refreshing water right from your tap. Not only does this save you time and energy, but it also eliminates the need to carry heavy water bottles. Enjoy the ease and sustainability of having filtered water on hand whenever you need it."}
+     {propertyId === '19928'
+  ? "In Vortex KLCC, convenience and comfort ..."
+  : propertyId === '318151'
+    ? "At 188 Suites KLCC by Soulasia, selected units include in-room water filters ..."
+    : propertyId === '318256'
+      ? "At Opus Residences, selected units include in-room water filters; otherwise complimentary bottled water is provided on arrival."
+      : "In Scarletz KLCC by Soulasia convenience and comfort ..."}
     </p>
 
     {/* Wi-Fi & Facilities */}
     <p>
-      <strong>Wi-Fi</strong><br />
-      {propertyId === '19928'
-        ? "Take a dip in the breathtaking rooftop swimming pool and enjoy panoramic city views. It's the perfect place to unwind and relax. Stay active at the state-of-the-art gym, featuring a wide variety of equipment to help you reach your fitness goals. On the ground floor, you'll find a handy convenience store for all your everyday essentials, making life just a little bit easier. At Vortex KLCC, you'll find everything you need for a comfortable and enjoyable stay."
-        : propertyId === '318151'
-          ? "Enjoy reliable Wi-Fi for both leisure and work. Facilities typically include access to a swimming pool and gym within the building. The location also puts you steps from KLCC, Avenue K, and LRT access for easy city movement."
-          : "Take a dip in the breathtaking rooftop swimming pool and enjoy panoramic city views. It's the perfect place to unwind and relax. Stay active at the state-of-the-art gym, featuring a wide variety of equipment to help you reach your fitness goals. On the ground floor, you'll find a handy convenience store for all your everyday essentials, making life just a little bit easier. Stop by the cozy coffee booth for your morning brew or a relaxing chat with friends. At Scarletz KLCC, you'll find everything you need for a comfortable and enjoyable stay."}
+     {propertyId === '19928'
+  ? "Take a dip in the breathtaking rooftop ..."
+  : propertyId === '318151'
+    ? "Enjoy reliable Wi-Fi for both leisure and work. Facilities typically include access to a swimming pool and gym ..."
+    : propertyId === '318256'
+      ? "Enjoy reliable Wi-Fi, a pool, and gym access (building facilities). Central location with easy access to Chinatown (Petaling Street), Merdeka 118 area, and public transit."
+      : "Take a dip in the breathtaking rooftop swimming pool ..."}
     </p>
 
   </div>
