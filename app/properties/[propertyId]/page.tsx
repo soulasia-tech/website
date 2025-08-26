@@ -55,7 +55,7 @@ const propertyImagesMap: Record<string, string[]> = {
     "/properties/188/card.jpg",
   ],
   '318256': [
-  "/properties/Opus/opus-by-soulasia-1.jpg",
+  "/properties/Opus/opus-by-soulasia-17.jpg",
 ],
 };
 
@@ -70,6 +70,7 @@ const propertyId = typeof p.propertyId === 'string'
   if (propertyId === '270917') pageTitle = 'Soulasia | Scarletz KLCC Apartments by Soulasia';
   else if (propertyId === '19928') pageTitle = 'Soulasia | Vortex KLCC Apartments by Soulasia';
   else if (propertyId === '318151') pageTitle = 'Soulasia | 188 Suites KLCC by Soulasia';
+  else if (propertyId === '318256') pageTitle = 'Soulasia | Opus Residences by Soulasia';
   const isVortex = propertyId === "19928";
   const propertyImages = propertyImagesMap[String(propertyId)] || propertyImagesMap['270917'];
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -233,11 +234,13 @@ const propertyId = typeof p.propertyId === 'string'
             <div className="flex-1 min-w-0">
               <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
-                 {propertyId === '19928'
+                {propertyId === '19928'
   ? 'Vortex KLCC Apartments'
   : propertyId === '318151'
     ? '188 Suites KLCC by Soulasia'
-    : 'Scarletz KLCC Apartments by Soulasia'}
+    : propertyId === '318256'
+      ? 'Opus Residences by Soulasia'
+      : 'Scarletz KLCC Apartments by Soulasia'}
                   <span className="ml-2 text-base font-normal text-gray-400">(ID: {propertyId})</span>
                 </h1>
                 <div className="flex flex-wrap gap-4 text-gray-600 text-base mb-2">
