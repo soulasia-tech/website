@@ -29,6 +29,7 @@ import { calculateTotalGuests } from '@/lib/guest-utils';
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
   '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
   '19928': { lat: 3.1579, lng: 101.7075 }, // Vortex KLCC (example coordinates)
+  '318151': { lat: 3.1595, lng: 101.7051 }, // 188 Suites KLCC By Soulasia
 };
 
 // Images for each property
