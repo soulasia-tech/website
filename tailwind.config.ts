@@ -29,7 +29,7 @@ const config: Config = {
         'lg': 'var(--shadow-lg)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-manrope)', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '4xs': '0.125rem', // 2px

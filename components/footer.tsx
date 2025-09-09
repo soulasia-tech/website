@@ -6,18 +6,18 @@ import Image from 'next/image'
 
 export function Footer() {
   return (
-    <footer className="bg-[#112362] text-white pt-8 pb-4">
+    <footer className="bg-[#141826] text-white pt-8 pb-4">
       <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
+        <div className="grid grid-cols-1 tb:grid-cols-2 lp:grid-cols-4 gap-8 mb-6">
           {/* Logo & Tagline */}
           <div>
             <Link href="/" className="inline-block mb-2" aria-label="Soulasia Home">
-              <Image src="/Brand/logo white.svg" alt="Soulasia Logo White" width={120} height={28} priority />
+              <Image src="/Brand/logo-white.svg" alt="Soulasia Logo White" width={120} height={31} priority />
             </Link>
-            <p className="mt-2 text-sm text-white" style={{ color: '#fff' }}>
+            <div className="font-normal text-white/80 text-sm full:text-base mt-2">
               Premium serviced apartments in Kuala Lumpur for short and extended stays.
-            </p>
-            <div className="flex mt-4 space-x-3">
+            </div>
+            <div className="flex mt-4">
               <a href="https://www.instagram.com/soulasia.com.my" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <Button variant="ghost" size="icon" className="footer-social-icon">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -34,60 +34,46 @@ export function Footer() {
               </a>
             </div>
           </div>
-          {/* Contact Info */}
-          <div className="text-white">
-            <div className="footer-section-title mb-2 font-semibold text-base">Contact</div>
-            <p className="text-xs mb-1" style={{ color: '#fff' }}>+60 3 21818729</p>
-            <p className="text-xs mb-1" style={{ color: '#fff' }}>info@soulasia.com.my</p>
-            <p className="text-xs mb-1" style={{ color: '#fff' }}>B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia</p>
-          </div>
-          {/* Policies */}
+          {/* Menu */}
           <div>
-            <div className="footer-section-title mb-2 font-semibold text-base">Policies</div>
+            <div className="mb-2 font-normal text-white/80 text-base lp:text-lg full:text-xl">Menu</div>
             <ul className="space-y-1">
               <li>
-                <Link href="/privacy-policy" className="footer-link">Privacy Policy</Link>
+                <Link href="/for-owners" className="font-semibold text-white text-white text-base lp:text-lg lp:text-xl hover:underline">For Owners</Link>
               </li>
               <li>
-                <Link href="/refund-policy" className="footer-link">Refund Policy</Link>
-              </li>
-              <li>
-                <Link href="/terms" className="footer-link">Terms & Conditions</Link>
+                <Link href="/sustainability" className="font-semibold text-white text-white text-base lp:text-lg lp:text-xl hover:underline">Sustainability</Link>
               </li>
             </ul>
           </div>
           {/* Company Info */}
           <div className="text-white">
-            <div className="footer-section-title mb-2 font-semibold text-base">Company</div>
-            <p className="text-xs" style={{ color: '#fff' }}>Soulasia Management Sdn. Bhd.</p>
-            <p className="text-xs" style={{ color: '#fff' }}>Registration Number - 202301007902 (1501823-H)</p>
+            <div className="font-normal text-white/80 text-base lp:text-lg full:text-xl mb-2">Company</div>
+            <div className="font-semibold text-white text-base lp:text-lg lp:text-xl mb-1">
+              Soulasia Management Sdn. Bhd.<br/>
+              Registration Number - 202301007902 (1501823-H)
+            </div>
+          </div>
+          {/* Contact Info */}
+          <div className="text-white">
+            <div className="font-normal text-white/80 text-base lp:text-lg full:text-xl mb-2">Contact</div>
+            <div className="font-semibold text-base lp:text-lg lp:text-xl mb-1">+60 3 21818729</div>
+            <div className="font-semibold text-base lp:text-lg lp:text-xl mb-1">info@soulasia.com.my</div>
+            <div className="font-normal text-white/80 text-sm full:text-base mb-1">B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia</div>
           </div>
         </div>
-        <div className="border-t border-gray-700 pt-4 text-center text-xs" style={{ color: '#fff' }}>
-          © {new Date().getFullYear()} Soulasia. All rights reserved.
+        <div className="grid grid-cols-1 tb:grid-cols-4 gap-4  gap-2 flex border-t border-gray-700 pt-4 mb-6">
+          {/* Company Info */}
+          <div className="col-span-1 text-white text-xs tb:text-sm lp:text-base">
+            © {new Date().getFullYear()} Soulasia. All rights reserved.
+          </div>
+          <div className="col-span-3 grid grid-cols-3 gap-2">
+            <Link href="/privacy-policy" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Privacy Policy</Link>
+            <Link href="/refund-policy" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Refund Policy</Link>
+            <Link href="/terms" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Terms & Conditions</Link>
+          </div>
         </div>
       </div>
-      <style jsx>{`
-        .footer-link {
-          color: #7ecfff;
-          font-weight: 500;
-          transition: color 0.2s;
-        }
-        .footer-link:hover {
-          color: #fff;
-          text-decoration: underline;
-        }
-        .footer-section-title {
-          font-size: 1rem;
-          font-weight: 600;
-        }
-        .footer-social-icon {
-          width: 36px;
-          height: 36px;
-          background: #22336a;
-          color: #fff;
-        }
-      `}</style>
     </footer>
   )
 } 

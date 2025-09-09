@@ -295,7 +295,7 @@ export default function MyBookingsPage() {
                 {expanded && (
                   <div className="mt-4 space-y-6">
                     {/* Room Cards */}
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-4 lp:grid-cols-2">
                       {rooms.length > 0 ? rooms.map((room: AssignedRoom, idx: number) => {
                         // No name shown in MinimalRoomCard
                         return (

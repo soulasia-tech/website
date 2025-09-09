@@ -1,91 +1,118 @@
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import React from "react";
 
 export default function SustainabilityPage() {
   return (
-    <>
-      <title>Soulasia | Sustainability</title>
-      <main className="max-w-3xl mx-auto py-12 px-4">
-        <h1 className="text-3xl font-bold mb-6">Sustainable living in Malaysia</h1>
-        <p className="mb-8 text-gray-700">
-          At Soulasia, our commitment to sustainability is woven into every aspect of our operations.
-        </p>
-        <section className="space-y-6 mb-10">
-          <p>
-            We power most of our locations with sustainable energy, supporting our goal of sustainable living in Malaysia. Our cleaning and laundry processes use eco-friendly chemicals, minimizing our environmental impact. Every unit is equipped with water-saving showerheads and smart-timed water heaters, helping reduce water and energy waste. We&apos;ve removed plastic entirely, offering Coway water filters instead of bottled water to ensure a plastic-free, eco-friendly stay. This holistic approach demonstrates our commitment to a more sustainable future for all guests.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Sustainable Energy.</h2>
-          <p>
-            We power all our apartments with low-carbon electricity through TNB&apos;s Green Electricity Tariff (GET) Programme. This initiative allows us to utilize energy from solar power plants and hydropower stations, significantly reducing our carbon footprint.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Eco-Friendly Cleaning Practices.</h2>
-          <p>
-            We prioritize green living by using sustainable chemicals in our laundry and cleaning routines. Even our air conditioning systems are maintained with eco friendly products, ensuring both efficiency and environmental responsibility.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Water Conservation.</h2>
-          <p>
-            Water conservation is crucial to us. All our apartments are equipped with water-saving showerheads, which reduce water wastage while maintaining comfort. Additionally, our water heaters feature smart timers that automatically switch off after 20 minutes, significantly cutting down on energy consumption.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Plastic-Free Commitment.</h2>
-          <p>
-            We are committed to eliminating plastic waste in our apartments. Instead of bottled water, we provide Coway or Cuckoo water filters. These globally recognized brands offer high-quality, eco-friendly water solutions. This simple switch makes a big difference in reducing plastic waste and promoting <strong>sustainable living in Malaysia</strong>.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Paperless Operations.</h2>
-          <p>
-            In line with our sustainability goals, we have minimized our paper usage by going paperless with all our billing processes. This not only reduces waste but also supports our broader environmental initiatives.
-          </p>
-        </section>
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4">FAQ</h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>How does Soulasia reduce energy consumption?</AccordionTrigger>
-              <AccordionContent>
-                Soulasia powers most of its apartments through sustainable energy sources under the TNB&apos;s Green Electricity Tariff (GET) Program. We also use energy-efficient appliances like smart-timed water heaters and LED lighting to reduce unnecessary energy consumption.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>What waste management practices are in place?</AccordionTrigger>
-              <AccordionContent>
-                We are committed to minimizing waste by eliminating single-use plastics and offering guests alternatives like Coway or Cuckoo water filters instead of plastic bottles. Additionally, all billing is paperless to reduce paper waste.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>Does Soulasia have a plastic-free commitment?</AccordionTrigger>
-              <AccordionContent>
-                Yes, we&apos;ve eliminated plastic usage in our apartments, replacing bottled water with Coway water filters. This ensures we contribute to the reduction of plastic waste, aligning with global efforts to combat pollution.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-4">
-              <AccordionTrigger>Does Soulasia use eco-friendly cleaning products?</AccordionTrigger>
-              <AccordionContent>
-                Yes, we use sustainable, eco-friendly chemicals for cleaning, laundry, and air conditioning maintenance, ensuring a minimal environmental impact.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-5">
-              <AccordionTrigger>How does Soulasia conserve water?</AccordionTrigger>
-              <AccordionContent>
-                Our water-saving showerheads and smart-timed water heaters drastically reduce water wastage. We also encourage linen and towel reuse during guest stays to further minimize water usage.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-6">
-              <AccordionTrigger>What sustainable sourcing practices do you have?</AccordionTrigger>
-              <AccordionContent>
-                Soulasia prioritizes the use of sustainable products, including eco-friendly detergents, cleaning chemicals, and materials that minimize environmental harm.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-      </main>
-    </>
+      <>
+        <title>Soulasia | Sustainability</title>
+        <main>
+          {/* Hero Section */}
+          <section className="bg-white w-full px-4 md:px-10 lg:px-20 xl:px-[200px] max-w-[1920px] mx-auto py-10 flex items-center justify-center">
+            <div className="relative w-full h-[251px] md:h-[425px] lg:h-[500px] xl:h-[500px] rounded-3xl overflow-hidden">
+              <img
+                  src="/media-assets/asset7.jpg"
+                  alt="Sustainable living"
+                  className="absolute inset-0 w-full h-full object-cover rounded-[12px] md:rounded-[16px] lg:rounded-[24px]"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-black/40"></div>
+
+              <div className="absolute left-[20px] top-[20px] w-[302px] h-[112px] md:left-[32px] md:top-[32px] md:w-[440px] md:h-[146px] lg:left-[63px] lg:top-[60px] lg:w-[679px] lg:h-[126px] xl:left-[63px] xl:top-[60px] xl:w-[679px] xl:h-[142px] flex flex-col gap-2 md:gap-4 lg:gap-5 justify-start">
+                <h1 className="font-manrope font-semibold text-2xl leading-8 md:text-3xl md:leading-10 lg:text-4xl lg:leading-14 xl:text-5xl xl:leading-16 text-[#DFDFDF]">
+                  Sustainable living in Malaysia
+                </h1>
+                <p className="font-manrope text-sm leading-5 md:text-lg md:leading-6 lg:text-xl lg:leading-7 text-[#DFDFDF]">
+                  At Soulasia, our commitment to sustainability is woven into every aspect of our operations.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Sustainability Content Section */}
+          <section className="bg-white max-w-[1920px] mx-auto px-4 md:px-10 lg:px-20 xl:px-[200px] py-10">
+            {/* Main Header */}
+            <div className="flex flex-col lg:flex-row lg:justify-between items-start gap-6 md:gap-8 lg:gap-10 mb-10 xl:mb-[60px] lg:items-start">
+              <h1 className="text-2xl leading-[33px] md:text-[32px] md:leading-[44px] lg:text-[40px] xl:text-[48px] font-semibold lg:leading-[55px] xl:leading-[66px] text-[#101828] max-w-xl">Eco-Friendly Solutions for a Sustainable Stay</h1>
+              <p className="text-sm leading-[19px] md:text-lg md:leading-[25px] xl:text-2xl xl:leading-[33px] font-normal text-[#4A4F5B] max-w-lg">We integrate eco-friendly solutions across energy, cleaning, water conservation, plastic reduction, and paperless processes, ensuring every guest experiences a truly sustainable stay.</p>
+            </div>
+
+            {/* Content Blocks */}
+            <div className="flex flex-col gap-6 md:gap-10 lg:gap-[60px]">
+              {/* Item 1 */}
+              <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 xl:gap-[60px] w-full">
+                <div className="lg:w-1/2 flex flex-col gap-4">
+                  <div className="border border-primary rounded-lg w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    <span className="text-xs leading-[16px] md:text-sm md:leading-[19px] lg:text-lg lg:leading-[25px] xl:text-xl xl:leading-[27px] font-medium text-[#4A4F5B]">1</span>
+                  </div>
+                  <h2 className="text-xl leading-[27px] md:text-2xl md:leading-[33px] lg:text-[32px] lg:leading-[44px] xl:text-[32px] xl:leading-[44px] font-semibold">Sustainable Energy</h2>
+                  <p className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">We power all our apartments with low-carbon electricity through the TNB Green Electricity Tariff (GET) Programme. This initiative enables us to use energy from solar and hydropower plants, significantly reducing our carbon footprint.</p>
+                </div>
+                <div className="lg:w-1/2 rounded-[10px] overflow-hidden">
+                  <img src="/sustainability/energy.jpg" alt="Sustainable Energy" className="w-full h-auto object-cover rounded-[14px]" />
+                </div>
+              </div>
+
+              {/* Item 2 */}
+              <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 xl:gap-[60px] w-full">
+                <div className="lg:w-1/2 flex flex-col gap-4">
+                  <div className="border border-primary rounded-lg w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    <span className="text-xs leading-[16px] md:text-sm md:leading-[19px] lg:text-lg lg:leading-[25px] xl:text-xl xl:leading-[27px] font-medium text-[#4A4F5B]">2</span>
+                  </div>
+                  <h2 className="text-xl leading-[27px] md:text-2xl md:leading-[33px] lg:text-[32px] lg:leading-[44px] xl:text-[32px] xl:leading-[44px] font-semibold">Eco-Friendly Cleaning Practices</h2>
+                  <p className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">We prioritize green living by using eco-friendly chemicals in all cleaning and laundry processes. Even our air conditioning systems are maintained with sustainable products, ensuring efficiency and environmental responsibility.</p>
+                </div>
+                <div className="lg:w-1/2 rounded-[10px] overflow-hidden">
+                  <img src="/sustainability/cleaning.jpg" alt="Eco-Friendly Cleaning Practices" className="w-full h-auto object-cover rounded-[14px]" />
+                </div>
+              </div>
+
+              {/* Item 3 */}
+              <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 xl:gap-[60px] w-full">
+                <div className="lg:w-1/2 flex flex-col gap-4">
+                  <div className="border border-primary rounded-lg w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    <span className="text-xs leading-[16px] md:text-sm md:leading-[19px] lg:text-lg lg:leading-[25px] xl:text-xl xl:leading-[27px] font-medium text-[#4A4F5B]">3</span>
+                  </div>
+                  <h2 className="text-xl leading-[27px] md:text-2xl md:leading-[33px] lg:text-[32px] lg:leading-[44px] xl:text-[32px] xl:leading-[44px] font-semibold">Water Conservation</h2>
+                  <p className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">Water conservation is at the core of our sustainability efforts:</p>
+                  <ul className="list-disc pl-5">
+                    <li className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">All apartments are fitted with water-saving showerheads that reduce water waste without sacrificing comfort.</li>
+                    <li className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">Smart-timed water heaters automatically switch off after 20 minutes, cutting down on unnecessary energy use.</li>
+                  </ul>
+                </div>
+                <div className="lg:w-1/2 rounded-[10px] overflow-hidden">
+                  <img src="/sustainability/water.jpg" alt="Water Conservation" className="w-full h-auto object-cover rounded-[14px]" />
+                </div>
+              </div>
+
+              {/* Item 4 */}
+              <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 xl:gap-[60px] w-full">
+                <div className="lg:w-1/2 flex flex-col gap-4">
+                  <div className="border border-primary rounded-lg w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    <span className="text-xs leading-[16px] md:text-sm md:leading-[19px] lg:text-lg lg:leading-[25px] xl:text-xl xl:leading-[27px] font-medium text-[#4A4F5B]">4</span>
+                  </div>
+                  <h2 className="text-xl leading-[27px] md:text-2xl md:leading-[33px] lg:text-[32px] lg:leading-[44px] xl:text-[32px] xl:leading-[44px] font-semibold">Plastic-Free Commitment</h2>
+                  <p className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">We are fully committed to a plastic-free stay. Instead of bottled water, we provide Coway or Cuckoo water filters — globally recognized brands offering safe and eco-friendly hydration. This small change makes a big impact in reducing plastic waste.</p>
+                </div>
+                <div className="lg:w-1/2 rounded-[10px] overflow-hidden">
+                  <img src="/sustainability/plastic.jpg" alt="Plastic-Free Commitment" className="w-full h-auto object-cover rounded-[14px]" />
+                </div>
+              </div>
+
+              {/* Item 5 */}
+              <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 xl:gap-[60px] w-full">
+                <div className="lg:w-1/2 flex flex-col gap-4">
+                  <div className="border border-primary rounded-lg w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 flex items-center justify-center">
+                    <span className="text-xs leading-[16px] md:text-sm md:leading-[19px] lg:text-lg lg:leading-[25px] xl:text-xl xl:leading-[27px] font-medium text-[#4A4F5B]">5</span>
+                  </div>
+                  <h2 className="text-xl leading-[27px] md:text-2xl md:leading-[33px] lg:text-[32px] lg:leading-[44px] xl:text-[32px] xl:leading-[44px] font-semibold">Paperless Operations</h2>
+                  <p className="text-sm leading-[19px] md:text-base md:leading-[22px] lg:text-lg lg:leading-[25px] xl:text-lg xl:leading-[25px] font-normal text-[#4A4F5B]">To align with our sustainability goals, we have gone paperless in all billing and payment processes. This reduces waste and supports our broader environmental initiatives.</p>
+                </div>
+                <div className="lg:w-1/2 rounded-[10px] overflow-hidden">
+                  <img src="/sustainability/paper.jpg" alt="Paperless Operations" className="w-full h-auto object-cover rounded-[14px]" />
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </>
   );
-} 
+}

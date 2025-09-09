@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -43,6 +43,12 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+}
+
+@theme {
+  --breakpoint-tb: 768px;
+  --breakpoint-lp: 992px;
+  --breakpoint-full: 1920px;
 }
 
 :root {
@@ -220,7 +226,7 @@
 @layer base {
   :root {
     /* Design tokens - Colors */
-    --color-primary: 14 53 153; /* Brand Blue */
+    --color-primary: #0e3599; /* Brand Blue */
     --color-secondary: 245 158 11; /* Amber */
     
     /* Neutral colors */
@@ -242,6 +248,14 @@
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+    --action-h-xs: 20px;
+    --action-h-sm: 24px;
+    --action-h-md: 30px;
+    --action-h-lg: 36px;
+    --action-h-xl: 40px;
+    --action-h-2xl: 54px;
+    --action-h-3xl: 62px;
   }
 }
 
@@ -281,9 +295,6 @@
 
 @layer components {
   /* Container styles */
-  .container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
 
   /* Button base styles */
   .btn {
@@ -310,9 +321,125 @@
   .text-balance {
     text-wrap: balance;
   }
+  /* pad page content below the fixed, transparent header */
+  .pt-nav {
+    margin-top: calc(var(--nav-h) + env(safe-area-inset-top));
+  }
+
+  .-mt-nav {
+    margin-top: calc(-1 * (var(--nav-h) + env(safe-area-inset-top)));
+  }
 }
 
 /* === Global paragraph style for consistency === */
 p {
-  @apply text-base leading-relaxed text-gray-700;
+  @apply text-base leading-relaxed;
+}
+
+/* Mobile-first defaults (≤ ph) */
+:root {
+  --nav-h: 56px;
+  --logo-w: 124px;
+
+  /* Typography (font-size / line-height) */
+  --fs-h1: 1.5rem;     /* 24 */
+  --fs-h2: 1.5rem;     /* 24 */
+  --fs-h3: 1.125rem;   /* 18 */
+
+  /* Container & section */
+  --container-max: 90%;
+  --container-px: 1rem;        /* 16 */
+  --section-py: 3rem;          /* 48 */
+
+  /* Icons / media */
+  --card-radius: 0.75rem;      /* 12 */
+  --card-gap: 1rem;            /* 16 */
+
+  --login-btn: var(--action-h-md);
+
+
+}
+
+/* ≥ tb (Tablet) */
+@media (min-width: 768px) {
+  :root {
+    --nav-h: 64px;
+    --logo-w: 136px;
+
+    --fs-h1: 2.5rem;     /* 40 */
+    --fs-h2: 2rem;       /* 32 */
+    --fs-h3: 1.25rem     /* 20 */;
+
+  --container-max: 728px;    /* pick your tablet container */
+    --container-px: 1.5rem;    /* 24 */
+    --section-py: 4rem;        /* 64 */
+
+    --card-radius: 0.75rem;    /* 12 */
+    --card-gap: 1.25rem;       /* 20 */
+
+    --login-btn: var(--action-h-lg);
+
+
+  }
+}
+
+/* ≥ lp (Laptop) */
+@media (min-width: 992px) {
+  :root {
+    --nav-h: 72px;
+    --logo-w: 148px;
+
+    --fs-h1: 3rem;      /* 48 */
+    --fs-h2: 2.5rem;    /* 40 */
+    --fs-h3: 1.5rem;    /* 24 */
+
+    --container-max: 960px;    /* pick per your design */
+    --container-px: 2rem;      /* 32 */
+    --section-py: 5rem;        /* 80 */
+
+    --card-radius: 0.875rem;   /* 14 */
+    --card-gap: 1.5rem;        /* 24 */
+
+    --login-btn: var(--action-h-xl);
+  }
+}
+
+/* ≥ full (Wide desktop) */
+@media (min-width: 1920px) {
+  :root {
+    --nav-h: 80px;
+    --logo-w: 168px;
+
+    --fs-h1: 4rem;       /* 64 */
+    --fs-h2: 3rem;       /* 48 */
+    --fs-h3: 1.5rem;     /* 24 */
+
+    --container-max: 1200px;   /* or 1320/1440 per Figma */
+    --container-px: 2.5rem;    /* 40 */
+    --section-py: 6rem;        /* 96 */
+
+    --card-radius: 1rem;       /* 16 */
+    --card-gap: 2rem;          /* 32 */
+
+    --login-btn: var(--action-h-xl);
+  }
+}
+
+@layer components {
+  /* Container / Section */
+  .section { @apply w-full; padding-block: var(--section-py); }
+  .container {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    @apply mx-auto
+  }
+
+  /* Type */
+  .h1 { font-size: var(--fs-h1); @apply font-bold tracking-tight; }
+  .h2 { font-size: var(--fs-h2); @apply font-semibold tracking-tight; }
+  .h3 { font-size: var(--fs-h3); @apply font-semibold; }
+
+  /* Media */
+  .card { border-radius: var(--card-radius); }
+  .card-gap { gap: var(--card-gap); }
 }
