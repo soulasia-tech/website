@@ -1,17 +1,12 @@
 "use client"
 
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { BookingWidget } from "@/components/booking-widget"
+import { motion } from "framer-motion"
 import { Toaster } from "sonner"
 import { CustomerReviews } from "@/components/customer-reviews"
 import { Locations } from "@/components/blocks/locations"
 import { allLocationsCache, CachedProperties, CachedRooms, CachedRates } from "@/lib/allLocationsCache"
-import React, { useEffect, useState } from "react"
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
-import { RoomCard } from "@/components/room-card"
-import { Key, Smile, MapPin, Coffee, Bed, Leaf, ArrowRight } from "lucide-react"
-import Link from "next/link"
+import React, { useEffect } from "react"
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {Experience} from "@/components/blocks/experience";
 
@@ -36,13 +31,13 @@ const staggerContainer = {
 }
 
 // Add Room type above FeaturedApartmentsCarousel
-type Room = {
-  roomTypeID: string;
-  roomTypeName: string;
-  propertyName: string;
-  roomTypePhotos: { url: string; caption: string }[];
-  rate: number;
-};
+// type Room = {
+//   roomTypeID: string;
+//   roomTypeName: string;
+//   propertyName: string;
+//   roomTypePhotos: { url: string; caption: string }[];
+//   rate: number;
+// };
 
 export default function Home() {
   useEffect(() => {
@@ -71,53 +66,53 @@ export default function Home() {
       });
   }, []);
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
+  // const [currentSlide, setCurrentSlide] = useState(0);
+  // const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
 
   // Auto-advance slider every 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDirection(1);
-      setCurrentSlide((prev) => (prev + 1) % 2);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [currentSlide]);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setDirection(1);
+  //     setCurrentSlide((prev) => (prev + 1) % 2);
+  //   }, 5000);
+  //   return () => clearTimeout(timer);
+  // }, [currentSlide]);
 
   // Animation variants for sliding
-  const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? 300 : -300,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.5, ease: "easeInOut" },
-    },
-    exit: (dir: number) => ({
-      x: dir > 0 ? -300 : 300,
-      opacity: 0,
-      transition: { duration: 0.5, ease: "easeInOut" },
-    }),
-  };
+  // const slideVariants = {
+  //   enter: (dir: number) => ({
+  //     x: dir > 0 ? 300 : -300,
+  //     opacity: 0,
+  //   }),
+  //   center: {
+  //     x: 0,
+  //     opacity: 1,
+  //     transition: { duration: 0.5, ease: "easeInOut" },
+  //   },
+  //   exit: (dir: number) => ({
+  //     x: dir > 0 ? -300 : 300,
+  //     opacity: 0,
+  //     transition: { duration: 0.5, ease: "easeInOut" },
+  //   }),
+  // };
 
   // Define standards features as arrays of objects
-  const standardsSlide1 = [
-    { title: "Stay Hassle-Free", desc: "24/7 keyless entry. No check-ins or outs.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Stay Hosted", desc: "Dedicated & local concierge available 24/7.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Stay Local", desc: "Hand picked apartments in the trendiest districts.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Stay Nourished", desc: "Breakfast partners at nearby handpicked venues.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Stay Rested", desc: "Premium beds. Luxury pillows and duvets. Black out blinds.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Stay Sustainable", desc: "All renewable energy. Smart recycling and minimizing waste.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  ];
-  const standardsSlide2 = [
-    { title: "Prime Locations", desc: "Stay in the heart of the city, close to top attractions and dining.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Complimentary Coffee", desc: "Enjoy premium coffee and tea, always on the house.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Luxury Sleep", desc: "Sink into plush beds with high-quality linens and blackout curtains.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Friendly Support", desc: "Our team is available 24/7 to make your stay seamless.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Smart Access", desc: "Keyless entry for your convenience and security.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-    { title: "Eco-Friendly", desc: "Sustainable practices and amenities in every property.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  ];
+  // const standardsSlide1 = [
+  //   { title: "Stay Hassle-Free", desc: "24/7 keyless entry. No check-ins or outs.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Stay Hosted", desc: "Dedicated & local concierge available 24/7.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Stay Local", desc: "Hand picked apartments in the trendiest districts.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Stay Nourished", desc: "Breakfast partners at nearby handpicked venues.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Stay Rested", desc: "Premium beds. Luxury pillows and duvets. Black out blinds.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Stay Sustainable", desc: "All renewable energy. Smart recycling and minimizing waste.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  // ];
+  // const standardsSlide2 = [
+  //   { title: "Prime Locations", desc: "Stay in the heart of the city, close to top attractions and dining.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Complimentary Coffee", desc: "Enjoy premium coffee and tea, always on the house.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Luxury Sleep", desc: "Sink into plush beds with high-quality linens and blackout curtains.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Friendly Support", desc: "Our team is available 24/7 to make your stay seamless.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Smart Access", desc: "Keyless entry for your convenience and security.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  //   { title: "Eco-Friendly", desc: "Sustainable practices and amenities in every property.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
+  // ];
 
   return (
     <>
@@ -198,9 +193,7 @@ export default function Home() {
                   Act Like an <span className="text-white">Owner</span>
                 </h2>
                 <div className="font-normal text-[#dfdfdf] max-w-120 text-sm tb:text-base lg:text-lg full:text-2xl">
-                  We anticipate your needs before you realize them, designing each space with the same care as our own
-                  homes. Premium furnishings and thoughtful amenities ensure your comfort, convenience, and an
-                  experience you'll want to return to
+                  {'We anticipate your needs before you realize them, designing each space with the same care as our own homes. Premium furnishings and thoughtful amenities ensure your comfort, convenience, and anexperience you\'ll want to return to'}
                 </div>
                 <a href="/for-owners" className="font-medium text-white text-base full:text-xl underline">
                   Read More
@@ -317,108 +310,4 @@ export default function Home() {
       </div>
     </>
   )
-}
-
-// Featured Apartments Carousel
-function FeaturedApartmentsCarousel() {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Fetch rooms logic (copy from RoomsSection, but only setRooms)
-    const fetchRooms = async () => {
-      try {
-        const propertiesRes = await fetch('/api/cloudbeds-properties');
-        const propertiesData = await propertiesRes.json();
-        if (!propertiesData.success) throw new Error('Failed to load properties');
-        const roomTypePromises = propertiesData.properties.map((property: unknown) =>
-          fetch(`/api/cloudbeds/room-types?propertyId=${(property as { propertyId: string }).propertyId}`).then(res => res.json())
-        );
-        const roomsDataArr = await Promise.all(roomTypePromises);
-        const startDate = new Date().toISOString().slice(0, 10);
-        const endDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-        const ratePlanPromises = propertiesData.properties.map((property: unknown) =>
-          fetch(`/api/cloudbeds/rate-plans?propertyId=${(property as { propertyId: string }).propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json())
-        );
-        const ratesDataArr = await Promise.all(ratePlanPromises);
-        const allRooms: Room[] = [];
-        for (let i = 0; i < propertiesData.properties.length; i++) {
-          const property = propertiesData.properties[i];
-          const roomsData = roomsDataArr[i];
-          const ratesData = ratesDataArr[i];
-          const rateMap: Record<string, number> = {};
-          if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
-            ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
-              if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
-                rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
-              }
-            });
-          }
-          if (roomsData.success && roomsData.roomTypes) {
-            const transformedRooms: Room[] = roomsData.roomTypes.map((room: unknown) => {
-              const r = room as { roomTypeID: string; roomTypeName: string; roomTypePhotos?: string[] };
-              return {
-                roomTypeID: r.roomTypeID,
-                roomTypeName: r.roomTypeName,
-                propertyName: (property as { propertyName?: string }).propertyName || "",
-                roomTypePhotos: (r.roomTypePhotos || []).map((url: string) => ({ url, caption: "" })),
-                rate: rateMap[r.roomTypeID],
-              };
-            });
-            allRooms.push(...transformedRooms);
-          }
-        }
-        setRooms(allRooms);
-      } catch {
-        setError('Failed to fetch rooms');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRooms();
-  }, []);
-
-  if (loading) {
-    return <div className="h-80 flex items-center justify-center">Loading...</div>;
-  }
-  if (error) {
-    return <div className="text-center text-red-500 py-8">{error}</div>;
-  }
-
-  return (
-    <Carousel
-      opts={{
-        align: "start",
-        containScroll: "trimSnaps",
-        breakpoints: {
-          "(max-width: 640px)": {
-            slidesToScroll: 1,
-          },
-          "(min-width: 641px) and (max-width: 1023px)": {
-            slidesToScroll: 2,
-          },
-          "(min-width: 1024px)": {
-            slidesToScroll: 4,
-          },
-        },
-      }}
-    >
-      <CarouselContent className="px-4">
-        {rooms.map((room: Room) => (
-          <CarouselItem
-            key={room.roomTypeID}
-            className="basis-full md:basis-1/2 lg:basis-1/4 max-w-full"
-          >
-            <RoomCard
-              roomName={room.roomTypeName}
-              propertyName={room.propertyName}
-              photos={room.roomTypePhotos}
-              rate={room.rate}
-            />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
-  );
 }

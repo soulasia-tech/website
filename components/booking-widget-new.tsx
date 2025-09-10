@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Search, CalendarIcon, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
@@ -15,13 +15,12 @@ import {
 import {
   Select,
   SelectContent, SelectGroup,
-  SelectItem, SelectLabel, SelectSeparator,
+  SelectItem, SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { DateRange } from "react-day-picker"
 import { calculateTotalGuests } from '@/lib/guest-utils'
-import ReactDOM from 'react-dom'
 
 interface BookingWidgetProps {
   initialSearchParams?: {
@@ -37,7 +36,7 @@ interface BookingWidgetProps {
   hide?: boolean;
 }
 
-export function BookingWidgetNew({ initialSearchParams, alwaysSticky, hide }: BookingWidgetProps) {
+export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     touchRooms: false,
@@ -57,7 +56,6 @@ export function BookingWidgetNew({ initialSearchParams, alwaysSticky, hide }: Bo
   const [cities, setCities] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(false);
   // Hydration fix: track if component is mounted on client
 
   // Add refs for step-by-step navigation
@@ -68,13 +66,13 @@ export function BookingWidgetNew({ initialSearchParams, alwaysSticky, hide }: Bo
   const [touchRooms, setTouchRooms] = useState(false);
 
   // Add new state for apartments
-  const [apartments, setApartments] = useState(() => {
-    if (initialSearchParams?.apartments) {
-      const n = parseInt(initialSearchParams.apartments, 10);
-      return isNaN(n) ? 1 : n;
-    }
-    return 1;
-  });
+  // const [apartments, setApartments] = useState(() => {
+  //   if (initialSearchParams?.apartments) {
+  //     const n = parseInt(initialSearchParams.apartments, 10);
+  //     return isNaN(n) ? 1 : n;
+  //   }
+  //   return 1;
+  // });
   const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
 
   useEffect(() => {
@@ -120,7 +118,7 @@ export function BookingWidgetNew({ initialSearchParams, alwaysSticky, hide }: Bo
       endDate: format(date.to, 'yyyy-MM-dd'),
       adults: searchParams.adults,
       children: searchParams.children,
-      apartments: apartments.toString(),
+      // apartments: apartments.toString(),
       guests: totalGuests.toString(),
     }).toString()
     router.push(`/search?${queryString}`)
@@ -247,7 +245,7 @@ export function BookingWidgetNew({ initialSearchParams, alwaysSticky, hide }: Bo
                     onClick={() => setTouchRooms(true)}
                 >
                   {touchRooms ?
-                      `${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}, ${apartments} apartment${apartments === 1 ? '' : 's'}`
+                      `${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}` //, ${apartments} apartment${apartments === 1 ? '' : 's'}
                       : 'Guests and rooms'
                   }
                 </Button>

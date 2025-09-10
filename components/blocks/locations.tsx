@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowRight, Dumbbell, Waves, Utensils } from "lucide-react";
 import Image from "next/image";
 
 import {motion} from "framer-motion";
@@ -86,7 +85,6 @@ const fadeIn = {
 
 const Locations = ({
   title = "Soulasia locations",
-  description = "Explore our premium serviced apartments in Kuala Lumpur's most sought-after neighborhoods.",
   items = data,
 }: LocationsProps) => {
 
@@ -128,7 +126,7 @@ const Locations = ({
               className="flex justify-between items-end "
           >
             <div className="max-w-lg text-left mb-4">
-              <h2 className="h2">Soulasia locations</h2>
+              <h2 className="h2">{title}</h2>
             </div>
             <div className="flex gap-x-[10px] items-center">
               <a href="/all-locations">See all</a>

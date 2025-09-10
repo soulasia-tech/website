@@ -8,10 +8,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {useEffect, useMemo, useState} from 'react';
-import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
-import {useRouter, usePathname} from 'next/navigation';
-import {User as SupabaseUser} from '@supabase/supabase-js';
+import {useEffect, useState} from 'react';
+import {usePathname} from 'next/navigation';
+// import {User as SupabaseUser} from '@supabase/supabase-js';
 import Image from 'next/image';
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {cn} from "@/lib/utils";
@@ -65,36 +64,36 @@ export function Navbar({className}: NavbarProps) {
         return () => observer.disconnect();
     }, [pathname]);
 
-    const [user, setUser] = useState<SupabaseUser | null>(null);
-    const supabase = createClientComponentClient();
-    const router = useRouter();
+    // const [user, setUser] = useState<SupabaseUser | null>(null);
+    // const supabase = createClientComponentClient();
+    // const router = useRouter();
 
     // Check auth state
-    useEffect(() => {
-        const getUser = async () => {
-            const {data: {user}} = await supabase.auth.getUser();
-            setUser(user);
-        };
+    // useEffect(() => {
+    //     const getUser = async () => {
+    //         const {data: {user}} = await supabase.auth.getUser();
+    //         setUser(user);
+    //     };
+    //
+    //     getUser();
+    //
+    //     // Listen for auth changes
+    //     const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
+    //         setUser(session?.user ?? null);
+    //     });
+    //
+    //     return () => {
+    //         subscription.unsubscribe();
+    //     };
+    // }, [supabase.auth]);
 
-        getUser();
-
-        // Listen for auth changes
-        const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, [supabase.auth]);
-
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        router.refresh();
-        if (pathname === '/my-bookings') {
-            router.push('/');
-        }
-    };
+    // const handleSignOut = async () => {
+    //     await supabase.auth.signOut();
+    //     router.refresh();
+    //     if (pathname === '/my-bookings') {
+    //         router.push('/');
+    //     }
+    // };
 
     return (
         <header
