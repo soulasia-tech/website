@@ -1,44 +1,30 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 
 export function CustomerReviews() {
-    const [scrollEl, setScrollEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        // Inject Elfsight script once
+        // Only add the script if it hasn't been added yet
         if (!document.querySelector('script[src="https://static.elfsight.com/platform/platform.js"]')) {
             const script = document.createElement("script");
             script.src = "https://static.elfsight.com/platform/platform.js";
             script.async = true;
             document.body.appendChild(script);
         }
-
-        // Poll until Elfsight renders the internal track
-        const interval = setInterval(() => {
-            const container = document.querySelector(
-                ".elfsight-app-b6e0f7e5-21ef-4db4-a42d-f02a49cc25f3"
-            );
-            if (container) {
-                // Elfsight usually nests its carousel items one level deeper
-                const inner = container.querySelector("div");
-                if (inner) {
-                    (inner as HTMLElement).style.scrollBehavior = "smooth";
-                    setScrollEl(inner as HTMLElement);
-                    clearInterval(interval);
-                }
-            }
-        }, 500);
-
-        return () => clearInterval(interval);
     }, []);
 
     const scrollNext = () => {
-        if (scrollEl) scrollEl.scrollBy({ left: 300, behavior: "smooth" });
+        const btn = document.querySelector(
+            ".es-carousel-arrow-control-right"
+        ) as HTMLElement | null;
+        btn?.click();
     };
 
     const scrollPrev = () => {
-        if (scrollEl) scrollEl.scrollBy({ left: -300, behavior: "smooth" });
+        const btn = document.querySelector(
+            ".es-carousel-arrow-control-left"
+        ) as HTMLElement | null;
+        btn?.click();
     };
-
 
     return (
         <div className="container py-12">
@@ -49,11 +35,11 @@ export function CustomerReviews() {
                     </div>
                     <div className="flex gap-x-[10px] items-center">
                         <div onClick={scrollPrev}
-                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                             <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
                         </div>
                         <div onClick={scrollNext}
-                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                             <img src="/icons/arrow.svg" alt=""/>
                         </div>
                     </div>
@@ -64,4 +50,4 @@ export function CustomerReviews() {
     );
 }
 
-export default CustomerReviews; 
+export default CustomerReviews;

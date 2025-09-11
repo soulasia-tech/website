@@ -120,28 +120,30 @@ export default function Home() {
       <div className="flex flex-col min-h-screen bg-white pt-0 -mt-nav">
         <Toaster />
         {/* Hero Section (without BookingWidget) */}
-        <section className="relative overflow-hidden bg-white pt-24 tb:pt-50 tb:pb-20 lp:py-32 lp:min-h-[90vh] flex items-center ">
+        <section
+            className="relative overflow-hidden bg-white pt-24 tb:pt-50 tb:pb-20 lp:py-32 lp:min-h-[90vh] flex items-center ">
           {/* Decorative Elements */}
           <div className="absolute inset-0 w-full h-full z-0">
             <Image
-              src="/media-assets/asset4.png"
-              alt="Soulasia Hero Background"
-              fill
-              priority
-              quality={80}
-              sizes="100vw"
-              className="dark-header object-cover max-h-[350px] tb:max-h-full"
-              style={{ objectPosition: 'center 10%' }}
+                src="/media-assets/asset4.png"
+                alt="Soulasia Hero Background"
+                fill
+                priority
+                quality={80}
+                sizes="100vw"
+                className="dark-header object-cover max-h-[350px] tb:max-h-full"
+                style={{objectPosition: 'center 10%'}}
             />
             {/* Overlay to darken the image further */}
           </div>
+          <div className="absolute inset-0 w-full h-full max-h-[350px] tb:max-h-full z-0 bg-black/20"/>
 
           <div className="container relative z-10 flex flex-col items-center justify-center text-center">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="max-w-5xl mb-8"
+                initial={{opacity: 0, y: 30}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.8, delay: 0.2}}
+                className="max-w-5xl mb-8"
             >
               <h1 className="h1 mb-4 text-white">
                 Soulful Stays, Memorable Days
@@ -161,7 +163,7 @@ export default function Home() {
         </section>
         <main className="flex-1 pt-0">
           {/* Locations Section */}
-          <Locations />
+          <Locations/>
 
           {/* Value Proposition Section - moved up */}
           {/* Hero Section */}
@@ -286,11 +288,15 @@ export default function Home() {
           </section>
 
           {/* OTA Logos Section */}
-          <section className="py-16 bg-white border-t border-gray-100">
-            <div className="container mx-auto">
-              <h2 className="h2 font-semibold mb-8">We are listed on</h2>
+            <section className="py-16 bg-white">
+              <h2 className="container h2 font-semibold mb-8">We are listed on</h2>
               <div
-                  className="flex flex-wrap md:flex-nowrap justify-between items-center gap-8 overflow-x-auto scrollbar-hide">
+                    className="pl-[5%] flex gap-6 overflow-x-auto no-scrollbar
+                    lp:flex lp:justify-between lp:items-center lp:gap-8 lp:pl-0 lp:container lp:mx-auto
+                    [mask-image:linear-gradient(to_left,transparent_1,black_25px,black_calc(100%-25px),transparent_100%)]
+                    [mask-repeat:no-repeat] [mask-size:100%_100%] lp:[mask-image:none]
+                    "
+              >
                 {Array.from({length: 8}).map((_, idx) => (
                     <Image
                         key={idx}
@@ -298,14 +304,13 @@ export default function Home() {
                         alt={`OTA Logo ${idx + 1}`}
                         width={140}
                         height={56}
-                        className="h-14 w-auto object-contain transition bg-white rounded-lg p-2"
-                        style={{maxWidth: 140, minWidth: 80}}
+                        className="h-14 w-auto object-contain transition bg-white rounded-lg"
+                        style={{maxWidth: 150, minWidth: 100}}
                         priority={false}
                     />
                 ))}
               </div>
-            </div>
-          </section>
+            </section>
         </main>
       </div>
     </>

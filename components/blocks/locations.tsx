@@ -129,13 +129,13 @@ const Locations = ({
               <h2 className="h2">{title}</h2>
             </div>
             <div className="flex gap-x-[10px] items-center">
-              <a href="/all-locations">See all</a>
+              <a href="/all-locations" className="whitespace-nowrap text-sm tb:text-base lp:text-lg">See all</a>
               <div onClick={prev}
-                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                 <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
               </div>
               <div onClick={next}
-                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                 <img src="/icons/arrow.svg" alt=""/>
               </div>
             </div>
@@ -158,7 +158,8 @@ const Locations = ({
             {items.map((item) => (
                 <div
                     key={item.id}
-                    className="flex-shrink-0 basis-1/2 lp:basis-1/3 group overflow-hidden bg-white px-3 space-y-[8px] tb:space-y-[10px] lp:space-y-[20px]"
+                    onClick={() => window.open(item.href, "_self")}
+                    className="cursor-pointer flex-shrink-0 basis-1/2 lp:basis-1/3 group overflow-hidden bg-white px-3 space-y-[8px] tb:space-y-[10px] lp:space-y-[20px]"
                 >
                   <div className="relative w-full aspect-[4/3]">
                     <Image
@@ -170,7 +171,7 @@ const Locations = ({
                     />
                     {/* Distance badge */}
                     <div
-                        className="absolute top-3 left-3 bg-white/90 text-gray-900 text-xs font-medium px-3 py-1 rounded-full shadow">
+                        className="absolute top-3 left-2 lp:left-3 bg-white/90 text-gray-900 text-[10px] inline-block w-fit tb:text-xs lp:text-base leading-tight font-medium px-3 py-1 rounded-full shadow">
                       {item.distance}
                     </div>
                   </div>

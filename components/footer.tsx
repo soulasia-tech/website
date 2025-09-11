@@ -39,17 +39,17 @@ export function Footer() {
             <div className="mb-2 font-normal text-white/80 text-base lp:text-lg full:text-xl">Menu</div>
             <ul className="space-y-1">
               <li>
-                <Link href="/for-owners" className="font-semibold text-white text-white text-base lp:text-lg lp:text-xl hover:underline">For Owners</Link>
+                <Link href="/for-owners" className="font-semibold text-white text-white text-base lp:text-lg full:text-xl hover:underline">For Owners</Link>
               </li>
               <li>
-                <Link href="/sustainability" className="font-semibold text-white text-white text-base lp:text-lg lp:text-xl hover:underline">Sustainability</Link>
+                <Link href="/sustainability" className="font-semibold text-white text-white text-base lp:text-lg full:text-xl hover:underline">Sustainability</Link>
               </li>
             </ul>
           </div>
           {/* Company Info */}
           <div className="text-white">
             <div className="font-normal text-white/80 text-base lp:text-lg full:text-xl mb-2">Company</div>
-            <div className="font-semibold text-white text-base lp:text-lg lp:text-xl mb-1">
+            <div className="font-semibold text-white text-base lp:text-lg full:text-xl mb-1">
               Soulasia Management Sdn. Bhd.<br/>
               Registration Number - 202301007902 (1501823-H)
             </div>
@@ -57,8 +57,8 @@ export function Footer() {
           {/* Contact Info */}
           <div className="text-white">
             <div className="font-normal text-white/80 text-base lp:text-lg full:text-xl mb-2">Contact</div>
-            <div className="font-semibold text-base lp:text-lg lp:text-xl mb-1">+60 3 21818729</div>
-            <div className="font-semibold text-base lp:text-lg lp:text-xl mb-1">info@soulasia.com.my</div>
+            <div className="font-semibold text-base lp:text-lg full:text-xl mb-1">+60 3 21818729</div>
+            <div className="font-semibold text-base lp:text-lg full:text-xl mb-1">info@soulasia.com.my</div>
             <div className="font-normal text-white/80 text-sm full:text-base mb-1">B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia</div>
           </div>
         </div>

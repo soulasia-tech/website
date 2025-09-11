@@ -314,6 +314,10 @@
            focus:border-primary focus:ring-primary
            disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500;
   }
+
+  .es-carousel-arrow-control-left .es-carousel-arrow-control-left {
+    @apply hidden;
+  }
 }
 
 @layer utilities {
@@ -328,6 +332,14 @@
 
   .-mt-nav {
     margin-top: calc(-1 * (var(--nav-h) + env(safe-area-inset-top)));
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
@@ -356,7 +368,6 @@ p {
   --card-gap: 1rem;            /* 16 */
 
   --login-btn: var(--action-h-md);
-
 
 }
 
@@ -443,3 +454,5 @@ p {
   .card { border-radius: var(--card-radius); }
   .card-gap { gap: var(--card-gap); }
 }
+
+

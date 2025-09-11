@@ -105,11 +105,11 @@ const Experience = ({
           </div>
           <div className="flex gap-x-[10px] items-center">
             <div onClick={prev}
-                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
             </div>
             <div onClick={next}
-                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center w-[40px] h-[40px]">
+                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <img src="/icons/arrow.svg" alt=""/>
             </div>
           </div>
