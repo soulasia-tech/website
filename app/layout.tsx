@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
       </Script>
       <Navbar/>
-      <main className="flex-grow pt-nav">{children}</main>
+      <main className="bg-white flex-grow pt-nav">{children}</main>
       <Footer/>
       </body>
       </html>

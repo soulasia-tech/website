@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 import {motion} from "framer-motion";
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 
 export interface LocationsItem {
   id: string;
@@ -132,11 +132,22 @@ const Locations = ({
               <a href="/all-locations" className="whitespace-nowrap text-sm tb:text-base lp:text-lg">See all</a>
               <div onClick={prev}
                    className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
+                <Image
+                    src="/icons/arrow.svg"
+                    alt=""
+                    className="transform rotate-180"
+                    width={24}
+                    height={24}
+                />
               </div>
               <div onClick={next}
                    className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                <img src="/icons/arrow.svg" alt=""/>
+                <Image
+                    src="/icons/arrow.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                />
               </div>
             </div>
           </motion.div>
@@ -180,11 +191,19 @@ const Locations = ({
                     <div
                         className="flex flex-col tb:flex-row space-y-1 tb:space-y-0 tb:items-center gap-1 lp:gap-3 text-sm text-[#4A4F5B]">
                       <div className="flex items-center gap-1">
-                        <img src="/icons/bed.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
+                        <Image
+                            src="/icons/bed.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"
+                            width={24}
+                            height={24}
+                        />
                         <span className="text-xs tb:text-sm lp:text-base">{item.bedrooms}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <img src="/icons/shower.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
+                        <Image
+                            src="/icons/shower.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"
+                            width={24}
+                            height={24}
+                        />
                         <span className="text-xs tb:text-sm lp:text-base">{item.bathrooms}</span>
                       </div>
                     </div>

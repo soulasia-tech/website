@@ -1,4 +1,5 @@
-import {useEffect} from "react";
+import React, {useEffect} from "react";
+import Image from "next/image"
 
 export function CustomerReviews() {
 
@@ -36,11 +37,22 @@ export function CustomerReviews() {
                     <div className="flex gap-x-[10px] items-center">
                         <div onClick={scrollPrev}
                              className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                            <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
+                            <Image
+                                src="/icons/arrow.svg"
+                                alt="Arrow"
+                                width={24}
+                                height={24}
+                                className="transform rotate-180"
+                            />
                         </div>
                         <div onClick={scrollNext}
                              className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                            <img src="/icons/arrow.svg" alt=""/>
+                            <Image
+                                src="/icons/arrow.svg"
+                                alt="Arrow"
+                                width={24}
+                                height={24}
+                            />
                         </div>
                     </div>
                 </div>

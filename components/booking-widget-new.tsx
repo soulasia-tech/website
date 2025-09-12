@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select"
 import { DateRange } from "react-day-picker"
 import { calculateTotalGuests } from '@/lib/guest-utils'
+import Image from "next/image";
 
 interface BookingWidgetProps {
   initialSearchParams?: {
@@ -180,8 +181,12 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                           value={city}
                           className="flex items-center gap-2"
                       >
-                        <div className="flex items-center w-[16px] h-[16px] lp:w-[20px] lp:h-[16px]">
-                          <img src="/icons/location.svg" alt="" className="w-full h-full text-[#0E3599]"/>
+                        <div className="flex items-center w-[16px] h-[16px] lp:w-[20px] lp:h-[20px]">
+                          <Image
+                              src="/icons/location.svg" alt="" className="w-full h-full text-[#0E3599]"
+                              width={24}
+                              height={24}
+                          />
                         </div>
                         <div className="text-[#0e3599] font-medium text-xs lp:text-sm ">{city}</div>
                       </SelectItem>

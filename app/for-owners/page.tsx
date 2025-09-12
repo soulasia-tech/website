@@ -1,6 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Image from "next/image";
+import React from "react";
 
 // Animation variants
 const fadeIn = {
@@ -24,207 +26,236 @@ const staggerContainer = {
 export default function ForOwnersPage() {
   return (
     <>
-        <title>Soulasia | For Property Owners</title>
-        <div className="flex flex-col bg-gray-50">
-          <main className="flex-1">
-            {/* Hero Section */}
-            <section className="relative overflow-hidden pt-[60px] pb-[50px] bg-white flex items-center">
-              {/* Updated container to match the 1240px width for large screens with 100px padding */}
-              <div className="container mx-auto relative z-10">
-                <div className="relative w-full overflow-hidden rounded-[24px]">
-                  <div
-                      // Changed image width to w-full to make it responsive
-                      className="w-full h-[500px] bg-cover bg-center mx-auto"
-                      style={{
-                        backgroundImage: "url('/media-assets/asset6.png')",
-                      }}
-                  />
-                  <div className="absolute inset-0 bg-black/50" />
-                </div>
-                <motion.div
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    // Updated positioning and width to match Figma
-                    className="absolute top-[60px] left-[75px] w-[679px] text-left"
-                >
-                  <h1 className="text-[48px] font-semibold mb-4 text-white drop-shadow-lg leading-tight" >
-                    We will help you rent your apartment
-                  </h1>
-                  <p className="mt-[20px]  text-[24px] font-normal ml-3 max-w-2xl mx-auto md:mx-0 drop-shadow-md" style={{ color: '#fff', fontFamily: 'Manrope, sans-serif' }}>
-                    We care for your property as if it were our own.
-                  </p>
-                </motion.div>
-              </div>
-            </section>
+      <title>Soulasia | For Property Owners</title>
+      <div className="bg-white">
+        <section className="py-5 tb:py-10 lp:py-20 bg-white">
+          <div className="container relative">
+            <div
+                className="relative w-full max-h-[251px] tb:max-h-[425px] lp:max-h-[500px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] z-0">
+              <Image
+                  src="/media-assets/asset6.png"
+                  alt="Soulasia Guest"
+                  fill
+                  priority
+                  quality={80}
+                  sizes="100vw"
+                  className="object-cover"
+                  style={{objectPosition: 'center 30%'}} // adjust focus area
+              />
+              {/* Overlay to darken the image further */}
+            </div>
+            {/* Overlay (optional) */}
+            <div className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
 
-            {/* Benefits Section */}
-            <section className="pt-[50px] pb-[80px] bg-white relative overflow-hidden">
-              <div className="container mx-auto">
-                <div className="text-left mb-12 lp:mb-16">
-                  <h2 className="text-[48px] font-semibold mb-4" >Benefits for Property Owners</h2>
+            <motion.div
+                initial={{opacity: 0, y: -30}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.8, delay: 0.2}}
+                className="absolute inset-0 top-[20px] left-[20px] tb:top-[32px] tb:left-[32px] lp:top-[60px] lp:left-[60px]">
+              <div className="space-y-2 tb:space-y-4 lp:space-y-6 w-full tb:max-w-120 lp:max-w-260  text-white flex flex-col justify-start">
+                <h2 className="h2 font-semibold text-[#dfdfdf]">We will help you rent your apartment</h2>
+                <div className="font-normal text-[#dfdfdf] text-sm tb:text-base lg:text-lg full:text-2xl">
+                  {'We care for your property as if it were our own.'}
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Benefits Section */}
+        <section className="py-24 relative overflow-hidden ">
+          <div className="container mx-auto relative z-10">
+            <div className="flex justify-between mb-[30px]">
+              <div className="max-w-lg text-left ">
+                <h2 className="h2 font-semibold mb-2">Benefits for Property Owners</h2>
+              </div>
+            </div>
+            <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{once: true, amount: 0.2}}
+                variants={staggerContainer}
+                className="grid grid-cols-2 lg:grid-cols-3 gap-[10px] tb:gap-[20px] full:gap-y-[30px]"
+            >
+              {[
+                {
+                  iconSrc: "/icons/provenExperience.svg",
+                  title: "Proven Experience",
+                  desc: "Years of rental properties, we know what guests need."
+                },
+                {
+                  iconSrc: "/icons/attentionToDetail.svg",
+                  title: "Attention to Detail",
+                  desc: "Cleanliness, appliance maintenance, regular servicing."
+                },
+                {
+                  iconSrc: "/icons/transparency.svg",
+                  title: "Transparency",
+                  desc: "Video reports on property condition."
+                },
+                {
+                  iconSrc: "/icons/peaceOfMind.svg",
+                  title: "Peace of Mind",
+                  desc: "Handle property repairs and maintenance."
+                },
+                {
+                  iconSrc: "/icons/onTimePayments.svg",
+                  title: "On-Time Payments",
+                  desc: "Automated on-time payouts."
+                },
+                {
+                  iconSrc: "/icons/liabilityInsurance.svg",
+                  title: "Liability Insurance",
+                  desc: "Additional protection for unforeseen incidents."
+                },
+              ].map((item, index) => (
+                  <motion.div
+                      key={index}
+                      variants={fadeIn}
+                      className="flex flex-col items-start transition-transform duration-300 pr-4 w-full"
+                  >
+                    <div className="max-w-fit">
+                      <div
+                          className="mb-2 flex items-center justify-start aspect-[1/1] w-[28px] tb:w-[32px] lp:w-[40px] ">
+                        <Image
+                            src={item.iconSrc}
+                            alt={item.title}
+                            width={24}
+                            height={24}
+                            className="w-full h-full"
+                        />
+                      </div>
+                      <h3 className="font-semibold mb-2 text-lg lp:text-xl full:text-2xl lp:mb-4 leading-tight">
+                        {item.title}
+                      </h3>
+                      <div
+                          className="font-normal text-[#606060] text-sm tb:text-base lp:text-xl max-w-fit">{item.desc}</div>
+                    </div>
+                  </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="py-10 tb:py-15 lp:py-20 bg-[#F9FAFB] relative overflow-hidden">
+          <div className="container">
+            <div className="flex flex-col lp:flex-row gap-5 tb:gap-8">
+              <div className="lp:w-1/2 text-left">
+                <h2 className="h2 font-semibold mb-4">How It Works</h2>
+                <div
+                    className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
+                  We will help you at all stages.
+                </div>
+              </div>
+              <div className="lp:w-1/2">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
+                    viewport={{once: true, amount: 0.2}}
                     variants={staggerContainer}
-                    className="mt-[60px] grid grid-cols-1 lp:grid-cols-2 lg:grid-cols-3 gap-x-[20px] gap-y-[30px]"
+                    className="flex flex-col gap-[10px] tb:gap-[20px] lp:gap-[30px]"
                 >
                   {[
-                    { iconSrc: "/icons/provenExperience.svg", title: "Proven Experience", desc: "Years of rental properties, we know what guests need." },
-                    { iconSrc: "/icons/attentionToDetail.svg", title: "Attention to Detail", desc: "Cleanliness, appliance maintenance, regular servicing." },
-                    { iconSrc: "/icons/transparency.svg", title: "Transparency", desc: "Video reports on property condition." },
-                    { iconSrc: "/icons/peaceOfMind.svg", title: "Peace of Mind", desc: "Handle property repairs and maintenance." },
-                    { iconSrc: "/icons/onTimePayments.svg", title: "On-Time Payments", desc: "Automated on-time payouts." },
-                    { iconSrc: "/icons/liabilityInsurance.svg", title: "Liability Insurance", desc: "Additional protection for unforeseen incidents." },
+                    {
+                      step: "01",
+                      title: "Easy Onboarding",
+                      desc: "Years of rental expertise, we know what guests need."
+                    },
+                    {
+                      step: "02",
+                      title: "Tenant Management & Maintenance",
+                      desc: "We handle guest questions, ensure regular technical servicing, and keep everything in perfect condition."
+                    },
+                    {
+                      step: "03",
+                      title: "Guaranteed Payouts",
+                      desc: "We ensure on-time and full payments on time, every time."
+                    },
                   ].map((item, index) => (
+                      // Step
                       <motion.div
-                          key={index}
-                          variants={fadeIn}
-                          className="bg-white flex flex-col items-start transition-transform duration-300 w-full lg:w-[493px] h-[124px]"
+                          key={index + 10}
+                          initial={{opacity: 0, y: 50}}
+                          whileInView={{opacity: 1, y: 0}}
+                          transition={{duration: 0.6, delay: index / 10}}
+                          viewport={{once: true, amount: 0.2}}
+                          className="bg-[#ffffff] rounded-[14px] w-full shadow-md flex flex-col lp:p-[24px] tb:p-[20px] p-[15px]"
                       >
-                        <div className="mb-2 flex items-center justify-start w-[40px] h-[40px]">
-                          <img src={item.iconSrc} alt={item.title} className="w-full h-full" />
+                        <div
+                            className="aspect-[1/1] w-[28px] tb:w-[32px] lp:w-[40px] border border-[#DEE3ED] rounded-lg flex items-center justify-center">
+                          <div
+                              className="text-xs tb:text-sm lp:text-[20px] font-medium text-[#4A4F5B]">{item.step}</div>
                         </div>
-                        <h3 className="text-[24px] font-semibold mb-[16px]">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm lp:text-base">{item.desc}</p>
+                        <h3 className="h3 text-[#101828] mt-[24px] font-semibold">{item.title}</h3>
+                        <div
+                            className="font-normal text-[#606060] text-sm tb:text-base lp:text-xl max-w-fit">{item.desc}</div>
                       </motion.div>
                   ))}
                 </motion.div>
               </div>
-            </section>
+            </div>
+          </div>
+        </section>
 
-            {/* How It Works Section */}
-            <section className="pt-[100px] pb-[100px] bg-[#F9FAFB] relative overflow-hidden">
-              <div className="container mx-auto">
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="lp:w-1/2 text-left mb-8 lp:mb-0">
-                    <h2 className="text-[48px] font-semibold mb-4">How It Works</h2>
-                    <p className="mt-[24px] text-[24px] font-normal">We will help you at all stages.</p>
-                  </div>
-                  <div className="lp:w-1/2">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.2 }}
-                        variants={staggerContainer}
-                        className="flex flex-col gap-[30px]"
-                    >
-                      {/* Step 1 */}
-                      <motion.div
-                          initial={{ opacity: 0, y: 50 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.6, delay: 0.1 }}
-                          viewport={{ once: true, amount: 0.2 }}
-                          className="bg-[#ffffff] text-[#101828] rounded-[14px] w-full h-[180px] shadow-md flex flex-col pt-[24px] pl-[24px]"
-                      >
-                        <div className="w-[40px] h-[40px] border border-[#DEE3ED] rounded-lg flex items-center justify-center">
-                          <div className="text-[20px] font-medium text-[#4A4F5B]" >01</div>
-                        </div>
-                        <h3 className="mt-[24px] text-[24px] font-semibold" >Easy Onboarding</h3>
-                        <p className="mt-[8px] text-[20px] font-normal text-[#606060]" >
-                          Years of rental expertise, we know what guests need.
-                        </p>
-                      </motion.div>
-                      {/* Step 2 */}
-                      <motion.div
-                          initial={{ opacity: 0, y: 50 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.6, delay: 0.2 }}
-                          viewport={{ once: true, amount: 0.2 }}
-                          className="bg-[#ffffff] text-[#101828] rounded-[14px] w-full  h-[207px] shadow-md flex flex-col pt-[24px] pl-[24px]"
-                      >
-                        <div className="w-[40px] h-[40px] border border-[#DEE3ED] rounded-lg flex items-center justify-center">
-                          <div className="text-[20px] font-medium text-[#4A4F5B]" >02</div>
-                        </div>
-                        <h3 className="mt-[24px] text-[24px] font-semibold" >Tenant Management & Maintenance</h3>
-                        <p className="mt-[8px] text-[20px] font-normal text-[#606060]" >
-                          We handle guest questions, ensure regular technical servicing, and keep everything in perfect condition.
-                        </p>
-                      </motion.div>
-                      {/* Step 3 */}
-                      <motion.div
-                          initial={{ opacity: 0, y: 50 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.6, delay: 0.3 }}
-                          viewport={{ once: true, amount: 0.2 }}
-                          className="bg-[#ffffff] text-[#101828] rounded-[14px] w-full h-[180px] shadow-md flex flex-col pt-[24px] pl-[24px]"
-                      >
-                        <div className="w-[40px] h-[40px] border border-[#DEE3ED] rounded-lg flex items-center justify-center">
-                          <div className="text-[20px] font-medium text-[#4A4F5B]" >03</div>
-                        </div>
-                        <h3 className="mt-[24px] text-[24px] font-semibold" >Guaranteed Payouts</h3>
-                        <p className="mt-[8px] text-[20px] font-normal text-[#606060]" >
-                          We ensure on-time and full payments on time, every time.
-                        </p>
-                      </motion.div>
-                    </motion.div>
-                  </div>
+        {/* Contact Form Section */}
+        <section className="py-10 tb:py-15 lp:py-20 bg-white">
+          <div className="container">
+            <div className="grid grid-cols-1 lp:grid-cols-2 gap-5 bg-[#141826] text-white shadow-xl
+                p-[20px] tb:p-[40px] lp:p-[50px] full:p-[60px]
+                rounded-xl tb:rounded-2xl lp:rounded-3xl ">
+              <motion.div
+                  initial={{opacity: 0, x: -30}}
+                  whileInView={{opacity: 1, x: 0}}
+                  transition={{duration: 0.8}}
+                  viewport={{once: true, amount: 0.2}}
+                  className="flex flex-col justify-start text-left gap-2 lp:gap-4 max-w-fit"
+              >
+                <h2 className="h2 font-semibold drop-shadow-lg leading-tight">
+                  We will help you rent your apartment
+                </h2>
+                <div className="text-[#dfdfdf] drop-shadow-md font-normal text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-70 tb:max-w-120">
+                  We care for your property as if it were our own.
                 </div>
-              </div>
-            </section>
-
-            {/* Contact Form Section */}
-            <section className="py-[100px] bg-white text-gray-900">
-              <div className="container mx-auto">
-                {/* Updated container to match the 1240px width for large screens with 100px padding */}
-                <div className="flex flex-col lp:flex-row items-center justify-between bg-[#141826] text-white px-[60px] py-8 rounded-2xl shadow-xl">
-                  <motion.div
-                      initial={{ opacity: 0, x: -30 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      className="flex flex-col justify-start text-left h-[165px]"
+              </motion.div>
+              <motion.div
+                  initial={{opacity: 0, y: 30}}
+                  whileInView={{opacity: 1, y: 0}}
+                  transition={{duration: 0.8}}
+                  viewport={{once: true, amount: 0.2}}
+                  className="flex lp:justify-end w-full"
+              >
+                <form className="mx-auto lp:mx-0 space-y-6 w-full lp:max-w-[550px]">
+                  <div>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Name"
+                        className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Phone Number"
+                        className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <button
+                      type="submit"
+                      className="w-full bg-[#0E3599] text-white font-semibold py-3 rounded-lg hover:bg-[#102e7a] transition-colors focus:ring-2 focus:ring-[#0E3599] focus:ring-offset-2 focus:ring-offset-gray-900"
                   >
-                    <h2 className="text-[48px] font-semibold mb-[20px] drop-shadow-lg leading-tight" >
-                      We will help you rent your apartment
-                    </h2>
-                    <p className="text-[24px] font-normal drop-shadow-md" >
-                      We care for your property as if it were our own.
-                    </p>
-                  </motion.div>
-                  <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true, amount: 0.2 }}
-                      className="w-[556px] h-[232px] mt-8 md:mt-0"
-                  >
-                    <form className="space-y-6">
-                      <div>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            placeholder="Name"
-                            className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <input
-                            type="tel"
-                            id="phone"
-                            name="phone"
-                            placeholder="Phone Number"
-                            className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"
-                        />
-                      </div>
-                      <button
-                          type="submit"
-                          className="w-full bg-[#0E3599] text-white font-semibold py-3 rounded-lg hover:bg-[#102e7a] transition-colors focus:ring-2 focus:ring-[#0E3599] focus:ring-offset-2 focus:ring-offset-gray-900"
-                      >
-                        Search
-                      </button>
-                    </form>
-                  </motion.div>
-                </div>
-              </div>
-            </section>
-          </main>
-        </div>
-      </>
+                    Search
+                  </button>
+                </form>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   );
 }

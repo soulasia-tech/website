@@ -212,7 +212,7 @@ export default function Home() {
               <div className="flex justify-between mb-[30px]" >
                 <div className="max-w-lg text-left ">
                   <h2 className="h2 font-semibold mb-2">Standard in every property</h2>
-                  <div className="text-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
+                  <div className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
                     With Soulasia, expect the same quality
                     every where — thoughtful amenities, seamless technology, and a welcoming atmosphere in every
                     location</div>
@@ -264,12 +264,16 @@ export default function Home() {
                     >
                       <div className="max-w-fit">
                         <div className="mb-2 flex items-center justify-start aspect-[1/1] w-[28px] tb:w-[32px] lp:w-[40px] ">
-                          <img src={item.iconSrc} alt={item.title} className="w-full h-full"/>
+                          <Image
+                              src={item.iconSrc} alt={item.title} className="w-full h-full"
+                              width={24}
+                              height={24}
+                          />
                         </div>
                         <h3 className="font-semibold mb-2 text-lg lp:text-xl full:text-2xl lp:mb-4 leading-tight">
                           {item.title}
                         </h3>
-                        <div className="text-normal text-[#606060] text-sm tb:text-base lp:text-xl max-w-fit">{item.desc}</div>
+                        <div className="font-normal text-[#606060] text-sm tb:text-base lp:text-xl max-w-fit">{item.desc}</div>
                       </div>
                     </motion.div>
                 ))}

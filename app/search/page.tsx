@@ -454,7 +454,7 @@ function SearchResults() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="container mx-auto px-4">
         {/* Hide BookingWidget when image modal is open */}
         <div className="mt-4 md:mt-0">

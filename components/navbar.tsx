@@ -64,6 +64,13 @@ export function Navbar({className}: NavbarProps) {
         return () => observer.disconnect();
     }, [pathname]);
 
+    useEffect(() => {
+        if (pathname === '/search') {
+            setOpened(false);
+            setSubmitting(false); // no hero → always white
+        }
+    }, [pathname]);
+
     // const [user, setUser] = useState<SupabaseUser | null>(null);
     // const supabase = createClientComponentClient();
     // const router = useRouter();
@@ -189,7 +196,7 @@ export function Navbar({className}: NavbarProps) {
                     </div>
                 </div>
             </div>
-            <div className={cn("bg-white w-full h-max mt-[-1px] py-3 flex justify-center", submitting && opened ? 'flex' : 'hidden')}>
+            <div className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", submitting && opened ? 'flex' : 'hidden')}>
                 <div className={cn("container mx-auto")}>
                     <BookingWidgetNew/>
                 </div>

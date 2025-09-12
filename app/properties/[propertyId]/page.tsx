@@ -2,12 +2,11 @@
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, {useState, useEffect, useRef} from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import Map, { Marker } from 'react-map-gl';
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Calendar } from "@/components/ui/calendar";
-import { Search, Users, CalendarIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -15,13 +14,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 import { calculateTotalGuests } from '@/lib/guest-utils';
 
@@ -203,7 +195,7 @@ export default function PropertiesPage() {
         <main className="py-8 bg-white">
           <div className="container">
             {/* Back button */}
-            <button className="flex items-center gap-1 text-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
+            <button className="flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
                   mb-4 lp:mb-5 rounded-lg tb:rounded-[10px] px-2 py-1 tb:px-3 tb:py-2 lp:px-4 lp:py-3
                   text-xs tb:text-sm lp:text-base">
               <svg className="w-3 h-3 lp:w-4 lp:h-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,21 +209,33 @@ export default function PropertiesPage() {
             {/* Title & meta */}
             <div className="mb-6 gap-2 space-y-3 lp:space-y-5">
               <h1 className="h1 font-semibold text-[#101828] ">
-                Scarletz KLCC Apartments by Soulasia
+                {pageTitle}
               </h1>
               <div className="flex flex-col lp:flex-row lp:justify-between gap-2">
                 <div className="flex tb:space-y-0 items-center gap-1 lp:gap-3 text-sm text-[#4A4F5B]">
-                  <img src="/icons/location-grey.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
+                  <Image
+                      src="/icons/location-grey.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"
+                      width={24}
+                      height={24}
+                  />
                   <span className="text-xs tb:text-sm lp:text-base">800m from Twin Towers</span>
                 </div>
                 <div className="flex tb:space-y-0 items-center gap-1 lp:gap-3 text-sm text-[#4A4F5B]">
                   <div className="flex items-center gap-1">
-                    <img src="/icons/bed.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
+                    <Image
+                        src="/icons/bed.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"
+                        width={24}
+                        height={24}
+                    />
                     <span className="text-xs tb:text-sm lp:text-base">Studio & 1 Bedroom</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <img src="/icons/shower.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
-                    <span className="text-xs tb:text-sm lp:text-base">3 Bathrooms</span>
+                    <Image
+                        src="/icons/shower.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"
+                        width={24}
+                        height={24}
+                    />
+                    <span className="text-xs tb:text-sm lp:text-base">2 Bathrooms</span>
                   </div>
                 </div>
               </div>
@@ -271,11 +275,23 @@ export default function PropertiesPage() {
             </div>
             <div onClick={prev}
                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-              <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
+              <Image
+                  src="/icons/arrow.svg"
+                  alt="Arrow"
+                  width={24}
+                  height={24}
+                  className="transform rotate-180"
+              />
             </div>
             <div onClick={next}
                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white mb-2 flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-              <img src="/icons/arrow.svg" alt=""/>
+              <Image
+                  src="/icons/arrow.svg"
+                  alt="Arrow"
+                  width={24}
+                  height={24}
+                  className="transform rotate-180"
+              />
             </div>
           </motion.div>
 
@@ -285,13 +301,8 @@ export default function PropertiesPage() {
               {/* About */}
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">About this property</h2>
-                <div
-                    className="text-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
-                  Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor,
-                  a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center
-                  Business District, you're close to top attractions and amenities. Our building offers a rooftop pool
-                  and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor
-                  provides fast internet and panoramic views, ideal for productivity.
+                <div className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
+                  {'Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you\'re close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor provides fast internet and panoramic views, ideal for productivity.'}
                 </div>
               </section>
               <div className="border border-[#dee3ed] "></div>
@@ -310,7 +321,7 @@ export default function PropertiesPage() {
                       <li key={idx} className="flex items-center gap-2 tb:gap-3 lp:gap-5">
                         <Image src={amenity.icon} alt="Soulasia Logo White"
                                className="aspect-[1/1] w-4 tb:w-6 lp:w-8 full:w-10" width={40} height={40} priority/>
-                        <span className="text-normal text-sm tb:text-xl full:text-2xl">{amenity.label}</span>
+                        <span className="font-normal text-sm tb:text-xl full:text-2xl">{amenity.label}</span>
                       </li>
                   ))}
                 </ul>
@@ -337,7 +348,7 @@ export default function PropertiesPage() {
                         </div>
                         <div className="space-y-[6px] lp:space-y-[10px]">
                           <h3 className="h3 font-semibold">{item.title}</h3>
-                          <div className="text-normal text-[#3b4a68] text-sm tb:text-base lp:text-lg full:text-xl max-w-fit">
+                          <div className="font-normal text-[#3b4a68] text-sm tb:text-base lp:text-lg full:text-xl max-w-fit">
                             {item.description}
                           </div>
                           <div className="inline-flex items-center text-[#0E3599] font-semibold text-base tb:text-lg lp:text-xl hover:underline gap-2">
@@ -399,7 +410,11 @@ export default function PropertiesPage() {
                                 ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
                                 : (
                                     <div className="flex gap-3 items-center">
-                                      <img src="/icons/calendar.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"/>
+                                      <Image
+                                          src="/icons/calendar.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
+                                          width={24}
+                                          height={24}
+                                      />
                                       <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Pick dates</div>
                                     </div>
                               )
@@ -424,7 +439,11 @@ export default function PropertiesPage() {
                     >
                       <div className="flex items-center justify-between w-full gap-6">
                         <div className="flex gap-3 items-center">
-                          <img src="/icons/adults.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"/>
+                          <Image
+                              src="/icons/adults.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
+                              width={24}
+                              height={24}
+                          />
                           <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Adults</div>
                         </div>
                         <div className="flex items-center gap-2 tb:gap-4">
@@ -445,7 +464,11 @@ export default function PropertiesPage() {
                     >
                       <div className="flex items-center w-full justify-between">
                         <div className="flex gap-3 items-center">
-                          <img src="/icons/children.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"/>
+                          <Image
+                              src="/icons/children.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
+                              width={24}
+                              height={24}
+                          />
                           <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Children</div>
                         </div>
                         <div className="flex items-center gap-2 tb:gap-4">

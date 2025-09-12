@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 import {motion} from "framer-motion";
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 
 export interface LocationsItem {
   id: string;
@@ -101,16 +101,24 @@ const Experience = ({
         >
           <div className="max-w-sm tb:max-w-md lp:max-w-xl text-left mb-4">
             <h2 className="h2 ">{title}</h2>
-            <div className="text-normal text-[#3b4a68] text-lg lp:text-xl full:text-2xl mt-2">{description}</div>
+            <div className="font-normal text-[#3b4a68] text-lg lp:text-xl full:text-2xl mt-2">{description}</div>
           </div>
           <div className="flex gap-x-[10px] items-center">
             <div onClick={prev}
                  className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-              <img src="/icons/arrow.svg" alt="" className="transform rotate-180"/>
+              <Image
+                  src="/icons/arrow.svg" alt="" className="transform rotate-180"
+                  width={24}
+                  height={24}
+              />
             </div>
             <div onClick={next}
                  className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-              <img src="/icons/arrow.svg" alt=""/>
+              <Image
+                  src="/icons/arrow.svg" alt=""
+                  width={24}
+                  height={24}
+              />
             </div>
           </div>
         </motion.div>
@@ -144,7 +152,7 @@ const Experience = ({
                   </div>
                   <div className="">
                     <h3 className="h3 font-semibold text-gray-900 mb-1 tb:mb-2">{item.title}</h3>
-                    <div className="text-semibold tb:items-center gap:1 lp:gap-3 text-sm text-gray-600">
+                    <div className="font-normal tb:items-center gap:1 lp:gap-3 text-sm text-gray-600">
                       {item.description}
                     </div>
                   </div>
