@@ -178,7 +178,7 @@ const Locations = ({
                   <div className="">
                     <h3 className="h3 font-semibold text-gray-900 mb-1 tb:mb-2">{item.title}</h3>
                     <div
-                        className="flex flex-col tb:flex-row space-y-1 tb:space-y-0 tb:items-center gap:1 lp:gap-3 text-sm text-gray-600">
+                        className="flex flex-col tb:flex-row space-y-1 tb:space-y-0 tb:items-center gap-1 lp:gap-3 text-sm text-[#4A4F5B]">
                       <div className="flex items-center gap-1">
                         <img src="/icons/bed.svg" alt="" className="w-4 h-4 tb:w-5 tb:h-5"/>
                         <span className="text-xs tb:text-sm lp:text-base">{item.bedrooms}</span>

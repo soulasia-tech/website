@@ -100,7 +100,7 @@ export function Navbar({className}: NavbarProps) {
             className={[
                 'fixed inset-x-0 top-0 z-50',
                 isDark ? 'bg-transparent border-transparent'
-                    : 'bg-white supports-[backdrop-filter]:backdrop-blur shadow-sm',
+                    : 'bg-[#f8f9fb] supports-[backdrop-filter]:backdrop-blur border-b border-b-[#dee3ed]',
                 'transition-colors',
                 className ?? '',
             ].join(' ')}

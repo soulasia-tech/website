@@ -181,7 +181,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                           className="flex items-center gap-2"
                       >
                         <div className="flex items-center w-[16px] h-[16px] lp:w-[20px] lp:h-[16px]">
-                          <img src="/icons/location.svg" alt="" className="w-full h-full"/>
+                          <img src="/icons/location.svg" alt="" className="w-full h-full text-[#0E3599]"/>
                         </div>
                         <div className="text-[#0e3599] font-medium text-xs lp:text-sm ">{city}</div>
                       </SelectItem>
@@ -265,7 +265,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                       <span
                           className="font-semibold text-xs lp:text-base text-[#101828] text-center">{searchParams.adults}</span>
                       <Button type="button" size="responsive" variant="outline"
-                              className="size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
+                              className="bg-[#e5eeff]  size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
                               onClick={() => handleAdultsChange((parseInt(searchParams.adults) + 1).toString())}>+</Button>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                       <span
                           className="font-semibold text-xs lp:text-base text-[#101828] text-center">{searchParams.children}</span>
                       <Button type="button" size="responsive" variant="outline"
-                              className="size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
+                              className="bg-[#e5eeff] size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
                               onClick={() => handleChildrenChange((parseInt(searchParams.children) + 1).toString())}>+</Button>
                     </div>
                   </div>
