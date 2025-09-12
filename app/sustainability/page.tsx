@@ -113,12 +113,8 @@ export default function SustainabilityPage() {
                                     reducing our carbon footprint.</p>
                             </div>
                             <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                                <Image
-                                    src="/sustainability/energy.jpg" alt="Sustainable Energy"
-                                    className="w-full h-auto object-cover rounded-[14px]"
-                                    width={24}
-                                    height={24}
-                                />
+                                <img src="/sustainability/energy.jpg" alt="Sustainable Energy"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
                             </div>
                         </motion.div>
 
@@ -146,12 +142,8 @@ export default function SustainabilityPage() {
                                     environmental responsibility.</p>
                             </div>
                             <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                                <Image
-                                    src="/sustainability/cleaning.jpg" alt="Eco-Friendly Cleaning Practices"
-                                    className="w-full h-auto object-cover rounded-[14px]"
-                                    width={24}
-                                    height={24}
-                                />
+                                <img src="/sustainability/cleaning.jpg" alt="Eco-Friendly Cleaning Practices"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
                             </div>
                         </motion.div>
 
@@ -186,12 +178,8 @@ export default function SustainabilityPage() {
                                 </ul>
                             </div>
                             <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                                <Image
-                                    src="/sustainability/water.jpg" alt="Water Conservation"
-                                    className="w-full h-auto object-cover rounded-[14px]"
-                                    width={24}
-                                    height={24}
-                                />
+                                <img src="/sustainability/water.jpg" alt="Water Conservation"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
                             </div>
                         </motion.div>
 
@@ -219,12 +207,8 @@ export default function SustainabilityPage() {
                                     change makes a big impact in reducing plastic waste.</p>
                             </div>
                             <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                                <Image
-                                    src="/sustainability/plastic.jpg" alt="Plastic-Free Commitment"
-                                    className="w-full h-auto object-cover rounded-[14px]"
-                                    width={24}
-                                    height={24}
-                                />
+                                <img src="/sustainability/plastic.jpg" alt="Plastic-Free Commitment"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
                             </div>
                         </motion.div>
 
@@ -250,12 +234,8 @@ export default function SustainabilityPage() {
                                     This reduces waste and supports our broader environmental initiatives.</p>
                             </div>
                             <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                                <Image
-                                    src="/sustainability/paper.jpg" alt="Paperless Operations"
-                                    className="w-full h-auto object-cover rounded-[14px]"
-                                    width={24}
-                                    height={24}
-                                />
+                                <img src="/sustainability/paper.jpg" alt="Paperless Operations"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
                             </div>
                         </motion.div>
                     </motion.div>
