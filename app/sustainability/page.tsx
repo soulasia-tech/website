@@ -29,7 +29,7 @@ export default function SustainabilityPage() {
             <title>Soulasia | Sustainability</title>
             <main className="bg-white">
                 {/* Hero Section */}
-                <section className="py-5 tb:py-10 lp:py-20">
+                <section className="section-component-p-y">
                     <div className="container relative">
                         <div
                             className="relative w-full max-h-[251px] tb:max-h-[425px] lp:max-h-[500px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] z-0">
@@ -44,15 +44,15 @@ export default function SustainabilityPage() {
                                 style={{objectPosition: 'center 30%'}} // adjust focus area
                             />
                             {/* Overlay to darken the image further */}
+                            <div
+                                className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
                         </div>
                         {/* Overlay (optional) */}
-                        <div
-                            className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
 
                         <motion.div
                             initial={{opacity: 0, y: -30}}
                             animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.8, delay: 0.2}}
+                            transition={{duration: 0.6, delay: 0.2}}
                             className="absolute inset-0 top-[20px] left-[20px] tb:top-[32px] tb:left-[32px] lp:top-[60px] lp:left-[60px]">
                             <div
                                 className="space-y-2 tb:space-y-4 lp:space-y-6 w-full tb:max-w-120 lp:max-w-260  text-white flex flex-col justify-start">
@@ -68,12 +68,12 @@ export default function SustainabilityPage() {
                 </section>
 
                 {/* Sustainability Content Section */}
-                <section className="bg-white max-w-[1920px] mx-auto px-4 tb:px-10 lp:px-20 full:px-[200px] py-10">
+                <section className="bg-white section-component-p-y">
                     {/* Main Header */}
                     <motion.div
                         key={0}
                         variants={fadeIn}
-                        className="flex flex-col lp:flex-row lp:justify-between items-start gap-6 tb:gap-8 lp:gap-10 mb-10 full:mb-[60px] ">
+                        className="flex flex-col lp:flex-row lp:justify-between items-start container gap-6 tb:gap-8 lp:gap-10 mb-10 full:mb-15 ">
                         <h1 className="text-2xl leading-[33px] tb:text-[32px] tb:leading-[44px] lp:text-[40px] full:text-[48px] font-semibold lp:leading-[55px] full:leading-[66px] text-[#101828] max-w-xl">Eco-Friendly
                             Solutions for a Sustainable Stay</h1>
                         <p className="text-sm leading-[19px] tb:text-lg tb:leading-[25px] full:text-2xl full:leading-[33px] font-normal text-[#4A4F5B] max-w-lg">We
@@ -88,13 +88,13 @@ export default function SustainabilityPage() {
                         whileInView="visible"
                         viewport={{once: true, amount: 0.2}}
                         variants={staggerContainer}
-                        className="flex flex-col gap-6 tb:gap-10 lp:gap-[60px]">
+                        className="flex flex-col gap-6 tb:gap-10 lp:gap-15 container">
                         {/* Item 1 */}
                         <motion.div
                             key={1}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.6, delay: 0.1 / 10}}
+                            transition={{duration: 0.4, delay: 0.1 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -123,7 +123,7 @@ export default function SustainabilityPage() {
                             key={2}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.6, delay: 0.2 / 10}}
+                            transition={{duration: 0.4, delay: 0.2 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -152,7 +152,7 @@ export default function SustainabilityPage() {
                             key={3}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.6, delay: 0.3}}
+                            transition={{duration: 0.4, delay: 0.3/ 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -188,7 +188,7 @@ export default function SustainabilityPage() {
                             key={4}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.6, delay: 0.4}}
+                            transition={{duration: 0.4, delay: 0.4/ 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -217,7 +217,7 @@ export default function SustainabilityPage() {
                             key={5}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.6, delay: 0.5}}
+                            transition={{duration: 0.4, delay: 0.5/ 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
