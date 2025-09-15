@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
 import {UIProvider} from "@/components/context";
+import {Suspense} from "react";
 
 // Manrope variable font; includes Cyrillic
 const manrope = Manrope({
@@ -41,7 +42,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
       </Script>
       <UIProvider>
-          <Navbar/>
+          <Suspense fallback={<div>Loading navbar...</div>}>
+              <Navbar/>
+          </Suspense>
           <main className="bg-white flex-grow pt-nav">{children}</main>
           <Footer/>
       </UIProvider>

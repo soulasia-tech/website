@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { parseISO } from "date-fns";
-import { BookingWidget } from '@/components/booking-widget';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -15,7 +14,6 @@ import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
 import { AvailablePropertiesMap } from '@/components/AvailablePropertiesMap';
-import {Loader2} from "lucide-react";
 import {useUI} from "@/components/context";
 
 interface RoomResult {
@@ -89,7 +87,7 @@ function SearchResults() {
   const [proceeding, setProceeding] = useState(false);
   const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
   const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
-  const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
+  // const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
   const [roomGuests, setRoomGuests] = useState<{ [roomTypeID: string]: { adults: number; children: number } }>({});
   const [roomsByType, setRoomsByType] = useState<{ [roomTypeID: string]: string[] }>({});
   const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
@@ -105,14 +103,14 @@ function SearchResults() {
   const apartments = parseInt(searchParams.get('apartments') || '1', 10);
 
   // Create initial search params object for BookingWidget
-  const initialSearchParams = {
-    city: city || '',
-    startDate: startDate || '',
-    endDate: endDate || '',
-    adults: adults || '2',
-    children: children || '0',
-    apartments: apartments.toString(),
-  };
+  // const initialSearchParams = {
+  //   city: city || '',
+  //   startDate: startDate || '',
+  //   endDate: endDate || '',
+  //   adults: adults || '2',
+  //   children: children || '0',
+  //   apartments: apartments.toString(),
+  // };
 
   useEffect(() => {
     // Validate search parameters
