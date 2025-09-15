@@ -2,20 +2,29 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface PropertyCardProps {
+  /** Add this — optional so old code still compiles */
+  propertyId?: string
   propertyName: string
   location: string
-  photos: {
-    url: string
-    caption?: string
-  }[]
+  photos: { url: string; caption?: string }[]
   pricePerDay?: number
+  /** Optional override if you want a custom link */
+  href?: string
 }
 
-export function PropertyCard({ propertyName, location, photos, pricePerDay }: PropertyCardProps) {
+export function PropertyCard({
+  propertyId,
+  propertyName,
+  location,
+  photos,
+  pricePerDay,
+  href,
+}: PropertyCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageLoaded, setImageLoaded] = useState(false)
 
@@ -31,32 +40,27 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
     setImageLoaded(false)
   }
 
+  // Build the link. Prefer explicit href, else use propertyId, else no-op "#"
+  const link = href ?? (propertyId ? `/properties/${propertyId}` : "#")
+
   return (
-    <div className="w-full group">
+    <Link href={link} className="block w-full group">
       {/* Image Carousel */}
       <div className="relative aspect-[1/1] overflow-hidden rounded-xl mb-3">
         {photos.length > 0 ? (
           <>
-            {/* Shimmer Skeleton Loader */}
-            {!imageLoaded && (
-              <div className="absolute inset-0 skeleton-shimmer rounded-xl z-10" />
-            )}
-            {/* Only render the first image until it's loaded */}
+            {!imageLoaded && <div className="absolute inset-0 skeleton-shimmer rounded-xl z-10" />}
             {!imageLoaded && (
               <Image
                 src={photos[0].url}
                 alt={photos[0].caption || propertyName}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className={cn(
-                  "object-cover transition-opacity duration-700",
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                )}
+                className={cn("object-cover transition-opacity duration-700", imageLoaded ? "opacity-100" : "opacity-0")}
                 priority
                 onLoad={() => setImageLoaded(true)}
               />
             )}
-            {/* After first image is loaded, render the carousel */}
             {imageLoaded && (
               <>
                 <Image
@@ -64,12 +68,8 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
                   alt={photos[currentImageIndex].caption || propertyName}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className={cn(
-                    "object-cover transition-opacity duration-700",
-                    "opacity-100"
-                  )}
+                  className="object-cover transition-opacity duration-700 opacity-100"
                 />
-                {/* Navigation Buttons - Show if there are multiple images */}
                 {photos.length > 1 && (
                   <>
                     <button
@@ -96,7 +96,6 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
                     </button>
                   </>
                 )}
-                {/* Image Indicators */}
                 {photos.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
                     {photos.map((_, index) => (
@@ -119,6 +118,7 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
           </div>
         )}
       </div>
+
       {/* Property Name and Location */}
       <div className="flex flex-col gap-1">
         <h3 className="font-medium text-[15px] leading-5">{propertyName}</h3>
@@ -130,6 +130,6 @@ export function PropertyCard({ propertyName, location, photos, pricePerDay }: Pr
           </p>
         )}
       </div>
-    </div>
+    </Link>
   )
-} 
+}

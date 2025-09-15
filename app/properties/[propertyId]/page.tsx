@@ -22,6 +22,8 @@ import {useUI} from "@/components/context";
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
   '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
   '19928': { lat: 3.1579, lng: 101.7075 }, // Vortex KLCC (example coordinates)
+  '318151': { lat: 3.1595, lng: 101.7051 }, // 188 Suites KLCC By Soulasia
+  '318256': { lat: 3.1376, lng: 101.6998 }, // Opus Residences
 };
 
 // Images for each property
@@ -42,6 +44,12 @@ const propertyImagesMap: Record<string, string[]> = {
     "/properties/Vortex/vortex_photo_gym_fitness.jpg",
     "/properties/Vortex/2332762_17082017030055533596.jpg",
   ],
+  '318151': [
+    "/properties/188/card.jpg",
+  ],
+  '318256': [
+  "/properties/Opus/opus-by-soulasia-17.jpg",
+],
 };
 
 const rooms = [
@@ -100,11 +108,17 @@ const fadeIn = {
 export default function PropertiesPage() {
   const { isActive } = useUI();
 
-  const params = useParams();
-  const propertyId = params.propertyId || "270917";
+  const p = useParams() as { propertyId?: string | string[] };
+  const propertyId = typeof p.propertyId === 'string'
+  ? p.propertyId
+  : Array.isArray(p.propertyId)
+    ? p.propertyId[0]
+    : '270917';
   let pageTitle = 'Soulasia | Property';
   if (propertyId === '270917') pageTitle = 'Soulasia | Scarletz KLCC Apartments by Soulasia';
   else if (propertyId === '19928') pageTitle = 'Soulasia | Vortex KLCC Apartments by Soulasia';
+  else if (propertyId === '318151') pageTitle = 'Soulasia | 188 Suites KLCC by Soulasia';
+  else if (propertyId === '318256') pageTitle = 'Soulasia | Opus Residences by Soulasia';
   const isVortex = propertyId === "19928";
   const propertyImages = propertyImagesMap[String(propertyId)] || propertyImagesMap['270917'];
   const total = propertyImages.length;
@@ -309,7 +323,6 @@ export default function PropertiesPage() {
               </div>
             </div>
           </div>
-
           {/* Gallery */}
           <motion.div
               initial="hidden"
@@ -597,3 +610,76 @@ export default function PropertiesPage() {
       </>
   );
 }
+
+//           {/* Two columns: left (info), right (sticky booking widget) */}
+//           <section className="w-full max-w-6xl mx-auto px-4 mt-12 flex flex-col md:flex-row gap-8">
+//             {/* Left: Property Info */}
+//             <div className="flex-1 min-w-0">
+//               <div className="mb-8">
+//                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900">
+//                 {propertyId === '19928'
+//   ? 'Vortex KLCC Apartments'
+//   : propertyId === '318151'
+//     ? '188 Suites KLCC by Soulasia'
+//     : propertyId === '318256'
+//       ? 'Opus Residences by Soulasia'
+//       : 'Scarletz KLCC Apartments by Soulasia'}
+//                   <span className="ml-2 text-base font-normal text-gray-400">(ID: {propertyId})</span>
+//                 </h1>
+//                 <div className="flex flex-wrap gap-4 text-gray-600 text-base mb-2">
+//                   <span>Apartment Type: Studio & 1 Bedroom</span>
+//                   <span>•</span>
+//                   <span>2 Bathrooms</span>
+//                 </div>
+//               </div>
+//               {/* Property Description */}
+// <section className="mb-12">
+//   <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">About this property</h2>
+//   <div className="text-gray-700 leading-relaxed space-y-6">
+    
+//     {/* Intro paragraph */}
+//     <p>
+// {propertyId === '19928'
+//   ? "Welcome to Vortex KLCC Apartments, ..."
+//   : propertyId === '318151'
+//     ? "Welcome to 188 Suites KLCC by Soulasia. ..."
+//     : propertyId === '318256'
+//       ? "Welcome to Opus Residences by Soulasia. Modern apartments with functional layouts, floor-to-ceiling windows, and a compact kitchenette. Minutes to Petaling Street and Bukit Bintang with easy LRT/MRT access."
+//       : "Welcome to Scarletz KLCC Apartments by Soulasia, ..."}
+//     </p>
+
+//     {/* Co-working Space */}
+//     <p>
+// {propertyId === '19928'
+//   ? "Discover our modern co-working space, ..."
+//   : propertyId === '318151'
+//     ? "At 188 Suites, you’ll have fast in-room Wi-Fi ..."
+//     : propertyId === '318256'
+//       ? "Fast in-room Wi-Fi suitable for remote work. If you need a full office setup, coworking spaces and cafés are within walking distance around the city center."
+//       : "Head up to the 44th floor and discover our modern co-working space, ..."}
+//     </p>
+
+//     {/* Water Filter */}
+//     <p>
+//      {propertyId === '19928'
+//   ? "In Vortex KLCC, convenience and comfort ..."
+//   : propertyId === '318151'
+//     ? "At 188 Suites KLCC by Soulasia, selected units include in-room water filters ..."
+//     : propertyId === '318256'
+//       ? "At Opus Residences, selected units include in-room water filters; otherwise complimentary bottled water is provided on arrival."
+//       : "In Scarletz KLCC by Soulasia convenience and comfort ..."}
+//     </p>
+
+//     {/* Wi-Fi & Facilities */}
+//     <p>
+//      {propertyId === '19928'
+//   ? "Take a dip in the breathtaking rooftop ..."
+//   : propertyId === '318151'
+//     ? "Enjoy reliable Wi-Fi for both leisure and work. Facilities typically include access to a swimming pool and gym ..."
+//     : propertyId === '318256'
+//       ? "Enjoy reliable Wi-Fi, a pool, and gym access (building facilities). Central location with easy access to Chinatown (Petaling Street), Merdeka 118 area, and public transit."
+//       : "Take a dip in the breathtaking rooftop swimming pool ..."}
+//     </p>
+
+//   </div>
+// </section>
