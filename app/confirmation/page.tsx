@@ -160,7 +160,7 @@ function ConfirmationContent() {
   const propertyName = booking.bookingCart?.cart?.[0]?.propertyName || booking.bookingCart?.propertyId;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen py-12">
       <div className="container mx-auto px-4 flex flex-col items-center">
         <Card className="bg-white rounded-2xl shadow-lg p-6 w-full mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-green-600 text-left">Booking Confirmed!</h2>
