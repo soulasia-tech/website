@@ -123,9 +123,9 @@ const Locations = ({
               whileInView="visible"
               viewport={{once: true, margin: "-100px"}}
               variants={fadeIn}
-              className="flex justify-between items-end "
+              className="flex flex-col tb:flex-row justify-between items-end "
           >
-            <div className="max-w-[50%] lp:max-w-lg text-left">
+            <div className="max-w-lg text-left mr-auto">
               <h2 className="h2">{title}</h2>
             </div>
             <div className="flex gap-x-[10px] items-center">

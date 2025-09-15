@@ -32,8 +32,8 @@ export function CustomerReviews() {
             <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#f9fafb]" aria-hidden="true"/>
             <div className="container py-12 relative z-10">
                 <div className="mb-12 md:mb-16 ">
-                    <div className="flex justify-between items-end ">
-                        <div className="max-w-lg text-left mb-4">
+                    <div className="flex flex-col tb:flex-row justify-between items-end ">
+                        <div className="max-w-lg text-left mb-4 mr-auto">
                             <h2 className="h2">What Our Guests Say</h2>
                         </div>
                         <div className="flex gap-x-[10px] items-center">
