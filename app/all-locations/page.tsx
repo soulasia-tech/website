@@ -315,8 +315,8 @@ export default function AllLocationsPage() {
           <p className="text-lg md:text-2xl max-w-2xl mx-auto animate-fade-in-up delay-100" style={{ color: '#fff' }}>Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
         </div>
       </section>
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
+      <div className="min-h-screen py-12">
+        <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {/* Left: Properties and Rooms in 2-column grid, edge-to-edge */}
             <div className="flex flex-col gap-8">

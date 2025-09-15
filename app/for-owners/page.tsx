@@ -28,7 +28,7 @@ export default function ForOwnersPage() {
     <>
       <title>Soulasia | For Property Owners</title>
       <div className="bg-white">
-        <section className="py-5 tb:py-10 lp:py-20 bg-white">
+        <section className="section-padding-y bg-white">
           <div className="container relative">
             <div
                 className="relative w-full max-h-[251px] tb:max-h-[425px] lp:max-h-[500px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] z-0">
@@ -63,7 +63,7 @@ export default function ForOwnersPage() {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-24 relative overflow-hidden ">
+        <section className="section-padding-y relative overflow-hidden ">
           <div className="container mx-auto relative z-10">
             <div className="flex justify-between mb-[30px]">
               <div className="max-w-lg text-left ">
@@ -138,7 +138,7 @@ export default function ForOwnersPage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-10 tb:py-15 lp:py-20 bg-[#F9FAFB] relative overflow-hidden">
+        <section className="section-padding-y bg-[#F9FAFB] relative overflow-hidden">
           <div className="container">
             <div className="flex flex-col lp:flex-row gap-5 tb:gap-8">
               <div className="lp:w-1/2 text-left">
@@ -199,7 +199,7 @@ export default function ForOwnersPage() {
         </section>
 
         {/* Contact Form Section */}
-        <section className="py-10 tb:py-15 lp:py-20 bg-white">
+        <section className="section-padding-y bg-white">
           <div className="container">
             <div className="grid grid-cols-1 lp:grid-cols-2 gap-5 bg-[#141826] text-white shadow-xl
                 p-[20px] tb:p-[40px] lp:p-[50px] full:p-[60px]

@@ -67,13 +67,13 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
   const [touchRooms, setTouchRooms] = useState(false);
 
   // Add new state for apartments
-  // const [apartments, setApartments] = useState(() => {
-  //   if (initialSearchParams?.apartments) {
-  //     const n = parseInt(initialSearchParams.apartments, 10);
-  //     return isNaN(n) ? 1 : n;
-  //   }
-  //   return 1;
-  // });
+  const [apartments, setApartments] = useState(() => {
+    if (initialSearchParams?.apartments) {
+      const n = parseInt(initialSearchParams.apartments, 10);
+      return isNaN(n) ? 1 : n;
+    }
+    return 1;
+  });
   const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
 
   useEffect(() => {
@@ -123,6 +123,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
       guests: totalGuests.toString(),
     }).toString()
     router.push(`/search?${queryString}`)
+    setSubmitting(false)
   }
 
   // Restore original handleCityChange
@@ -164,7 +165,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               <SelectTrigger
                   ref={cityRef}
                   hideIcon={true}
-                  className="w-full border-0 p-0 h-auto font-normal
+                  className="cursor-pointer w-full border-0 p-0 h-auto font-normal
                       data-[placeholder]:text-[#4a4f5b] data-[placeholder]:text-xs data-[placeholder]:lp:text-sm
                   "
               >
@@ -195,7 +196,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               </SelectContent>
             </Select>
           </div>
-          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
+          <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
             "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
           >
             <Popover
@@ -237,7 +238,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               </PopoverContent>
             </Popover>
           </div>
-          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
+          <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
             "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
           >
             <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
@@ -250,14 +251,14 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                     onClick={() => setTouchRooms(true)}
                 >
                   {touchRooms ?
-                      `${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}` //, ${apartments} apartment${apartments === 1 ? '' : 's'}
+                      `${searchParams.adults} adult${searchParams.adults === '1' ? '' : 's'}, ${searchParams.children} kid${searchParams.children === '1' ? '' : 's'}, ${apartments} apartment${apartments === 1 ? '' : 's'}`
                       : 'Guests and rooms'
                   }
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-4" align="start">
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between gap-6">
+                  <div className="flex w-max-content items-center justify-between gap-15">
                     <div>
                       <div className="font-semibold text-xs lp:text-base text-[#101828]">Adults</div>
                       <div className="font-normal text-[10px] lp:text-xs text-[#4a4f5b]">Ages 18 or above</div>
@@ -291,6 +292,23 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                               onClick={() => handleChildrenChange((parseInt(searchParams.children) + 1).toString())}>+</Button>
                     </div>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold text-xs lp:text-base text-[#101828]">Apartments</div>
+                      <div className="font-normal text-[10px] lp:text-xs text-[#4a4f5b]">Number of apartments</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="responsive" variant="outline"
+                              className="size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
+                              disabled={(apartments) <= 0}
+                              onClick={() => setApartments(apartments - 1)}>-</Button>
+                      <span
+                          className="font-semibold text-xs lp:text-base text-[#101828] text-center">{apartments}</span>
+                      <Button type="button" size="responsive" variant="outline"
+                              className="bg-[#e5eeff] size-[var(--action-h-sm)] lp:size-[var(--action-h-md)]"
+                              onClick={() => setApartments(apartments + 1)}>+</Button>
+                    </div>
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
@@ -301,7 +319,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
         <Button
             type="submit"
             size="default"
-            className={['flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
+            className={['cursor-pointer flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
               'text-white text-xs lp:text-base font-normal font-semibold',
               'h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]',
               'w-full tb:w-fit tb:px-4 lp:px-6 full:px-9 ',

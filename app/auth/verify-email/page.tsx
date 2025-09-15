@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen py-12">
+      <div className="container mx-auto">
         <Card className="max-w-md mx-auto bg-white rounded-xl p-6 shadow-sm">
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
           

@@ -28,37 +28,41 @@ export function CustomerReviews() {
     };
 
     return (
-        <div className="container py-12">
-            <div className="mb-12 md:mb-16">
-                <div className="flex justify-between items-end ">
-                    <div className="max-w-lg text-left mb-4">
-                        <h2 className="h2">What Our Guests Say</h2>
-                    </div>
-                    <div className="flex gap-x-[10px] items-center">
-                        <div onClick={scrollPrev}
-                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                            <Image
-                                src="/icons/arrow.svg"
-                                alt="Arrow"
-                                width={24}
-                                height={24}
-                                className="transform rotate-180"
-                            />
+        <section className="section-padding-y relative overflow-hidden">
+            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#f9fafb]" aria-hidden="true"/>
+            <div className="container py-12 relative z-10">
+                <div className="mb-12 md:mb-16 ">
+                    <div className="flex justify-between items-end ">
+                        <div className="max-w-lg text-left mb-4">
+                            <h2 className="h2">What Our Guests Say</h2>
                         </div>
-                        <div onClick={scrollNext}
-                             className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
-                            <Image
-                                src="/icons/arrow.svg"
-                                alt="Arrow"
-                                width={24}
-                                height={24}
-                            />
+                        <div className="flex gap-x-[10px] items-center">
+                            <div onClick={scrollPrev}
+                                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                                <Image
+                                    src="/icons/arrow.svg"
+                                    alt="Arrow"
+                                    width={16}
+                                    height={16}
+                                    className="transform rotate-180"
+                                />
+                            </div>
+                            <div onClick={scrollNext}
+                                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                                <Image
+                                    src="/icons/arrow.svg"
+                                    alt="Arrow"
+                                    width={16}
+                                    height={16}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div className="elfsight-app-f139592a-b1c1-4f98-b760-7db98a1f710b" data-elfsight-app-lazy/>
             </div>
-            <div className="elfsight-app-b6e0f7e5-21ef-4db4-a42d-f02a49cc25f3" data-elfsight-app-lazy/>
-        </div>
+        </section>
+
     );
 }
 

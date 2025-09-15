@@ -90,16 +90,16 @@ const Experience = ({
     }
   };
   return (
-    <section className="py-10 tb:py-20 lp:py-28 full:py-32">
+    <section className="section-padding-y">
       <div className="container mx-auto">
         <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{once: true, margin: "-100px"}}
             variants={fadeIn}
-            className="flex justify-between items-end mb-4"
+            className="flex justify-between items-end header-margin-b"
         >
-          <div className="max-w-sm tb:max-w-md lp:max-w-xl text-left mb-4">
+          <div className="max-w-sm tb:max-w-md lp:max-w-xl text-left">
             <h2 className="h2 ">{title}</h2>
             <div className="font-normal text-[#3b4a68] text-lg lp:text-xl full:text-2xl mt-2">{description}</div>
           </div>
@@ -108,16 +108,16 @@ const Experience = ({
                  className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
                   src="/icons/arrow.svg" alt="" className="transform rotate-180"
-                  width={24}
-                  height={24}
+                  width={16}
+                  height={16}
               />
             </div>
             <div onClick={next}
                  className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
                   src="/icons/arrow.svg" alt=""
-                  width={24}
-                  height={24}
+                  width={16}
+                  height={16}
               />
             </div>
           </div>

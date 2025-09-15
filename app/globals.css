@@ -254,6 +254,7 @@
     --action-h-md: 30px;
     --action-h-lg: 36px;
     --action-h-xl: 40px;
+    --action-h-1xl: 43px;
     --action-h-2xl: 54px;
     --action-h-3xl: 62px;
   }
@@ -442,7 +443,7 @@ p {
   .container {
     max-width: var(--container-max);
     margin-inline: auto;
-    @apply mx-auto
+    @apply mx-auto px-4;
   }
 
   /* Type */
@@ -453,6 +454,10 @@ p {
   /* Media */
   .card { border-radius: var(--card-radius); }
   .card-gap { gap: var(--card-gap); }
+
+  .section-padding-y {  @apply py-10 tb:py-12.5 lp:py-20 full:py-25; }
+  .section-margin-y {  @apply my-10 tb:my-12.5 lp:my-20 full:my-25; }
+  .header-margin-b {  @apply mb-6 tb:mb-10 full:mb-15; }
 }
 
 

@@ -30,15 +30,6 @@ const staggerContainer = {
   },
 }
 
-// Add Room type above FeaturedApartmentsCarousel
-// type Room = {
-//   roomTypeID: string;
-//   roomTypeName: string;
-//   propertyName: string;
-//   roomTypePhotos: { url: string; caption: string }[];
-//   rate: number;
-// };
-
 export default function Home() {
   useEffect(() => {
     // Start background fetch for all locations data
@@ -66,54 +57,6 @@ export default function Home() {
       });
   }, []);
 
-  // const [currentSlide, setCurrentSlide] = useState(0);
-  // const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
-
-  // Auto-advance slider every 5 seconds
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setDirection(1);
-  //     setCurrentSlide((prev) => (prev + 1) % 2);
-  //   }, 5000);
-  //   return () => clearTimeout(timer);
-  // }, [currentSlide]);
-
-  // Animation variants for sliding
-  // const slideVariants = {
-  //   enter: (dir: number) => ({
-  //     x: dir > 0 ? 300 : -300,
-  //     opacity: 0,
-  //   }),
-  //   center: {
-  //     x: 0,
-  //     opacity: 1,
-  //     transition: { duration: 0.5, ease: "easeInOut" },
-  //   },
-  //   exit: (dir: number) => ({
-  //     x: dir > 0 ? -300 : 300,
-  //     opacity: 0,
-  //     transition: { duration: 0.5, ease: "easeInOut" },
-  //   }),
-  // };
-
-  // Define standards features as arrays of objects
-  // const standardsSlide1 = [
-  //   { title: "Stay Hassle-Free", desc: "24/7 keyless entry. No check-ins or outs.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Stay Hosted", desc: "Dedicated & local concierge available 24/7.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Stay Local", desc: "Hand picked apartments in the trendiest districts.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Stay Nourished", desc: "Breakfast partners at nearby handpicked venues.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Stay Rested", desc: "Premium beds. Luxury pillows and duvets. Black out blinds.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Stay Sustainable", desc: "All renewable energy. Smart recycling and minimizing waste.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  // ];
-  // const standardsSlide2 = [
-  //   { title: "Prime Locations", desc: "Stay in the heart of the city, close to top attractions and dining.", icon: <MapPin className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Complimentary Coffee", desc: "Enjoy premium coffee and tea, always on the house.", icon: <Coffee className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Luxury Sleep", desc: "Sink into plush beds with high-quality linens and blackout curtains.", icon: <Bed className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Friendly Support", desc: "Our team is available 24/7 to make your stay seamless.", icon: <Smile className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Smart Access", desc: "Keyless entry for your convenience and security.", icon: <Key className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  //   { title: "Eco-Friendly", desc: "Sustainable practices and amenities in every property.", icon: <Leaf className="w-10 h-10 mb-4" style={{ color: '#0E3599' }} /> },
-  // ];
-
   return (
     <>
       <title>Soulasia | Soulful Stays, Memorable Days.</title>
@@ -121,7 +64,7 @@ export default function Home() {
         <Toaster />
         {/* Hero Section (without BookingWidget) */}
         <section
-            className="relative overflow-hidden bg-white pt-24 tb:pt-50 tb:pb-20 lp:py-32 lp:min-h-[90vh] flex items-center ">
+            className="relative overflow-hidden bg-white pt-24 tb:pt-50 tb:pb-20 lp:py-32 lp:min-h-[65vh] flex items-center ">
           {/* Decorative Elements */}
           <div className="absolute inset-0 w-full h-full z-0">
             <Image
@@ -167,7 +110,7 @@ export default function Home() {
 
           {/* Value Proposition Section - moved up */}
           {/* Hero Section */}
-          <section className="tb:my-20 full:my-30 bg-white relative mx-auto">
+          <section className="section-margin-y bg-white relative mx-auto">
             <div className="tb:container mx-auto relative w-full min-h-[332px] tb:min-h-[450px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden tb:rounded-[24px] z-0">
               <Image
                   src="/media-assets/asset8.png"
@@ -177,7 +120,7 @@ export default function Home() {
                   quality={80}
                   sizes="100vw"
                   className="object-cover"
-                  style={{ objectPosition: 'center 30%' }} // adjust focus area
+                  style={{ objectPosition: 'center 20%' }} // adjust focus area
               />
               {/* Overlay to darken the image further */}
             </div>
@@ -206,10 +149,10 @@ export default function Home() {
           </section>
 
           {/* Standard in Every Property (Combined Slider) */}
-          <section className="py-24 relative overflow-hidden ">
+          <section className="section-padding-y relative overflow-hidden ">
             <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#F9FAFB]" aria-hidden="true"/>
             <div className="container mx-auto relative z-10">
-              <div className="flex justify-between mb-[30px]" >
+              <div className="flex justify-between header-margin-b" >
                 <div className="max-w-lg text-left ">
                   <h2 className="h2 font-semibold mb-2">Standard in every property</h2>
                   <div className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
@@ -282,18 +225,14 @@ export default function Home() {
           </section>
 
           {/* Gallery Section */}
-          <section className="py-24">
-            <Experience/>
-          </section>
+          <Experience/>
 
           {/* Customer Reviews Section (moved to bottom) */}
-          <section className="bg-white">
-            <CustomerReviews/>
-          </section>
+          <CustomerReviews/>
 
           {/* OTA Logos Section */}
-            <section className="py-16 bg-white">
-              <h2 className="container h2 font-semibold mb-8">We are listed on</h2>
+          <section className="section-padding-y bg-white">
+            <h2 className="header-margin-b container h2 font-semibold mb-8">We are listed on</h2>
               <div
                     className="pl-[5%] flex gap-6 overflow-x-auto no-scrollbar
                     lp:flex lp:justify-between lp:items-center lp:gap-8 lp:pl-0 lp:container lp:mx-auto

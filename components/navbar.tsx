@@ -6,14 +6,17 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {useEffect, useState} from 'react';
-import {usePathname} from 'next/navigation';
-// import {User as SupabaseUser} from '@supabase/supabase-js';
+import React, {useEffect, useState} from 'react';
+import {usePathname, useRouter, useSearchParams} from 'next/navigation';
+import {User as SupabaseUser} from '@supabase/supabase-js';
 import Image from 'next/image';
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {cn} from "@/lib/utils";
+import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
+import {useUI} from "@/components/context";
 
 type NavbarProps = {
     className?: string;
@@ -25,6 +28,28 @@ const LINKS = [
 ];
 
 export function Navbar({className}: NavbarProps) {
+    const { isActive, setIsActive } = useUI();
+    // const [isActive, setOpened] = useState(false);
+
+
+    // Get search parameters
+    const searchParams = useSearchParams();
+    const city = searchParams.get('city');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const adults = searchParams.get('adults');
+    const children = searchParams.get('children');
+    const apartments = parseInt(searchParams.get('apartments') || '1', 10);
+
+    // Create initial search params object for BookingWidget
+    const initialSearchParams = {
+        city: city || '',
+        startDate: startDate || '',
+        endDate: endDate || '',
+        adults: adults || '2',
+        children: children || '0',
+        apartments: apartments.toString(),
+    };
 
     const pathname = usePathname();
     const [isDark, setIsDark] = useState(false);
@@ -32,75 +57,79 @@ export function Navbar({className}: NavbarProps) {
     useEffect(() => {
         const dark = document.querySelector(".dark-header");
         if (!dark) {
-            setOpened(false);
+            setIsActive(false);
             setIsDark(false); // no hero → always white
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            setOpened(false);
+            setIsActive(false);
             setIsDark(entry.isIntersecting);
-        }, { threshold: 0.1 });
+        }, {threshold: 0.1});
 
         observer.observe(dark);
         return () => observer.disconnect();
     }, [pathname]);
 
     const [submitting, setSubmitting] = useState(true);
-    const [opened, setOpened] = useState(false);
 
     useEffect(() => {
         const search = document.querySelector(".search-widget");
         if (!search) {
-            setOpened(false);
+            setIsActive(false);
             setSubmitting(true); // no hero → always white
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            setOpened(false);
+            setIsActive(false);
             setSubmitting(!entry.isIntersecting);
-        }, { threshold: 0.1 });
+        }, {threshold: 0.1});
 
         observer.observe(search);
         return () => observer.disconnect();
     }, [pathname]);
 
-    useEffect(() => {
-        if (pathname === '/search') {
-            setOpened(false);
-            setSubmitting(false); // no hero → always white
-        }
-    }, [pathname]);
+    // useEffect(() => {
+    //     if (pathname === '/search') {
+    //         setIsActive(false);
+    //         setSubmitting( onToggle(false);
+    //         setSubmitting(false); // no hero → always white
+    //     }
+    // }, [pathname]);
 
-    // const [user, setUser] = useState<SupabaseUser | null>(null);
-    // const supabase = createClientComponentClient();
-    // const router = useRouter();
+    const [user, setUser] = useState<SupabaseUser | null>(null);
+    const supabase = createClientComponentClient();
+    const router = useRouter();
 
     // Check auth state
-    // useEffect(() => {
-    //     const getUser = async () => {
-    //         const {data: {user}} = await supabase.auth.getUser();
-    //         setUser(user);
-    //     };
-    //
-    //     getUser();
-    //
-    //     // Listen for auth changes
-    //     const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
-    //         setUser(session?.user ?? null);
-    //     });
-    //
-    //     return () => {
-    //         subscription.unsubscribe();
-    //     };
-    // }, [supabase.auth]);
+    useEffect(() => {
+        const getUser = async () => {
+            const {data: {user}} = await supabase.auth.getUser();
+            setUser(user);
+        };
 
-    // const handleSignOut = async () => {
-    //     await supabase.auth.signOut();
-    //     router.refresh();
-    //     if (pathname === '/my-bookings') {
-    //         router.push('/');
-    //     }
-    // };
+        getUser();
+
+        // Listen for auth changes
+        const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [supabase.auth]);
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.refresh();
+        if (pathname === '/my-bookings') {
+            router.push('/');
+        }
+    };
+
+    const toggle = () => {
+        setIsActive(!isDark && !isActive);
+    };
 
     return (
         <header
@@ -117,7 +146,8 @@ export function Navbar({className}: NavbarProps) {
                 <div className="flex h-full items-center justify-between gap-4">
                     <div className="flex h-full items-center">
                         {/* Brand */}
-                        <Link href="/" aria-label="Soulasia home" className="inline-flex items-center mr-20 shrink-0">
+                        <Link href="/" aria-label="Soulasia home"
+                              className="cursor-pointer inline-flex items-center mr-20 shrink-0">
                             <Image
                                 src={isDark ? '/Brand/logo-fill.svg' : '/Brand/logo.svg'}
                                 alt="Soulasia"
@@ -150,9 +180,9 @@ export function Navbar({className}: NavbarProps) {
                                 'full:h-[var(--action-h-3xl)] h-[var(--action-h-2xl)] w-[124px]',
                                 submitting ? 'hidden lp:flex' : 'hidden'
                             ].join(' ')}
-                            onClick={() => setOpened(!isDark && !opened)}
+                            onClick={() => toggle()}
                         >
-                            {!opened ? 'Search' : 'Close'}
+                            {!isActive ? 'Search' : 'Close'}
                         </Button>
                     </div>
 
@@ -169,36 +199,96 @@ export function Navbar({className}: NavbarProps) {
                                     ? 'flex'
                                     : 'hidden',
                             ].join(' ')}
-                            onClick={() => setOpened(!isDark && !opened)}
+                            onClick={() => toggle()}
                         >
-                            {!opened ? 'Search' : 'Close'}
+                            {!isActive ? 'Search' : 'Close'}
                         </Button>
 
-                        <Link href="/auth/sign-in">
-                            <Button
-                                size="responsive"
-                                variant="outline"
-                                className={[
-                                    'h-[var(--login-btn)] px-4 bg-transparent rounded-md font-medium  ',
-                                    isDark
-                                        ? 'border-white text-white hover:bg-white/10'
-                                        : 'border-gray-900 text-gray-900 hover:bg-black/5',
-                                ].join(' ')}
-                            >
-                                Log In
-                            </Button>
-                        </Link>
-
-                        {/* Phone/Tablet: burger + (tablet shows small login) */}
-                        <div className="lp:hidden flex items-center">
-                            <MobileMenu isDark={isDark}/>
+                        <div className="flex items-center gap-2">
+                            {user ? (
+                                <>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button
+                                                aria-label="Open menu"
+                                                className={[
+                                                    'flex h-[--btn-h] w-[--btn-h] items-center justify-center transition-colors',
+                                                ].join(' ')}
+                                            >
+                                                <span
+                                                    className={[
+                                                        'flex items-center justify-center w-8 h-8 lp:w-10 lp:h-10 rounded-full font-medium text-base lp:text-lg',
+                                                        (isDark ? 'text-[#101828] bg-gray-50' : 'bg-[#101828] text-white')
+                                                    ].join(' ')}
+                                                >
+                                                  {(() => {
+                                                      return user.user_metadata?.first_name?.[0];
+                                                  })()}
+                                                </span>
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-40">
+                                            {LINKS.map((l) => (
+                                                <DropdownMenuItem key={l.href} asChild
+                                                                  className="lp:hidden flex items-center cursor-pointer">
+                                                    <Link href={l.href}>{l.label}</Link>
+                                                </DropdownMenuItem>
+                                            ))}
+                                            <DropdownMenuSeparator className="lp:hidden"/>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/my-bookings" className="flex items-center cursor-pointer gap-2">
+                                                    <Image
+                                                        src="/icons/trip.svg"
+                                                        alt="Arrow"
+                                                        width={16}
+                                                        height={16}
+                                                    />
+                                                    My bookings
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleSignOut}
+                                                              className="flex items-center cursor-pointer gap-2">
+                                                <Image
+                                                    src="/icons/logout.svg"
+                                                    alt="Arrow"
+                                                    width={16}
+                                                    height={16}
+                                                />
+                                                Sign out
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </>
+                            ) : (
+                                <>
+                                    <Link href="/auth/sign-in">
+                                        <Button
+                                            size="responsive"
+                                            variant="outline"
+                                            className={[
+                                                'h-[var(--login-btn)] px-4 bg-transparent rounded-md font-medium  ',
+                                                isDark
+                                                    ? 'border-white hover:text-white text-white hover:bg-white/10'
+                                                    : 'border-gray-900 text-gray-900 hover:bg-black/5',
+                                            ].join(' ')}
+                                        >
+                                            Log In
+                                        </Button>
+                                    </Link>
+                                    {/* Phone/Tablet: burger + (tablet shows small login) */}
+                                    <div className="lp:hidden flex items-center">
+                                        <MobileMenu isDark={isDark}/>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-            <div className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", submitting && opened ? 'flex' : 'hidden')}>
+            <div
+                className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", submitting && isActive ? 'flex' : 'hidden')}>
                 <div className={cn("container mx-auto")}>
-                    <BookingWidgetNew/>
+                    <BookingWidgetNew initialSearchParams={initialSearchParams}/>
                 </div>
             </div>
         </header>
@@ -229,9 +319,6 @@ function MobileMenu({isDark}: { isDark: boolean }) {
                         <Link href={l.href}>{l.label}</Link>
                     </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem asChild className="lp:hidden">
-                    <Link href="/auth/sign-in">Log In</Link>
-                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

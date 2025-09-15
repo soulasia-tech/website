@@ -149,7 +149,7 @@ function SignUpFormContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 flex flex-col items-center justify-center">
+    <div className="min-h-screen py-12 flex flex-col items-center justify-center">
       <Image src="/Brand/logo.svg" alt="Soulasia Logo" width={120} height={32} className="mx-auto mb-8" />
       <div className="container mx-auto px-4">
         <Card className="max-w-md mx-auto p-8 rounded-2xl shadow-lg">
@@ -253,7 +253,7 @@ export default function SignUpForm() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen py-12">
           <div className="container mx-auto px-4">
             <Card className="max-w-md mx-auto p-6">
               <div className="animate-pulse space-y-4">

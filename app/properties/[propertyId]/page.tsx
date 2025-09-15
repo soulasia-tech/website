@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/popover";
 import { DateRange } from "react-day-picker";
 import { calculateTotalGuests } from '@/lib/guest-utils';
+import {useUI} from "@/components/context";
 
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
@@ -89,6 +90,8 @@ const fadeIn = {
 
 
 export default function PropertiesPage() {
+  const { isActive } = useUI();
+
   const params = useParams();
   const propertyId = params.propertyId || "270917";
   let pageTitle = 'Soulasia | Property';
@@ -141,6 +144,7 @@ export default function PropertiesPage() {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [adults, setAdults] = useState('2');
   const [children, setChildren] = useState('0');
+  const [apartment, setApartment] = useState('1');
   const [submitting, setSubmitting] = useState(false);
 
   const handleBookNow = (e: React.FormEvent) => {
@@ -154,6 +158,7 @@ export default function PropertiesPage() {
       endDate: format(date.to, 'yyyy-MM-dd'),
       adults,
       children,
+      apartment,
       guests: totalGuests.toString(),
     });
     router.push(`/search?${params.toString()}`);
@@ -192,7 +197,8 @@ export default function PropertiesPage() {
   return (
       <>
         <title>{pageTitle}</title>
-        <main className="py-8 bg-white">
+
+        <main className={["py-8 bg-white", (isActive ? 'mt-50 tb:mt-5 tb:pt-nav' : '')].join(' ')} >
           <div className="container">
             {/* Back button */}
             <button className="flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
@@ -278,8 +284,8 @@ export default function PropertiesPage() {
               <Image
                   src="/icons/arrow.svg"
                   alt="Arrow"
-                  width={24}
-                  height={24}
+                  width={16}
+                  height={16}
                   className="transform rotate-180"
               />
             </div>
@@ -288,9 +294,8 @@ export default function PropertiesPage() {
               <Image
                   src="/icons/arrow.svg"
                   alt="Arrow"
-                  width={24}
-                  height={24}
-                  className="transform rotate-180"
+                  width={16}
+                  height={16}
               />
             </div>
           </motion.div>
@@ -305,7 +310,7 @@ export default function PropertiesPage() {
                   {'Welcome to Scarletz KLCC Apartments by Soulasia, your stylish home away from home. Enjoy modern decor, a fully equipped kitchen, and a dining area with stunning views. Located near Kuala Lumpur City Center Business District, you\'re close to top attractions and amenities. Our building offers a rooftop pool and gym with breathtaking views, perfect for relaxation. Plus, our co-working space on the 44th floor provides fast internet and panoramic views, ideal for productivity.'}
                 </div>
               </section>
-              <div className="border border-[#dee3ed] "></div>
+              <div className="border border-[#dee3ed]"></div>
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Amenities</h2>
                 <ul className="grid grid-cols-2 gap-4 text-[#101828]">
@@ -417,7 +422,7 @@ export default function PropertiesPage() {
                                       />
                                       <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Pick dates</div>
                                     </div>
-                              )
+                                )
                             }
                           </Button>
                         </PopoverTrigger>
@@ -452,7 +457,7 @@ export default function PropertiesPage() {
                                   className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setAdults((parseInt(adults) - 1).toString())}>-</Button>
                           <span
-                              className="font-semibold text-xs tb:text-base text-[#101828] text-center">{adults}</span>
+                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{adults}</span>
                           <Button type="button" size="responsive" variant="outline"
                                   className="bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setAdults((parseInt(adults) + 1).toString())}>+</Button>
@@ -477,10 +482,35 @@ export default function PropertiesPage() {
                                   disabled={parseInt(children) <= 0}
                                   onClick={() => setChildren((parseInt(children) - 1).toString())}>-</Button>
                           <span
-                              className="font-semibold text-xs tb:text-base text-[#101828] text-center">{children}</span>
+                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{children}</span>
                           <Button type="button" size="responsive" variant="outline"
                                   className="bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setChildren((parseInt(children) + 1).toString())}>+</Button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-3",
+                      "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
+                    >
+                      <div className="flex items-center w-full justify-between">
+                        <div className="flex gap-3 items-center">
+                          <Image
+                              src="/icons/rested.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
+                              width={24}
+                              height={24}
+                          />
+                          <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Apartments</div>
+                        </div>
+                        <div className="flex items-center gap-2 tb:gap-4">
+                          <Button type="button" size="responsive" variant="outline"
+                                  className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  disabled={parseInt(apartment) <= 1}
+                                  onClick={() => setApartment((parseInt(apartment) - 1).toString())}>-</Button>
+                          <span
+                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{apartment}</span>
+                          <Button type="button" size="responsive" variant="outline"
+                                  className="bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  onClick={() => setApartment((parseInt(apartment) + 1).toString())}>+</Button>
                         </div>
                       </div>
                     </div>

@@ -84,7 +84,7 @@ const fadeIn = {
 }
 
 const Locations = ({
-  title = "Soulasia locations",
+  title = "Soulasia Locations",
   items = data,
 }: LocationsProps) => {
 
@@ -115,9 +115,9 @@ const Locations = ({
     }
   };
   return (
-    <section className="py-10 tb:py-20 lp:py-28 full:py-32">
+    <section className="section-padding-y">
       <div className="container mx-auto">
-        <div className="mb-12 md:mb-16">
+        <div className="header-margin-b">
           <motion.div
               initial="hidden"
               whileInView="visible"
@@ -125,7 +125,7 @@ const Locations = ({
               variants={fadeIn}
               className="flex justify-between items-end "
           >
-            <div className="max-w-lg text-left mb-4">
+            <div className="max-w-[50%] lp:max-w-lg text-left">
               <h2 className="h2">{title}</h2>
             </div>
             <div className="flex gap-x-[10px] items-center">
@@ -136,8 +136,8 @@ const Locations = ({
                     src="/icons/arrow.svg"
                     alt=""
                     className="transform rotate-180"
-                    width={24}
-                    height={24}
+                    width={16}
+                    height={16}
                 />
               </div>
               <div onClick={next}
@@ -145,8 +145,8 @@ const Locations = ({
                 <Image
                     src="/icons/arrow.svg"
                     alt=""
-                    width={24}
-                    height={24}
+                    width={16}
+                    height={16}
                 />
               </div>
             </div>
