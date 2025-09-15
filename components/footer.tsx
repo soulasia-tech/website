@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <footer className="bg-[#141826] text-white pt-8 pb-4">
       <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 tb:grid-cols-2 lp:grid-cols-4 gap-8 mb-6">
+        <div className="grid grid-cols-1 tb:grid-cols-2 lp:grid-cols-4 gap-5 tb:gap-8 mb-6">
           {/* Logo & Tagline */}
           <div>
             <Link href="/" className="inline-block mb-2" aria-label="Soulasia Home">
@@ -65,12 +65,12 @@ export function Footer() {
             <div className="font-normal text-white/80 text-sm full:text-base mb-1">B1-22-2, The Soho Suites @KLCC, 20 Jalan Perak 50450, WP Kuala Lumpur, Malaysia</div>
           </div>
         </div>
-        <div className="grid grid-cols-1 tb:grid-cols-4 gap-4  gap-2 flex border-t border-gray-700 pt-4 mb-6">
+        <div className="grid grid-cols-1 tb:grid-cols-4 flex border-t border-gray-700 pt-4 mb-6 gap-4 tb:gap-8">
           {/* Company Info */}
           <div className="col-span-1 text-white text-xs tb:text-sm lp:text-base">
-            © {new Date().getFullYear()} Soulasia. All rights reserved.
+            © {new Date().getFullYear()} Soulasia. <br className="hidden tb:flex lp:hidden"/> All rights reserved.
           </div>
-          <div className="col-span-3 grid grid-cols-3 gap-2">
+          <div className="col-span-3 grid grid-cols-3 gap-8">
             <Link href="/privacy-policy" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Privacy Policy</Link>
             <Link href="/refund-policy" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Refund Policy</Link>
             <Link href="/terms" className="text-white/80 font-normal text-xs tb:text-sm lp:text-base hover:underline">Terms & Conditions</Link>

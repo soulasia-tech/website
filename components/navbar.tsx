@@ -88,13 +88,12 @@ export function Navbar({className}: NavbarProps) {
         return () => observer.disconnect();
     }, [pathname]);
 
-    // useEffect(() => {
-    //     if (pathname === '/search') {
-    //         setIsActive(false);
-    //         setSubmitting( onToggle(false);
-    //         setSubmitting(false); // no hero → always white
-    //     }
-    // }, [pathname]);
+    useEffect(() => {
+        if (pathname === '/search') {
+            setIsActive(true);
+            setSubmitting(true); // no hero → always white
+        }
+    }, [pathname]);
 
     const [user, setUser] = useState<SupabaseUser | null>(null);
     const supabase = createClientComponentClient();
@@ -218,7 +217,7 @@ export function Navbar({className}: NavbarProps) {
                                                 <span
                                                     className={[
                                                         'flex items-center justify-center w-8 h-8 lp:w-10 lp:h-10 rounded-full font-medium text-base lp:text-lg',
-                                                        (isDark ? 'text-[#101828] bg-gray-50' : 'bg-[#101828] text-white')
+                                                        (isDark ? 'text-[#101828] bg-gray-50' : 'bg-[#0E3599] text-white')
                                                     ].join(' ')}
                                                 >
                                                   {(() => {
@@ -236,24 +235,25 @@ export function Navbar({className}: NavbarProps) {
                                             ))}
                                             <DropdownMenuSeparator className="lp:hidden"/>
                                             <DropdownMenuItem asChild>
-                                                <Link href="/my-bookings" className="flex items-center cursor-pointer gap-2">
-                                                    <Image
-                                                        src="/icons/trip.svg"
-                                                        alt="Arrow"
-                                                        width={16}
-                                                        height={16}
-                                                    />
+                                                <Link href="/my-bookings"
+                                                      className="flex items-center cursor-pointer gap-2">
+                                                    <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                         xmlns="http://www.w3.org/2000/svg">
+                                                        <path
+                                                            d="M2 21V6H8V2H16V6H22V21H2ZM9.5 6H14.5V3.5H9.5V6ZM6.175 7.5H3.5V19.5H6.175V7.5ZM16.35 19.5V7.5H7.675V19.5H16.35ZM17.85 7.5V19.5H20.5V7.5H17.85Z"
+                                                            fill="#101828"/>
+                                                    </svg>
                                                     My bookings
                                                 </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={handleSignOut}
                                                               className="flex items-center cursor-pointer gap-2">
-                                                <Image
-                                                    src="/icons/logout.svg"
-                                                    alt="Arrow"
-                                                    width={16}
-                                                    height={16}
-                                                />
+                                                <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                     xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M3 21V3H11.975V4.5H4.5V19.5H11.975V21H3ZM16.65 16.375L15.575 15.3L18.125 12.75H9V11.25H18.075L15.525 8.7L16.6 7.625L21 12.025L16.65 16.375Z"
+                                                        fill="black"/>
+                                                </svg>
                                                 Sign out
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -261,7 +261,7 @@ export function Navbar({className}: NavbarProps) {
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/auth/sign-in">
+                                    <Link href="/auth/sign-in" className="hidden tb:flex">
                                         <Button
                                             size="responsive"
                                             variant="outline"
@@ -313,12 +313,26 @@ function MobileMenu({isDark}: { isDark: boolean }) {
                     </svg>
                 </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-40">
                 {LINKS.map((l) => (
                     <DropdownMenuItem key={l.href} asChild>
                         <Link href={l.href}>{l.label}</Link>
                     </DropdownMenuItem>
                 ))}
+                <DropdownMenuSeparator className="tb:hidden"/>
+                <DropdownMenuItem asChild>
+                    <Link href="/auth/sign-in"
+                          className="tb:hidden flex items-center cursor-pointer gap-1">
+                        <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4 3V21H12.975V19.5H5.5V4.5H12.975V3H4Z"
+                                  fill="black"/>
+                            <path
+                                d="M12.5502 16.5L13.6679 15.425L11.4752 12.875H20.5V11.375H11.4252L13.6679 8.825L12.5002 7.75L8.50035 12.15L12.5502 16.5Z"
+                                fill="black"/>
+                        </svg>
+                        Log In
+                    </Link>
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

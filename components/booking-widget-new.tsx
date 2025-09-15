@@ -154,7 +154,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
       >
         {/* City & Dates Group */}
         <div className="w-full flex justify-center grid grid-cols-1 tb:grid-cols-3 gap-2 ">
-          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
+          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 mb-2 tb:mb-0",
             "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
           >
             <Select
@@ -165,7 +165,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               <SelectTrigger
                   ref={cityRef}
                   hideIcon={true}
-                  className="cursor-pointer w-full border-0 p-0 h-auto font-normal
+                  className="cursor-pointer w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0
                       data-[placeholder]:text-[#4a4f5b] data-[placeholder]:text-xs data-[placeholder]:lp:text-sm
                   "
               >
@@ -196,7 +196,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               </SelectContent>
             </Select>
           </div>
-          <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
+          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg  mb-2 tb:mb-0",
             "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
           >
             <Popover
@@ -209,9 +209,9 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                 <Button
                     ref={dateButtonRef}
                     size="responsive"
-                    variant="ghost"
+                    variant="none"
                     className={cn(
-                        "w-full justify-start p-0 font-normal text-left flex items-center truncate" +
+                        "cursor-pointer w-full h-full justify-start px-4 font-normal text-left flex items-center truncate" +
                         "font-normal text-[#4a4f5b] text-xs lp:text-sm",
                         !date?.from && "text-gray-400"
                     )}
@@ -232,21 +232,21 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                     onSelect={handleDateChange}
                     numberOfMonths={1}
                     initialFocus
-                    className="rounded-lg border border-border p-2"
+                    className="rounded-lg border rounded-lg p-2"
                     disabled={{before: new Date()}}
                 />
               </PopoverContent>
             </Popover>
           </div>
-          <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg px-4 mb-2 tb:mb-0",
+          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg  mb-2 tb:mb-0",
             "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
           >
             <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
-                    variant="ghost"
+                    variant="none"
                     size="responsive"
-                    className="w-full justify-start p-0 font-normal text-left flex items-center gap-2
+                    className="cursor-pointer px-4 w-full h-full justify-start font-normal text-left flex items-center gap-2
                         font-normal text-[#4a4f5b] text-xs lp:text-sm"
                     onClick={() => setTouchRooms(true)}
                 >
@@ -257,7 +257,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-4" align="start">
-                <div className="space-y-6">
+                <div className="space-y-3 lp:space-y-6">
                   <div className="flex w-max-content items-center justify-between gap-15">
                     <div>
                       <div className="font-semibold text-xs lp:text-base text-[#101828]">Adults</div>

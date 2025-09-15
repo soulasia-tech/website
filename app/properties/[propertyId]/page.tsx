@@ -88,6 +88,14 @@ const fadeIn = {
   },
 }
 
+interface Room {
+  roomTypeID: string;
+  roomTypeName: string;
+  propertyName: string;
+  roomTypePhotos: { url: string; caption?: string }[];
+  rate?: number;
+}
+
 
 export default function PropertiesPage() {
   const { isActive } = useUI();
@@ -164,7 +172,10 @@ export default function PropertiesPage() {
     router.push(`/search?${params.toString()}`);
   };
 
-  // Fetch and geocode location for Vortex (19928)
+  // const [roomsRate, setRooms] = useState<Room[]>([]);
+  // const [loadingRooms, setLoadingRooms] = useState(true);
+
+  // Fetch and geocode location for Vortex (19928) TODO ??
   useEffect(() => {
     if (!isVortex) return;
     async function fetchAndGeocode() {
@@ -194,6 +205,55 @@ export default function PropertiesPage() {
     fetchAndGeocode();
   }, [isVortex]);
 
+  // useEffect(() => {
+  //   if (!propertyId) return;
+  //
+  //   const fetchRooms = async () => {
+  //     try {
+  //       setLoadingRooms(true);
+  //
+  //       // 1. Получаем список комнат
+  //       const roomsRes = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyId}`);
+  //       const roomsData = await roomsRes.json();
+  //
+  //       // 2. Получаем цены для этих комнат
+  //       const startDate = new Date().toISOString().slice(0, 10);
+  //       const endDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  //
+  //       const ratesRes = await fetch(
+  //           `/api/cloudbeds/rate-plans?propertyId=${propertyId}&startDate=${startDate}&endDate=${endDate}`
+  //       );
+  //       const ratesData = await ratesRes.json();
+  //
+  //       console.log(roomsData)
+  //       console.log(ratesData)
+  //       const rateMap: Record<string, number> = {};
+  //       if (ratesData.success && Array.isArray(ratesData.ratePlans)) {
+  //         ratesData.ratePlans.forEach((rate: { roomTypeID: string; totalRate: number }) => {
+  //           if (!rateMap[rate.roomTypeID] || rate.totalRate < rateMap[rate.roomTypeID]) {
+  //             rateMap[rate.roomTypeID] = Math.round(rate.totalRate);
+  //           }
+  //         });
+  //       }
+  //
+  //       // 3. Трансформируем комнаты
+  //       if (roomsData.success && roomsData.roomTypes) {
+  //         const transformedRooms: Room[] = roomsData.roomTypes.map((room: any) => ({
+  //           roomTypeID: room.roomTypeID,
+  //           roomTypeName: room.roomTypeName,
+  //           roomTypePhotos: (room.roomTypePhotos || []).map((url: string) => ({ url, caption: "" })),
+  //           rate: rateMap[room.roomTypeID],
+  //         }));
+  //         setRooms(transformedRooms);
+  //       }
+  //     } finally {
+  //       setLoadingRooms(false);
+  //     }
+  //   };
+  //
+  //   fetchRooms();
+  // }, [propertyId]);
+
   return (
       <>
         <title>{pageTitle}</title>
@@ -201,7 +261,9 @@ export default function PropertiesPage() {
         <main className={["py-8 bg-white", (isActive ? 'mt-50 tb:mt-5 tb:pt-nav' : '')].join(' ')} >
           <div className="container">
             {/* Back button */}
-            <button className="flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
+            <button
+                onClick={() => router.back()}
+                className="cursor-pointer flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
                   mb-4 lp:mb-5 rounded-lg tb:rounded-[10px] px-2 py-1 tb:px-3 tb:py-2 lp:px-4 lp:py-3
                   text-xs tb:text-sm lp:text-base">
               <svg className="w-3 h-3 lp:w-4 lp:h-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -399,15 +461,15 @@ export default function PropertiesPage() {
                     className="flex flex-col bg-[#f9fafb] rounded-xl max-w-full p-6 ">
                   <div className="font-semibold text-black text-xl tb:text-2xl mb-4 tb:mb-5">Search apartments</div>
                   <form className="flex flex-col gap-4" onSubmit={handleBookNow}>
-                    <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-3",
+                    <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg ",
                       "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
                     >
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
-                              variant="ghost"
+                              variant="none"
                               className={cn(
-                                  "w-full justify-start p-0 font-normal text-left",
+                                  "w-full h-full justify-start px-3 font-normal text-left",
                                   !date?.from && "text-gray-400"
                               )}
                           >
@@ -454,12 +516,12 @@ export default function PropertiesPage() {
                         <div className="flex items-center gap-2 tb:gap-4">
                           <Button type="button" size="responsive" variant="outline"
                                   disabled={parseInt(adults) <= 1}
-                                  className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setAdults((parseInt(adults) - 1).toString())}>-</Button>
                           <span
                               className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{adults}</span>
                           <Button type="button" size="responsive" variant="outline"
-                                  className="bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setAdults((parseInt(adults) + 1).toString())}>+</Button>
                         </div>
                       </div>
@@ -478,13 +540,13 @@ export default function PropertiesPage() {
                         </div>
                         <div className="flex items-center gap-2 tb:gap-4">
                           <Button type="button" size="responsive" variant="outline"
-                                  className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   disabled={parseInt(children) <= 0}
                                   onClick={() => setChildren((parseInt(children) - 1).toString())}>-</Button>
                           <span
                               className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{children}</span>
                           <Button type="button" size="responsive" variant="outline"
-                                  className="bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setChildren((parseInt(children) + 1).toString())}>+</Button>
                         </div>
                       </div>
@@ -495,7 +557,7 @@ export default function PropertiesPage() {
                       <div className="flex items-center w-full justify-between">
                         <div className="flex gap-3 items-center">
                           <Image
-                              src="/icons/rested.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
+                              src="/icons/building.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
                               width={24}
                               height={24}
                           />
@@ -503,20 +565,20 @@ export default function PropertiesPage() {
                         </div>
                         <div className="flex items-center gap-2 tb:gap-4">
                           <Button type="button" size="responsive" variant="outline"
-                                  className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   disabled={parseInt(apartment) <= 1}
                                   onClick={() => setApartment((parseInt(apartment) - 1).toString())}>-</Button>
                           <span
                               className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{apartment}</span>
                           <Button type="button" size="responsive" variant="outline"
-                                  className="bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
+                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
                                   onClick={() => setApartment((parseInt(apartment) + 1).toString())}>+</Button>
                         </div>
                       </div>
                     </div>
                     <Button
                         type="submit"
-                        className={["flex items-center justify-center bg-[#0E3599] rounded-lg px-2  ",
+                        className={["cursor-pointer flex items-center justify-center bg-[#0E3599] rounded-lg px-2  ",
                           "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
                         onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
                         onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}

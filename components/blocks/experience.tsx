@@ -97,15 +97,15 @@ const Experience = ({
             whileInView="visible"
             viewport={{once: true, margin: "-100px"}}
             variants={fadeIn}
-            className="flex justify-between items-end header-margin-b"
+            className="flex flex-col tb:flex-row justify-between items-end header-margin-b"
         >
-          <div className="max-w-sm tb:max-w-md lp:max-w-xl text-left">
+          <div className="max-w-md lp:max-w-xl text-left mb-2 mr-auto">
             <h2 className="h2 ">{title}</h2>
             <div className="font-normal text-[#3b4a68] text-lg lp:text-xl full:text-2xl mt-2">{description}</div>
           </div>
           <div className="flex gap-x-[10px] items-center">
             <div onClick={prev}
-                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                 className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
                   src="/icons/arrow.svg" alt="" className="transform rotate-180"
                   width={16}
@@ -113,7 +113,7 @@ const Experience = ({
               />
             </div>
             <div onClick={next}
-                 className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                 className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
                   src="/icons/arrow.svg" alt=""
                   width={16}

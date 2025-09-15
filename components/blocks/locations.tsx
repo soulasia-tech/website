@@ -123,15 +123,15 @@ const Locations = ({
               whileInView="visible"
               viewport={{once: true, margin: "-100px"}}
               variants={fadeIn}
-              className="flex flex-col tb:flex-row justify-between items-end "
+              className="flex justify-between items-end "
           >
-            <div className="max-w-lg text-left mr-auto">
+            <div className="max-w-[50%] lp:max-w-lg text-left">
               <h2 className="h2">{title}</h2>
             </div>
             <div className="flex gap-x-[10px] items-center">
               <a href="/all-locations" className="whitespace-nowrap text-sm tb:text-base lp:text-lg">See all</a>
               <div onClick={prev}
-                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                   className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                 <Image
                     src="/icons/arrow.svg"
                     alt=""
@@ -141,7 +141,7 @@ const Locations = ({
                 />
               </div>
               <div onClick={next}
-                   className="mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
+                   className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                 <Image
                     src="/icons/arrow.svg"
                     alt=""
@@ -182,7 +182,7 @@ const Locations = ({
                     />
                     {/* Distance badge */}
                     <div
-                        className="absolute top-3 left-2 lp:left-3 bg-white/90 text-gray-900 text-[10px] inline-block w-fit tb:text-xs lp:text-base leading-tight font-medium px-3 py-1 rounded-full shadow">
+                        className="absolute max-w-[90%] top-3 left-2 lp:left-3 bg-white/90 text-gray-900 text-[10px] inline-block w-fit tb:text-xs lp:text-base leading-tight font-medium px-3 py-1 rounded-full shadow">
                       {item.distance}
                     </div>
                   </div>

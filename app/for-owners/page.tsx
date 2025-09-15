@@ -28,7 +28,7 @@ export default function ForOwnersPage() {
     <>
       <title>Soulasia | For Property Owners</title>
       <div className="bg-white">
-        <section className="section-padding-y bg-white">
+        <section className="section-component-p-y bg-white">
           <div className="container relative">
             <div
                 className="relative w-full max-h-[251px] tb:max-h-[425px] lp:max-h-[500px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] z-0">
@@ -42,17 +42,18 @@ export default function ForOwnersPage() {
                   className="object-cover"
                   style={{objectPosition: 'center 30%'}} // adjust focus area
               />
+              <div className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
               {/* Overlay to darken the image further */}
             </div>
             {/* Overlay (optional) */}
-            <div className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
 
             <motion.div
                 initial={{opacity: 0, y: -30}}
                 animate={{opacity: 1, y: 0}}
                 transition={{duration: 0.8, delay: 0.2}}
                 className="absolute inset-0 top-[20px] left-[20px] tb:top-[32px] tb:left-[32px] lp:top-[60px] lp:left-[60px]">
-              <div className="space-y-2 tb:space-y-4 lp:space-y-6 w-full tb:max-w-120 lp:max-w-260  text-white flex flex-col justify-start">
+              <div
+                  className="space-y-2 tb:space-y-4 lp:space-y-6 w-full tb:max-w-120 lp:max-w-260  text-white flex flex-col justify-start">
                 <h2 className="h2 font-semibold text-[#dfdfdf]">We will help you rent your apartment</h2>
                 <div className="font-normal text-[#dfdfdf] text-sm tb:text-base lg:text-lg full:text-2xl">
                   {'We care for your property as if it were our own.'}
@@ -63,7 +64,7 @@ export default function ForOwnersPage() {
         </section>
 
         {/* Benefits Section */}
-        <section className="section-padding-y relative overflow-hidden ">
+        <section className="section-component-p-y relative overflow-hidden ">
           <div className="container mx-auto relative z-10">
             <div className="flex justify-between mb-[30px]">
               <div className="max-w-lg text-left ">

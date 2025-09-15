@@ -456,7 +456,8 @@ function SearchResults() {
   }
 
   return (
-    <div className={["min-h-screen bg-white py-5", (isActive ? 'mt-50 tb:mt-5 tb:pt-nav' : '')].join(' ')}>
+    <div className={["min-h-screen bg-white py-5", (isActive ? 'mt-50 tb:mt-20' : '')].join(' ')}>
+      {isActive}
       <div className="container mx-auto">
         <h2 className="h2 font-semibold mb-5">Available apartments</h2>
         <div className="flex flex-col lp:flex-row gap-5">

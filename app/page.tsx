@@ -3,7 +3,7 @@
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { Toaster } from "sonner"
-import { CustomerReviews } from "@/components/customer-reviews"
+import { CustomerReviews } from "@/components/blocks/customer-reviews"
 import { Locations } from "@/components/blocks/locations"
 import { allLocationsCache, CachedProperties, CachedRooms, CachedRates } from "@/lib/allLocationsCache"
 import React, { useEffect } from "react"
@@ -235,7 +235,7 @@ export default function Home() {
             <h2 className="header-margin-b container h2 font-semibold mb-8">We are listed on</h2>
               <div
                     className="pl-[5%] flex gap-6 overflow-x-auto no-scrollbar
-                    lp:flex lp:justify-between lp:items-center lp:gap-8 lp:pl-0 lp:container lp:mx-auto
+                    lp:flex lp:justify-between lp:items-center lp:gap-8 lp:px-2 lp:container lp:mx-auto
                     [mask-image:linear-gradient(to_left,transparent_1,black_25px,black_calc(100%-25px),transparent_100%)]
                     [mask-repeat:no-repeat] [mask-size:100%_100%] lp:[mask-image:none]
                     "
