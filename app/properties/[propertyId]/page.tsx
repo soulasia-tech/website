@@ -87,14 +87,14 @@ const fadeIn = {
     transition: { duration: 0.6 },
   },
 }
-
-interface Room {
-  roomTypeID: string;
-  roomTypeName: string;
-  propertyName: string;
-  roomTypePhotos: { url: string; caption?: string }[];
-  rate?: number;
-}
+//
+// interface Room {
+//   roomTypeID: string;
+//   roomTypeName: string;
+//   propertyName: string;
+//   roomTypePhotos: { url: string; caption?: string }[];
+//   rate?: number;
+// }
 
 
 export default function PropertiesPage() {
