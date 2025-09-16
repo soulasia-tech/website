@@ -4,7 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
-import {UIProvider} from "@/components/context";
+import {UIProvider} from "@/lib/context";
 import {Suspense} from "react";
 
 // Manrope variable font; includes Cyrillic

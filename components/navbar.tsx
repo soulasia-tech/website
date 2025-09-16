@@ -16,7 +16,7 @@ import Image from 'next/image';
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {cn} from "@/lib/utils";
 import {createClientComponentClient} from "@supabase/auth-helpers-nextjs";
-import {useUI} from "@/components/context";
+import {useUI} from "@/lib/context";
 
 type NavbarProps = {
     className?: string;
@@ -30,7 +30,6 @@ const LINKS = [
 export function Navbar({className}: NavbarProps) {
     const { isActive, setIsActive } = useUI();
     // const [isActive, setOpened] = useState(false);
-
 
     // Get search parameters
     const searchParams = useSearchParams();

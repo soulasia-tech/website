@@ -14,7 +14,7 @@ import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
 import { AvailablePropertiesMap } from '@/components/AvailablePropertiesMap';
-import {useUI} from "@/components/context";
+import {useUI} from "@/lib/context";
 
 interface RoomResult {
   id: string;
@@ -456,7 +456,7 @@ function SearchResults() {
   }
 
   return (
-    <div className={["min-h-screen bg-white py-5", (isActive ? 'mt-50 tb:mt-20' : '')].join(' ')}>
+    <div className={["min-h-screen bg-white section-component-p-y", (isActive ? 'mt-50 tb:mt-20' : '')].join(' ')}>
       {isActive}
       <div className="container mx-auto">
         <h2 className="h2 font-semibold mb-5">Available apartments</h2>
@@ -740,7 +740,7 @@ function SearchResults() {
                   onClick={e => e.stopPropagation()}
               >
                 <button
-                    className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                    className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2 px-4"
                     onClick={() => {
                       setSelectedRoomImages(null);
                       setCarouselIndex(0);
@@ -752,7 +752,10 @@ function SearchResults() {
                 </button>
                 <Swiper
                     modules={[Navigation, Pagination]}
-                    navigation
+                    navigation={{
+                      nextEl: ".custom-next",
+                      prevEl: ".custom-prev",
+                    }}
                     pagination={{clickable: true}}
                     className="rounded-xl"
                     initialSlide={carouselIndex}
@@ -778,6 +781,30 @@ function SearchResults() {
                         </div>
                       </SwiperSlide>
                   ))}
+
+                  {/* Custom arrows */}
+                  <button
+                       className="cursor-pointer flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
+                       custom-prev absolute left-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20
+                       ">
+                    <Image
+                        src="/icons/arrow.svg"
+                        alt="Prev"
+                        className="transform rotate-180"
+                        width={16}
+                        height={16}
+                    />
+                  </button>
+                  <button
+                       className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
+                       custom-next absolute right-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20">
+                    <Image
+                        src="/icons/arrow.svg"
+                        alt="Next"
+                        width={16}
+                        height={16}
+                    />
+                  </button>
                 </Swiper>
               </div>
             </div>

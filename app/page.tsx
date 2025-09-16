@@ -5,8 +5,6 @@ import { motion } from "framer-motion"
 import { Toaster } from "sonner"
 import { CustomerReviews } from "@/components/blocks/customer-reviews"
 import { Locations } from "@/components/blocks/locations"
-import { allLocationsCache, CachedProperties, CachedRooms, CachedRates } from "@/lib/allLocationsCache"
-import React, { useEffect } from "react"
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {Experience} from "@/components/blocks/experience";
 
@@ -31,31 +29,6 @@ const staggerContainer = {
 }
 
 export default function Home() {
-  useEffect(() => {
-    // Start background fetch for all locations data
-    fetch('/api/cloudbeds-properties')
-      .then(res => res.json())
-      .then((data: CachedProperties) => {
-        allLocationsCache.setProperties(data);
-        if (data.success && Array.isArray(data.properties)) {
-          // Fetch rooms and rates for all properties in parallel
-          const roomTypePromises = data.properties.map((property) =>
-            fetch(`/api/cloudbeds/room-types?propertyId=${property.propertyId}`).then(res => res.json() as Promise<CachedRooms>)
-          );
-          Promise.all(roomTypePromises).then((roomResults: CachedRooms[]) => {
-            allLocationsCache.setRooms(roomResults);
-          });
-          const startDate = new Date().toISOString().slice(0, 10);
-          const endDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-          const ratePlanPromises = data.properties.map((property) =>
-            fetch(`/api/cloudbeds/rate-plans?propertyId=${property.propertyId}&startDate=${startDate}&endDate=${endDate}`).then(res => res.json() as Promise<CachedRates>)
-          );
-          Promise.all(ratePlanPromises).then((rateResults: CachedRates[]) => {
-            allLocationsCache.setRates(rateResults);
-          });
-        }
-      });
-  }, []);
 
   return (
     <>
