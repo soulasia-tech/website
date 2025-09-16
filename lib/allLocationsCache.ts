@@ -7,7 +7,7 @@ export interface CachedProperties {
 }
 export interface CachedRooms {
   success: boolean;
-  roomTypes: Array<{ roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }>;
+  roomTypes: Array<{ propertyId: string; roomTypeID: string; roomTypeName: string; roomTypePhotos: string[] }>;
 }
 export interface CachedRates {
   success: boolean;
@@ -22,4 +22,4 @@ export const allLocationsCache = {
   setRooms(data: CachedRooms[]) { this.rooms = data },
   setRates(data: CachedRates[]) { this.rates = data },
   clear() { this.properties = null; this.rooms = null; this.rates = null; },
-}; 
+};

@@ -1,4 +1,6 @@
 "use client";
+import {motion} from "framer-motion";
+
 declare const process: { env: Record<string, string | undefined> };
 import { useEffect, useState } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
@@ -295,78 +297,99 @@ export default function AllLocationsPage() {
   }, []);
 
   return (
-    <>
-      <title>Soulasia | All Locations</title>
-      {/* Hero Section */}
-      <section className="relative w-full min-h-[70vh] py-32 flex flex-col items-center justify-center text-center mb-8 overflow-hidden">
-        <div className="absolute inset-0 w-full h-full z-0">
-          <Image
-            src="/media-assets/asset1.jpg"
-            alt="Soulasia Hero Background"
-            fill
-            priority
-            className="object-cover object-center"
-            style={{ opacity: 0.5 }}
-          />
-        </div>
-        <div className="absolute inset-0 bg-black/60 z-10" />
-        <div className="relative z-20">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 animate-fade-in-up">Soulasia Locations</h1>
-          <p className="text-lg md:text-2xl max-w-2xl mx-auto animate-fade-in-up delay-100" style={{ color: '#fff' }}>Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.</p>
-        </div>
-      </section>
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            {/* Left: Properties and Rooms in 2-column grid, edge-to-edge */}
-            <div className="flex flex-col gap-8">
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">Properties</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="property-cards-anchor">
-                  {(loadingProperties) ? (
-                    [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
-                  ) : (
-                    properties.map((property) => (
-                      <PropertyCard
-                        key={property.propertyId}
-                        propertyName={property.propertyName}
-                        location={property.location}
-                        photos={property.photos}
-                        pricePerDay={property.pricePerDay}
-                      />
-                    ))
-                  )}
+      <>
+        <title>Soulasia | All Locations</title>
+        {/* Hero Section */}
+
+        <section
+            className="relative overflow-hidden bg-white min-h-[25vh] pt-24 tb:pt-50 tb:pb-20 lp:py-32 lp:min-h-[65vh] flex items-center -mt-nav ">
+          {/* Decorative Elements */}
+          <div className="absolute inset-0 w-full h-full z-0">
+            <Image
+                src="/media-assets/asset12.jpg"
+                alt="Soulasia Hero Background"
+                fill
+                priority
+                quality={80}
+                sizes="100vw"
+                className="dark-header object-cover max-h-[450px] tb:max-h-full"
+                style={{objectPosition: 'center 40%'}}
+            />
+            {/* Overlay to darken the image further */}
+          </div>
+          <div className="absolute inset-0 w-full h-full max-h-[450px] tb:max-h-full z-0 bg-black/70"/>
+
+          <div className="container relative z-10 flex flex-col items-center justify-center text-center">
+            <motion.div
+                initial={{opacity: 0, y: 30}}
+                animate={{opacity: 1, y: 0}}
+                transition={{duration: 0.8, delay: 0.2}}
+                className="max-w-5xl mb-8"
+            >
+              <h1 className="h1 mb-4 text-white">
+                Soulasia Locations
+              </h1>
+              <div className="text-white font-normal max-w-2xl text-sm tb:text-lg lp:text-xl full:text-[32px] w-4/5 mx-auto">
+                Explore all our properties and rooms across Kuala Lumpur. Use the map and cards below to find your perfect stay.
+              </div>
+            </motion.div>
+          </div>
+        </section>
+        <div className="min-h-screen py-12">
+          <div className="container mx-auto">
+            <div className="grid grid-cols-2 gap-8 items-start">
+              {/* Left: Properties and Rooms in 2-column grid, edge-to-edge */}
+              <div className="flex flex-col gap-8 col-span-2 lp:col-span-1">
+                <section>
+                  <h2 className="h2 font-semibold mb-4">Properties</h2>
+                  <div className="grid grid-cols-2 gap-6" id="property-cards-anchor">
+                    {(loadingProperties) ? (
+                        [...Array(4)].map((_, i) => <div key={i}
+                                                         className="h-80 bg-gray-200 rounded-xl animate-pulse"/>)
+                    ) : (
+                        properties.map((property) => (
+                            <PropertyCard
+                                key={property.propertyId}
+                                propertyName={property.propertyName}
+                                location={property.location}
+                                photos={property.photos}
+                                pricePerDay={property.pricePerDay}
+                                href={`/properties/${property.propertyId}`}
+                            />
+                        ))
+                    )}
+                  </div>
+                </section>
+                <section>
+                  <h2 className="h2 font-semibold mb-4">Rooms</h2>
+                  <div className="grid grid-cols-2 gap-6">
+                    {(loadingRooms) ? (
+                        [...Array(4)].map((_, i) => <div key={i}
+                                                         className="h-80 bg-gray-200 rounded-xl animate-pulse"/>)
+                    ) : (
+                        rooms.map((room) => (
+                            <RoomCard
+                                key={room.roomTypeID}
+                                roomName={room.roomTypeName}
+                                propertyName={room.propertyName}
+                                photos={room.roomTypePhotos}
+                                rate={room.rate}
+                            />
+                        ))
+                    )}
+                  </div>
+                </section>
+              </div>
+              {/* Right: Map (loads in parallel, not blocking cards) */}
+              <div className="h-full flex items-start col-span-2 lp:col-span-1">
+                <div className="sticky top-8 w-full full:mt-[56px] h-100 lp:pt-15 lp:h-[95vh]">
+                  {/* The lg:mt-[56px] aligns the map with the top of the property cards, not the section header */}
+                  <AllPropertiesMap/>
                 </div>
-              </section>
-              <section>
-                <h2 className="text-2xl font-semibold mb-4">Rooms</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {(loadingRooms) ? (
-                    [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-gray-200 rounded-xl animate-pulse" />)
-                  ) : (
-                    rooms.map((room) => (
-                      <RoomCard
-                        key={room.roomTypeID}
-                        roomName={room.roomTypeName}
-                        propertyName={room.propertyName}
-                        photos={room.roomTypePhotos}
-                        rate={room.rate}
-                      />
-                    ))
-                  )}
-                </div>
-              </section>
-            </div>
-            {/* Right: Map (loads in parallel, not blocking cards) */}
-            <div className="h-full flex items-start">
-              <div className="sticky top-8 w-full lg:mt-[56px]" style={{ height: 'calc(100vh - 2rem)' }}>
-                {/* The lg:mt-[56px] aligns the map with the top of the property cards, not the section header */}
-                <AllPropertiesMap />
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </>
   );
 } 

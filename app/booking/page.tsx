@@ -570,8 +570,8 @@ function BookingForm() {
 
   if (loading || !cartChecked) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
+      <div className="min-h-screen py-12">
+        <div className="container mx-auto">
           <div className="animate-pulse space-y-8">
             <div className="h-8 bg-gray-200 rounded w-1/4"></div>
             <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
@@ -586,7 +586,7 @@ function BookingForm() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+      <div className="min-h-screen py-12 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-md p-8 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold mb-4 text-red-600">Booking Error</h2>
           <p className="text-gray-700 mb-6">{error}</p>
@@ -597,8 +597,8 @@ function BookingForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen py-12">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold mb-8">Guest Contact Details</h1>
           <Button
@@ -810,7 +810,7 @@ export default function BookingPage() {
     <>
       <title>Soulasia | Guest Details</title>
       <Suspense fallback={
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen py-12">
           <div className="container mx-auto px-4">
             <div className="animate-pulse space-y-8">
               <div className="h-8 bg-gray-200 rounded w-1/4"></div>

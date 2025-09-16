@@ -6,7 +6,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <title>Soulasia | Privacy Policy</title>
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen py-12">
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto p-8">
             <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>

@@ -1,60 +1,54 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";   // ⬅️ use Manrope
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
+import {UIProvider} from "@/lib/context";
+import {Suspense} from "react";
 
-// Initialize Inter font with all weights we'll need
-const inter = Inter({ 
-  subsets: ["latin"],
-  variable: '--font-inter',
-  display: 'swap',
-  // Include weights we'll use throughout the app
-  weight: ['400', '500', '600', '700']
+// Manrope variable font; includes Cyrillic
+const manrope = Manrope({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-manrope",   // ⬅️ creates CSS var
+  display: "swap",
+  // optionally restrict weights to shrink bundle:
+  // weight: ["400","500","600","700"]
 });
 
 export const metadata: Metadata = {
   description: "Soulasia - Your Gateway to Authentic Asian Experiences",
   openGraph: {
-    title: 'Soulasia',
-    description: 'Your Gateway to Authentic Asian Experiences',
-    type: 'website',
+    title: "Soulasia",
+    description: "Your Gateway to Authentic Asian Experiences",
+    type: "website",
   },
-  icons: {
-    icon: [
-      { url: '/Brand/favicon.svg', type: 'image/svg+xml' }
-    ]
-  }
+  icons: { icon: [{ url: "/Brand/favicon.svg", type: "image/svg+xml" }] },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+      <html lang="en" className={`${manrope.variable} h-full`}>  {/* ⬅️ swap here */}
       <head />
-      <body className={`min-h-full flex flex-col bg-gray-50 text-gray-900 antialiased`}>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
+      <body className="min-h-full flex flex-col text-gray-900 antialiased font-sans">
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK" strategy="afterInteractive"/>
+      <Script id="gtag-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-Z11PKVB3LK');
           `}
-        </Script>
-        <Navbar />
-        <main className="flex-grow pt-[72px]">
-        {children}
-        </main>
-        <Footer />
+      </Script>
+      <UIProvider>
+          <Suspense fallback={<div>Loading navbar...</div>}>
+              <Navbar/>
+          </Suspense>
+          <main className="bg-white flex-grow pt-nav">{children}</main>
+          <Footer/>
+      </UIProvider>
       </body>
-    </html>
+      </html>
   );
 }

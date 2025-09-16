@@ -12,7 +12,7 @@ This document is for website moderators and admins who want to update text, imag
 ## 2. Editing Existing Pages (Text & Images)
 1. **Go to your GitHub repository** in your web browser.
 2. **Find the file you want to edit:**
-   - Most pages are in the `/app` folder (e.g., `/app/page.tsx` for the homepage).
+   - Most pages are in the `/app` folder (e.g., `/app/page_2.tsx` for the homepage).
    - Images are in the `/public` folder.
 3. **Click the file name** to view it, then click the pencil ✏️ icon to edit.
 4. **Edit text directly** in the file. For images, upload a new image to `/public` and update the image path in the page/component file.
@@ -48,7 +48,7 @@ Your website uses a single, smart property page that changes based on the proper
 ### Step-by-Step: Add a New Property
 
 #### 1. Open the Property Page File
-- In GitHub, go to: `/app/properties/[propertyId]/page.tsx`
+- In GitHub, go to: `/app/properties/[propertyId]/page_2.tsx`
 
 #### 2. Add Your Property's Info to the Lists
 - At the top of this file, you'll see two lists:
@@ -93,7 +93,7 @@ const propertyImagesMap = {
 - The property ID you use must match the one in your database and Cloudbeds.
 
 #### 5. Add or Edit Text, Descriptions, and Amenities
-- In the same file (`/app/properties/[propertyId]/page.tsx`), look for sections that set the text for each property. These might look like this:
+- In the same file (`/app/properties/[propertyId]/page_2.tsx`), look for sections that set the text for each property. These might look like this:
 ```js
 let pageTitle = 'Soulasia | Property';
 if (propertyId === '270917') pageTitle = 'Soulasia | Scarletz KLCC Apartments by Soulasia';
@@ -123,14 +123,14 @@ const propertyDescriptions = {
 
 ### How to Edit Existing Property Pages
 - To change images, update the image paths in `propertyImagesMap` and upload new images to the correct folder in `/public/properties/`.
-- To change text, description, or amenities, edit the relevant objects or variables in `/app/properties/[propertyId]/page.tsx`.
+- To change text, description, or amenities, edit the relevant objects or variables in `/app/properties/[propertyId]/page_2.tsx`.
 - To change the map location, update the latitude/longitude in `propertyLocationMap`.
 
 ---
 
 ### Summary Table
 
-| What you want to change      | Where to look/edit in `/app/properties/[propertyId]/page.tsx` |
+| What you want to change      | Where to look/edit in `/app/properties/[propertyId]/page_2.tsx` |
 |-----------------------------|---------------------------------------------------------------|
 | Page title                  | `pageTitle` variable or similar                              |
 | Description                 | `propertyDescriptions` object or similar                     |

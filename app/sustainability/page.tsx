@@ -1,91 +1,246 @@
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+"use client"
+
+import {motion} from "framer-motion"
+import Image from "next/image";
+import React from "react";
+
+const fadeIn = {
+    hidden: {opacity: 0, y: 20},
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {duration: 0.6},
+    },
+}
+
+const staggerContainer = {
+    hidden: {opacity: 0},
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.3,
+        },
+    },
+}
 
 export default function SustainabilityPage() {
-  return (
-    <>
-      <title>Soulasia | Sustainability</title>
-      <main className="max-w-3xl mx-auto py-12 px-4">
-        <h1 className="text-3xl font-bold mb-6">Sustainable living in Malaysia</h1>
-        <p className="mb-8 text-gray-700">
-          At Soulasia, our commitment to sustainability is woven into every aspect of our operations.
-        </p>
-        <section className="space-y-6 mb-10">
-          <p>
-            We power most of our locations with sustainable energy, supporting our goal of sustainable living in Malaysia. Our cleaning and laundry processes use eco-friendly chemicals, minimizing our environmental impact. Every unit is equipped with water-saving showerheads and smart-timed water heaters, helping reduce water and energy waste. We&apos;ve removed plastic entirely, offering Coway water filters instead of bottled water to ensure a plastic-free, eco-friendly stay. This holistic approach demonstrates our commitment to a more sustainable future for all guests.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Sustainable Energy.</h2>
-          <p>
-            We power all our apartments with low-carbon electricity through TNB&apos;s Green Electricity Tariff (GET) Programme. This initiative allows us to utilize energy from solar power plants and hydropower stations, significantly reducing our carbon footprint.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Eco-Friendly Cleaning Practices.</h2>
-          <p>
-            We prioritize green living by using sustainable chemicals in our laundry and cleaning routines. Even our air conditioning systems are maintained with eco friendly products, ensuring both efficiency and environmental responsibility.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Water Conservation.</h2>
-          <p>
-            Water conservation is crucial to us. All our apartments are equipped with water-saving showerheads, which reduce water wastage while maintaining comfort. Additionally, our water heaters feature smart timers that automatically switch off after 20 minutes, significantly cutting down on energy consumption.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Plastic-Free Commitment.</h2>
-          <p>
-            We are committed to eliminating plastic waste in our apartments. Instead of bottled water, we provide Coway or Cuckoo water filters. These globally recognized brands offer high-quality, eco-friendly water solutions. This simple switch makes a big difference in reducing plastic waste and promoting <strong>sustainable living in Malaysia</strong>.
-          </p>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold mb-2">Paperless Operations.</h2>
-          <p>
-            In line with our sustainability goals, we have minimized our paper usage by going paperless with all our billing processes. This not only reduces waste but also supports our broader environmental initiatives.
-          </p>
-        </section>
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4">FAQ</h2>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>How does Soulasia reduce energy consumption?</AccordionTrigger>
-              <AccordionContent>
-                Soulasia powers most of its apartments through sustainable energy sources under the TNB&apos;s Green Electricity Tariff (GET) Program. We also use energy-efficient appliances like smart-timed water heaters and LED lighting to reduce unnecessary energy consumption.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>What waste management practices are in place?</AccordionTrigger>
-              <AccordionContent>
-                We are committed to minimizing waste by eliminating single-use plastics and offering guests alternatives like Coway or Cuckoo water filters instead of plastic bottles. Additionally, all billing is paperless to reduce paper waste.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>Does Soulasia have a plastic-free commitment?</AccordionTrigger>
-              <AccordionContent>
-                Yes, we&apos;ve eliminated plastic usage in our apartments, replacing bottled water with Coway water filters. This ensures we contribute to the reduction of plastic waste, aligning with global efforts to combat pollution.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-4">
-              <AccordionTrigger>Does Soulasia use eco-friendly cleaning products?</AccordionTrigger>
-              <AccordionContent>
-                Yes, we use sustainable, eco-friendly chemicals for cleaning, laundry, and air conditioning maintenance, ensuring a minimal environmental impact.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-5">
-              <AccordionTrigger>How does Soulasia conserve water?</AccordionTrigger>
-              <AccordionContent>
-                Our water-saving showerheads and smart-timed water heaters drastically reduce water wastage. We also encourage linen and towel reuse during guest stays to further minimize water usage.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-6">
-              <AccordionTrigger>What sustainable sourcing practices do you have?</AccordionTrigger>
-              <AccordionContent>
-                Soulasia prioritizes the use of sustainable products, including eco-friendly detergents, cleaning chemicals, and materials that minimize environmental harm.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-      </main>
-    </>
-  );
-} 
+    return (
+        <>
+            <title>Soulasia | Sustainability</title>
+            <main className="bg-white">
+                {/* Hero Section */}
+                <section className="section-component-p-y">
+                    <div className="container relative">
+                        <div
+                            className="relative w-full max-h-[251px] tb:max-h-[425px] lp:max-h-[500px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] z-0">
+                            <Image
+                                src="/media-assets/asset7.jpg"
+                                alt="Soulasia Guest"
+                                fill
+                                priority
+                                quality={80}
+                                sizes="100vw"
+                                className="object-cover"
+                                style={{objectPosition: 'center 30%'}} // adjust focus area
+                            />
+                            {/* Overlay to darken the image further */}
+                            <div
+                                className="lp:rounded-[24px] tb:rounded-[16px] rounded-[12px] absolute inset-0 bg-black/40"/>
+                        </div>
+                        {/* Overlay (optional) */}
+
+                        <motion.div
+                            initial={{opacity: 0, y: -30}}
+                            animate={{opacity: 1, y: 0}}
+                            transition={{duration: 0.6, delay: 0.2}}
+                            className="absolute inset-0 top-[20px] left-[20px] tb:top-[32px] tb:left-[32px] lp:top-[60px] lp:left-[60px]">
+                            <div
+                                className="space-y-2 tb:space-y-4 lp:space-y-6 w-full tb:max-w-120 lp:max-w-260  text-white flex flex-col justify-start">
+                                <h2 className="h2 font-semibold text-[#dfdfdf]">Sustainable Living in Malaysia</h2>
+                                <div
+                                    className="font-normal text-[#dfdfdf] text-sm tb:text-base lp:text-lg full:text-2xl">
+                                    At Soulasia, our commitment to sustainability is woven into every aspect of our
+                                    operations.
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                </section>
+
+                {/* Sustainability Content Section */}
+                <section className="bg-white section-component-p-y">
+                    {/* Main Header */}
+                    <motion.div
+                        key={0}
+                        variants={fadeIn}
+                        className="flex flex-col lp:flex-row lp:justify-between items-start container gap-6 tb:gap-8 lp:gap-10 mb-10 full:mb-15 ">
+                        <h1 className="text-2xl leading-[33px] tb:text-[32px] tb:leading-[44px] lp:text-[40px] full:text-[48px] font-semibold lp:leading-[55px] full:leading-[66px] text-[#101828] max-w-xl">Eco-Friendly
+                            Solutions for a Sustainable Stay</h1>
+                        <p className="text-sm leading-[19px] tb:text-lg tb:leading-[25px] full:text-2xl full:leading-[33px] font-normal text-[#4A4F5B] max-w-lg">We
+                            integrate eco-friendly solutions across energy, cleaning, water conservation, plastic
+                            reduction, and
+                            paperless processes, ensuring every guest experiences a truly sustainable stay.</p>
+                    </motion.div>
+
+                    {/* Content Blocks */}
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{once: true, amount: 0.2}}
+                        variants={staggerContainer}
+                        className="flex flex-col gap-6 tb:gap-10 lp:gap-15 container">
+                        {/* Item 1 */}
+                        <motion.div
+                            key={1}
+                            initial={{opacity: 0, y: 50}}
+                            whileInView={{opacity: 1, y: 0}}
+                            transition={{duration: 0.4, delay: 0.1 / 10}}
+                            viewport={{once: true, amount: 0.2}}
+                            className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
+                            <div className="lp:w-1/2 flex flex-col gap-4">
+                                <div
+                                    className="border border-primary rounded-lg w-7 h-7 tb:w-8 tb:h-8 lp:w-10 lp:h-10 flex items-center justify-center">
+                                    <span
+                                        className="text-xs leading-[16px] tb:text-sm tb:leading-[19px] lp:text-lg lp:leading-[25px] full:text-xl full:leading-[27px] font-medium text-[#4A4F5B]">1</span>
+                                </div>
+                                <h2 className="text-xl leading-[27px] tb:text-2xl tb:leading-[33px] lp:text-[32px] lp:leading-[44px] full:text-[32px] full:leading-[44px] font-semibold">Sustainable
+                                    Energy</h2>
+                                <p className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">We
+                                    power all our apartments with low-carbon electricity through the TNB Green
+                                    Electricity Tariff (GET)
+                                    Programme. This initiative enables us to use energy from solar and hydropower
+                                    plants, significantly
+                                    reducing our carbon footprint.</p>
+                            </div>
+                            <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                                <img src="/sustainability/energy.jpg" alt="Sustainable Energy"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
+                            </div>
+                        </motion.div>
+
+                        {/* Item 2 */}
+                        <motion.div
+                            key={2}
+                            initial={{opacity: 0, y: 50}}
+                            whileInView={{opacity: 1, y: 0}}
+                            transition={{duration: 0.4, delay: 0.2 / 10}}
+                            viewport={{once: true, amount: 0.2}}
+                            className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
+                            <div className="lp:w-1/2 flex flex-col gap-4">
+                                <div
+                                    className="border border-primary rounded-lg w-7 h-7 tb:w-8 tb:h-8 lp:w-10 lp:h-10 flex items-center justify-center">
+                    <span
+                        className="text-xs leading-[16px] tb:text-sm tb:leading-[19px] lp:text-lg lp:leading-[25px] full:text-xl full:leading-[27px] font-medium text-[#4A4F5B]">2</span>
+                                </div>
+                                <h2 className="text-xl leading-[27px] tb:text-2xl tb:leading-[33px] lp:text-[32px] lp:leading-[44px] full:text-[32px] full:leading-[44px] font-semibold">Eco-Friendly
+                                    Cleaning Practices</h2>
+                                <p className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">We
+                                    prioritize green living by using eco-friendly chemicals in all cleaning and laundry
+                                    processes. Even
+                                    our air conditioning systems are maintained with sustainable products, ensuring
+                                    efficiency and
+                                    environmental responsibility.</p>
+                            </div>
+                            <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                                <img src="/sustainability/cleaning.jpg" alt="Eco-Friendly Cleaning Practices"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
+                            </div>
+                        </motion.div>
+
+                        {/* Item 3 */}
+                        <motion.div
+                            key={3}
+                            initial={{opacity: 0, y: 50}}
+                            whileInView={{opacity: 1, y: 0}}
+                            transition={{duration: 0.4, delay: 0.3/ 10}}
+                            viewport={{once: true, amount: 0.2}}
+                            className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
+                            <div className="lp:w-1/2 flex flex-col gap-4">
+                                <div
+                                    className="border border-primary rounded-lg w-7 h-7 tb:w-8 tb:h-8 lp:w-10 lp:h-10 flex items-center justify-center">
+                    <span
+                        className="text-xs leading-[16px] tb:text-sm tb:leading-[19px] lp:text-lg lp:leading-[25px] full:text-xl full:leading-[27px] font-medium text-[#4A4F5B]">3</span>
+                                </div>
+                                <h2 className="text-xl leading-[27px] tb:text-2xl tb:leading-[33px] lp:text-[32px] lp:leading-[44px] full:text-[32px] full:leading-[44px] font-semibold">Water
+                                    Conservation</h2>
+                                <p className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">Water
+                                    conservation is at the core of our sustainability efforts:</p>
+                                <ul className="list-disc pl-5">
+                                    <li className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">All
+                                        apartments are fitted with water-saving showerheads that reduce water waste
+                                        without sacrificing
+                                        comfort.
+                                    </li>
+                                    <li className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">Smart-timed
+                                        water heaters automatically switch off after 20 minutes, cutting down on
+                                        unnecessary energy use.
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                                <img src="/sustainability/water.jpg" alt="Water Conservation"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
+                            </div>
+                        </motion.div>
+
+                        {/* Item 4 */}
+                        <motion.div
+                            key={4}
+                            initial={{opacity: 0, y: 50}}
+                            whileInView={{opacity: 1, y: 0}}
+                            transition={{duration: 0.4, delay: 0.4/ 10}}
+                            viewport={{once: true, amount: 0.2}}
+                            className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
+                            <div className="lp:w-1/2 flex flex-col gap-4">
+                                <div
+                                    className="border border-primary rounded-lg w-7 h-7 tb:w-8 tb:h-8 lp:w-10 lp:h-10 flex items-center justify-center">
+                    <span
+                        className="text-xs leading-[16px] tb:text-sm tb:leading-[19px] lp:text-lg lp:leading-[25px] full:text-xl full:leading-[27px] font-medium text-[#4A4F5B]">4</span>
+                                </div>
+                                <h2 className="text-xl leading-[27px] tb:text-2xl tb:leading-[33px] lp:text-[32px] lp:leading-[44px] full:text-[32px] full:leading-[44px] font-semibold">Plastic-Free
+                                    Commitment</h2>
+                                <p className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">We
+                                    are fully committed to a plastic-free stay. Instead of bottled water, we provide
+                                    Coway or Cuckoo
+                                    water filters — globally recognized brands offering safe and eco-friendly hydration.
+                                    This small
+                                    change makes a big impact in reducing plastic waste.</p>
+                            </div>
+                            <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                                <img src="/sustainability/plastic.jpg" alt="Plastic-Free Commitment"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
+                            </div>
+                        </motion.div>
+
+                        {/* Item 5 */}
+                        <motion.div
+                            key={5}
+                            initial={{opacity: 0, y: 50}}
+                            whileInView={{opacity: 1, y: 0}}
+                            transition={{duration: 0.4, delay: 0.5/ 10}}
+                            viewport={{once: true, amount: 0.2}}
+                            className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
+                            <div className="lp:w-1/2 flex flex-col gap-4">
+                                <div
+                                    className="border border-primary rounded-lg w-7 h-7 tb:w-8 tb:h-8 lp:w-10 lp:h-10 flex items-center justify-center">
+                    <span
+                        className="text-xs leading-[16px] tb:text-sm tb:leading-[19px] lp:text-lg lp:leading-[25px] full:text-xl full:leading-[27px] font-medium text-[#4A4F5B]">5</span>
+                                </div>
+                                <h2 className="text-xl leading-[27px] tb:text-2xl tb:leading-[33px] lp:text-[32px] lp:leading-[44px] full:text-[32px] full:leading-[44px] font-semibold">Paperless
+                                    Operations</h2>
+                                <p className="text-sm leading-[19px] tb:text-base tb:leading-[22px] lp:text-lg lp:leading-[25px] full:text-lg full:leading-[25px] font-normal text-[#4A4F5B]">To
+                                    align with our sustainability goals, we have gone paperless in all billing and
+                                    payment processes.
+                                    This reduces waste and supports our broader environmental initiatives.</p>
+                            </div>
+                            <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                                <img src="/sustainability/paper.jpg" alt="Paperless Operations"
+                                     className="w-full h-auto object-cover rounded-[14px]"/>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </section>
+            </main>
+        </>
+    );
+}

@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { parseISO } from "date-fns";
-import { BookingWidget } from '@/components/booking-widget';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -15,6 +14,7 @@ import 'swiper/css/pagination';
 import type { Swiper as SwiperType } from 'swiper';
 import { calculateTotalGuests } from '@/lib/guest-utils';
 import { AvailablePropertiesMap } from '@/components/AvailablePropertiesMap';
+import {useUI} from "@/lib/context";
 
 interface RoomResult {
   id: string;
@@ -68,6 +68,8 @@ interface CloudbedsQuote {
 }
 
 function SearchResults() {
+  const { isActive } = useUI();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,7 @@ function SearchResults() {
   const [proceeding, setProceeding] = useState(false);
   const [propertyInfoData, setPropertyInfoData] = useState<{ [propertyId: string]: unknown }>({});
   const [propertyInfoLoading, setPropertyInfoLoading] = useState<{ [propertyId: string]: boolean }>({});
-  const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
+  // const [expandedAmenities, setExpandedAmenities] = useState<{ [roomId: string]: boolean }>({});
   const [roomGuests, setRoomGuests] = useState<{ [roomTypeID: string]: { adults: number; children: number } }>({});
   const [roomsByType, setRoomsByType] = useState<{ [roomTypeID: string]: string[] }>({});
   const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
@@ -101,14 +103,14 @@ function SearchResults() {
   const apartments = parseInt(searchParams.get('apartments') || '1', 10);
 
   // Create initial search params object for BookingWidget
-  const initialSearchParams = {
-    city: city || '',
-    startDate: startDate || '',
-    endDate: endDate || '',
-    adults: adults || '2',
-    children: children || '0',
-    apartments: apartments.toString(),
-  };
+  // const initialSearchParams = {
+  //   city: city || '',
+  //   startDate: startDate || '',
+  //   endDate: endDate || '',
+  //   adults: adults || '2',
+  //   children: children || '0',
+  //   apartments: apartments.toString(),
+  // };
 
   useEffect(() => {
     // Validate search parameters
@@ -437,9 +439,9 @@ function SearchResults() {
 
   if (propertyLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="animate-pulse space-y-8 mt-32 md:mt-40">
+      <div className="min-h-screen section-padding-y">
+        <div className="container mx-auto">
+          <div className="animate-pulse space-y-8">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-xl p-6 shadow-sm">
                 <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -454,387 +456,358 @@ function SearchResults() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Hide BookingWidget when image modal is open */}
-        <div className="mt-4 md:mt-0">
-          <BookingWidget initialSearchParams={initialSearchParams} stickyMode="always" hide={!!selectedRoomImages} />
-        </div>
-        <div className="h-0 md:h-[112px]" />
-
-        <div className="flex flex-col md:flex-row gap-8">
+    <div className={["min-h-screen bg-white section-component-p-y", (isActive ? 'mt-50 tb:mt-20' : '')].join(' ')}>
+      {isActive}
+      <div className="container mx-auto">
+        <h2 className="h2 font-semibold mb-5">Available apartments</h2>
+        <div className="flex flex-col lp:flex-row gap-5">
           {/* Left: Search Results */}
-          <div className="md:w-2/3 w-full">
-            <div className="space-y-6">
+          <div className="lp:w-2/3 w-full">
+            <div className="space-y-4 tb:space-y-5">
               {!error && filteredRooms.length === 0 && (
-                <div className="text-gray-500 text-center py-8">
-                  No rooms found for your search criteria. Try another property or reduce the number of guests.
-                </div>
+                  <div className="text-gray-500 text-center py-8">
+                    No rooms found for your search criteria. Try another property or reduce the number of guests.
+                  </div>
               )}
               {filteredRooms.map(room => {
                 // Disable Reserve if cart contains rooms from a different property
                 const isOtherProperty = !!(cart.length > 0 && results.find(r => r.id === cart[0].roomTypeID)?.propertyId && room.propertyId !== results.find(r => r.id === cart[0].roomTypeID)?.propertyId);
                 return (
-                  <Card key={room.id} className="overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="md:w-1/2 w-full h-72 relative rounded-xl shadow overflow-hidden md:ml-2">
-                        <Image 
-                          src={`${room.images[0]}?w=600&h=400&fit=crop`}
-                          alt={room.name}
-                          width={600}
-                          height={400}
-                          className="object-cover cursor-pointer w-full h-full"
-                          onClick={() => setSelectedRoomImages(room.images)}
+                    // flex flex-col md:flex-row
+                    <div key={room.id} className="grid grid-cols-1 tb:grid-cols-[1fr_auto] items-strech bg-[#f7f7f7] h-full p-4 tb:p-5 text-card-foreground items-stretch gap-5 rounded-xl border overflow-hidden">
+                      <div className="relative rounded-xl max-h-[200px] tb:max-h-[600px] overflow-hidden ">
+                        <Image
+                            src={`${room.images[0]}?w=600&h=400&fit=crop`}
+                            alt={room.name}
+                            width={600}
+                            height={400}
+                            className="object-cover cursor-pointer w-full h-full"
+                            onClick={() => setSelectedRoomImages(room.images)}
                         />
                       </div>
-                      <div className="p-6 md:w-2/3 flex flex-col">
-                        <div className="flex-grow">
-                          <h2 className="text-2xl font-bold mb-1 text-gray-900">{room.name}</h2>
-                          <div className="text-gray-400 text-xs mb-2 font-medium">{room.propertyName}</div>
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {(expandedAmenities[room.id] ? room.amenities : room.amenities.slice(0, 3)).map((amenity, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-500 font-normal"
-                              >
-                                {amenity}
-                              </span>
-                            ))}
-                            {!expandedAmenities[room.id] && room.amenities.length > 3 && (
-                              <span
-                                className="px-2 py-0.5 bg-gray-200 rounded-full text-xs text-gray-500 font-medium cursor-pointer hover:bg-gray-300"
-                                onClick={() => setExpandedAmenities(prev => ({ ...prev, [room.id]: true }))}
-                              >
-                                +{room.amenities.length - 3} more
-                              </span>
-                            )}
-                            {expandedAmenities[room.id] && room.amenities.length > 3 && (
-                              <span
-                                className="px-2 py-0.5 bg-gray-200 rounded-full text-xs text-gray-500 font-medium cursor-pointer hover:bg-gray-300"
-                                onClick={() => setExpandedAmenities(prev => ({ ...prev, [room.id]: false }))}
-                              >
-                                Show less
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-500 mb-2">Up to {room.maxGuests} guests</p>
+                      <div className="flex flex-col space-y-2.5 tb:space-y-5 w-full lp:min-w-[450px]">
+                        <div className="gap-1 tb:gap-2.5">
+                          <h2 className="text-xl lp:text-2xl font-semibold  text-gray-900 mb-1">{room.name}</h2>
+                          <div className="text-base tb:text-lg text-[#4a4f5b] font-normal">{room.propertyName}</div>
+                          <div className="text-base tb:text-lg text-[#4a4f5b] font-normal">Up to {room.maxGuests} guests</div>
                         </div>
-                        <div className="flex items-center justify-between mt-6 pt-4 border-t">
-                          <div>
-                            <div className="flex items-baseline gap-2 mb-1">
-                              <span className="text-xl font-bold text-[#0E3599]">
-                                {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
-                              </span>
-                              <span className="text-gray-500 text-sm">per night</span>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-4 mt-1 mb-2">
-                              <span className="text-base font-medium text-gray-700">
+                        <div className="border-t border-[#dee3ed]"></div>
+                        <div className=" items-baseline gap-2">
+                          <div className="flex flex-wrap items-center">
+                            <span className="mr-1 text-lg tb:text-xl font-bold text-[#0E3599]">
+                              {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                            </span>
+                            <span className="text-gray-500 text-sm tb:text-base">per night</span>
+                          </div>
+                          <div className="flex flex-wrap items-center ">
+                              <span className="text-base tb:text-lg font-medium text-gray-700">
                                 {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
                               </span>
-                            </div>
-                            {/* Grouped Selectors Row - now with Reserve button in the same row */}
-                            <div className="flex flex-col md:flex-row gap-2 items-stretch md:items-end w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-2">
-                              {/* Selectors Group */}
-                              <div className="flex flex-row gap-2 flex-1">
-                                {/* Apartments Selector */}
-                                <div className="flex flex-col items-center">
-                                  <span className="text-[11px] text-gray-500 mb-0.5">Apartments</span>
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.max(1, (q[room.id] || 1) - 1) }))}
-                                      disabled={(quantities[room.id] || 1) <= 1}
-                                      type="button"
-                                    >-</button>
-                                    <span className="w-5 text-center text-xs">{quantities[room.id] || 1}</span>
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setQuantities(q => ({ ...q, [room.id]: Math.min(rates[room.id]?.roomsAvailable || 1, (q[room.id] || 1) + 1) }))}
-                                      disabled={(quantities[room.id] || 1) >= (rates[room.id]?.roomsAvailable || 1)}
-                                      type="button"
-                                    >+</button>
-                                  </div>
-                                </div>
-                                {/* Adults Selector */}
-                                <div className="flex flex-col items-center">
-                                  <span className="text-[11px] text-gray-500 mb-0.5">Adults</span>
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.max(1, (g[room.id]?.adults ?? 2) - 1), children: g[room.id]?.children ?? 0 } }))}
-                                      disabled={(roomGuests[room.id]?.adults ?? 2) <= 1}
-                                      type="button"
-                                    >-</button>
-                                    <span className="w-5 text-center text-xs">{roomGuests[room.id]?.adults ?? 2}</span>
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: Math.min(room.maxGuests, (g[room.id]?.adults ?? 2) + 1), children: g[room.id]?.children ?? 0 } }))}
-                                      disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
-                                      type="button"
-                                    >+</button>
-                                  </div>
-                                </div>
-                                {/* Children Selector */}
-                                <div className="flex flex-col items-center">
-                                  <span className="text-[11px] text-gray-500 mb-0.5">Children</span>
-                                  <div className="flex items-center gap-1">
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.max(0, (g[room.id]?.children ?? 0) - 1) } }))}
-                                      disabled={(roomGuests[room.id]?.children ?? 0) <= 0}
-                                      type="button"
-                                    >-</button>
-                                    <span className="w-5 text-center text-xs">{roomGuests[room.id]?.children ?? 0}</span>
-                                    <button
-                                      className="px-1.5 py-0.5 border rounded text-xs"
-                                      onClick={() => setRoomGuests(g => ({ ...g, [room.id]: { ...g[room.id], adults: g[room.id]?.adults ?? 2, children: Math.min(room.maxGuests - (g[room.id]?.adults ?? 2), (g[room.id]?.children ?? 0) + 1) } }))}
-                                      disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
-                                      type="button"
-                                    >+</button>
-                                  </div>
-                                </div>
+                          </div>
+                        </div>
+                        <div
+                            className="flex flex-col tb:flex-row gap-2.5 p-2.5 tb:3.75 items-stretch w-full border border-gray-200 rounded-lg">
+                          {/* Selectors Group */}
+                          <div className="w-full flex flex-row gap-2.5 justify-between flex-1">
+                            {/* Apartments Selector */}
+                            <div className="flex flex-col gap-2.5">
+                              <span className="text-xs lp:text-sm text-gray-500 mb-0.5">Apartments</span>
+                              <div className="flex items-center gap-2">
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setQuantities(q => ({
+                                          ...q,
+                                          [room.id]: Math.max(1, (q[room.id] || 1) - 1)
+                                        }))}
+                                        disabled={(quantities[room.id] || 1) <= 1}
+                                >-</Button>
+                                <span
+                                    className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{quantities[room.id] || 1}</span>
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setQuantities(q => ({
+                                          ...q,
+                                          [room.id]: Math.min(rates[room.id]?.roomsAvailable || 1, (q[room.id] || 1) + 1)
+                                        }))}
+                                        disabled={(quantities[room.id] || 1) >= (rates[room.id]?.roomsAvailable || 1)}
+                                >+</Button>
                               </div>
-                              {/* Reserve Button */}
-                              <Button
-                                onClick={() => handleAddToCart(room)}
-                                disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0 || reserveStatus[room.id] === 'loading'}
-                                size="sm"
-                                variant="default"
-                                className="rounded-full bg-[#0E3599] hover:bg-[#0b297a] text-white font-bold px-6 py-2 shadow-md transition w-full md:w-auto md:ml-auto mt-2 md:mt-0"
-                              >
-                                {reserveStatus[room.id] === 'loading' ? (
-                                  <span className="flex items-center gap-2">
-                                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                    Adding...
-                                  </span>
-                                ) : reserveStatus[room.id] === 'added' ? (
-                                  <span className="flex items-center gap-2 text-green-200">
-                                    <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                    Added!
-                                  </span>
-                                ) : (
-                                  'Reserve'
-                                )}
-                              </Button>
+                            </div>
+                            {/* Adults Selector */}
+                            <div className="flex flex-col gap-2.5">
+                              <span className=" text-xs lp:text-sm text-gray-500 mb-0.5">Adults</span>
+                              <div className="flex items-center gap-2">
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setRoomGuests(g => ({
+                                          ...g,
+                                          [room.id]: {
+                                            ...g[room.id],
+                                            adults: Math.max(1, (g[room.id]?.adults ?? 2) - 1),
+                                            children: g[room.id]?.children ?? 0
+                                          }
+                                        }))}
+                                        disabled={(roomGuests[room.id]?.adults ?? 2) <= 1}
+                                >-</Button>
+                                <span
+                                    className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{roomGuests[room.id]?.adults ?? 2}</span>
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setRoomGuests(g => ({
+                                          ...g,
+                                          [room.id]: {
+                                            ...g[room.id],
+                                            adults: Math.min(room.maxGuests, (g[room.id]?.adults ?? 2) + 1),
+                                            children: g[room.id]?.children ?? 0
+                                          }
+                                        }))}
+                                        disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
+                                >+</Button>
+                              </div>
+                            </div>
+                            {/* Children Selector */}
+                            <div className="flex flex-col gap-2.5">
+                              <span className="text-xs lp:text-sm text-gray-500 mb-0.5">Children</span>
+                              <div className="flex items-center gap-2">
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setRoomGuests(g => ({
+                                          ...g,
+                                          [room.id]: {
+                                            ...g[room.id],
+                                            adults: g[room.id]?.adults ?? 2,
+                                            children: Math.max(0, (g[room.id]?.children ?? 0) - 1)
+                                          }
+                                        }))}
+                                        disabled={(roomGuests[room.id]?.children ?? 0) <= 0}
+                                >-</Button>
+                                <span
+                                    className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{roomGuests[room.id]?.children ?? 0}</span>
+                                <Button type="button" size="responsive" variant="outline"
+                                        className="bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => setRoomGuests(g => ({
+                                          ...g,
+                                          [room.id]: {
+                                            ...g[room.id],
+                                            adults: g[room.id]?.adults ?? 2,
+                                            children: Math.min(room.maxGuests - (g[room.id]?.adults ?? 2), (g[room.id]?.children ?? 0) + 1)
+                                          }
+                                        }))}
+                                        disabled={(roomGuests[room.id]?.adults ?? 2) + (roomGuests[room.id]?.children ?? 0) >= room.maxGuests}
+                                >+</Button>
+                              </div>
                             </div>
                           </div>
+                          {/* Reserve Button */}
+                          <Button
+                              onClick={() => handleAddToCart(room)}
+                              disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0 || reserveStatus[room.id] === 'loading'}
+                              variant="default"
+                              className={["font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full tb:w-auto",
+                                "h-[var(--action-h-1xl)] lp:h-[var(--action-h-3xl)]"].join(' ')}
+
+                              onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                              onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+                          >
+                            {reserveStatus[room.id] === 'loading' ? (
+                                <span className="flex items-center gap-2">
+                                    <span
+                                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                    Adding...
+                                  </span>
+                            ) : reserveStatus[room.id] === 'added' ? (
+                                <span className="flex items-center gap-2 text-green-200">
+                                    <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor"
+                                         strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round"
+                                                                                   strokeLinejoin="round"
+                                                                                   d="M5 13l4 4L19 7"/></svg>
+                                    Added!
+                                  </span>
+                            ) : (
+                                'Reserve'
+                            )}
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  </Card>
                 );
               })}
             </div>
           </div>
           {/* Right: Booking Cart */}
-          <div className="md:w-1/3 w-full flex flex-col gap-6">
+          <div className="lp:w-1/3 w-full flex flex-col gap-5">
             {/* Sticky container for desktop */}
-            <div className="hidden md:block sticky top-8">
+            <div className="block lp:sticky top-20">
               <div className="flex flex-col gap-6">
-                <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
-                  <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
+                <Card className="p-6 shadow-none rounded-xl">
+                  <h2 className="text-xl lp:text-2xl font-semibold">Your Reservation</h2>
                   {cart.length === 0 ? (
-                    <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
+                      <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
                   ) : (
-                    <>
-                      {cart.map(item => (
-                        <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
-                              </div>
-                              <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
-                              <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
-                                <span>Adults: {item.adults}</span>
-                                <span>Children: {item.children}</span>
+                      <>
+                        {cart.map(item => (
+                            <div key={item.roomTypeID}
+                                 className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span
+                                        className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
+                                  </div>
+                                  <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per
+                                    apartment
+                                  </div>
+                                  <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
+                                    <span>Adults: {item.adults}</span>
+                                    <span>Children: {item.children}</span>
+                                  </div>
+                                </div>
+                                <Button type="button" size="responsive"
+                                        className="text-red-500 hover:bg-red-70 p-2 ml-4 shadow-none bg-[#fee] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                        onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                                        aria-label="Remove from cart"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                       strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                  </svg>
+                                </Button>
                               </div>
                             </div>
-                            <button
-                              className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
-                              onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                              aria-label="Remove from cart"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                      <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                        <span className="text-base text-gray-500 font-semibold">Total</span>
-                        <span className="text-2xl font-bold text-gray-900">
+                        ))}
+                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                          <span className="text-base text-gray-500 font-semibold">Total</span>
+                          <span className="text-2xl font-bold text-gray-900">
                           {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
                         </span>
-                      </div>
-                      {cloudbedsQuote && (
-                        <div className="text-xs text-gray-600 mt-2">
-                          <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
-                          <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
-                          <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
                         </div>
-                      )}
-                      <div className="pt-2">
-                        <Button
-                          className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
-                          disabled={cart.length === 0 || proceeding}
-                          onClick={() => {
-                            setProceeding(true);
-                            handleProceed();
-                          }}
-                          style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
-                        >
-                          {proceeding ? (
-                            <span className="flex items-center gap-2">
-                              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                        {cloudbedsQuote && (
+                            <div className="text-xs text-gray-600 mt-2">
+                              <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                              <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                              <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                            </div>
+                        )}
+                        <div>
+                          <Button
+                              disabled={cart.length === 0 || proceeding}
+                              onClick={() => {
+                                setProceeding(true);
+                                handleProceed();
+                              }}
+                              style={{boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)'}}
+                              variant="default"
+                              className={["font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full text-lg",
+                                "h-[var(--action-h-1xl)] lp:h-[var(--action-h-3xl)]"].join(' ')}
+
+                              onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                              onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+                          >
+                            {proceeding ? (
+                                <span className="flex items-center gap-2">
+                              <span
+                                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                               Processing...
                             </span>
-                          ) : (
-                            'Proceed to Guest Details'
-                          )}
-                        </Button>
-                      </div>
-                    </>
+                            ) : (
+                                'Proceed to Guest Details'
+                            )}
+                          </Button>
+                        </div>
+                      </>
                   )}
                 </Card>
-                <div className="rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
-                  <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
+                <div className="rounded-xl" style={{height: 'calc(100vh - 2rem)'}}>
+                  <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]}/>
                 </div>
-              </div>
-            </div>
-            {/* Mobile fallback: show non-sticky on mobile */}
-            <div className="block md:hidden flex flex-col gap-6">
-              <Card className="p-8 shadow-lg bg-gray-50 rounded-2xl">
-                <h2 className="font-semibold text-2xl mb-6">Your Reservation</h2>
-                {cart.length === 0 ? (
-                  <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
-                ) : (
-                  <>
-                    {cart.map(item => (
-                      <div key={item.roomTypeID} className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
-                            </div>
-                            <div className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per apartment</div>
-                            <div className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
-                              <span>Adults: {item.adults}</span>
-                              <span>Children: {item.children}</span>
-                            </div>
-                          </div>
-                          <button
-                            className="text-red-500 hover:bg-red-50 rounded-full p-2 ml-4 mt-1"
-                            onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                            aria-label="Remove from cart"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                      <span className="text-base text-gray-500 font-semibold">Total</span>
-                      <span className="text-2xl font-bold text-gray-900">
-                        {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
-                      </span>
-                    </div>
-                    {cloudbedsQuote && (
-                      <div className="text-xs text-gray-600 mt-2">
-                        <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
-                        <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
-                        <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
-                      </div>
-                    )}
-                    <div className="pt-2">
-                      <Button
-                        className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center transition"
-                        disabled={cart.length === 0 || proceeding}
-                        onClick={() => {
-                          setProceeding(true);
-                          handleProceed();
-                        }}
-                        style={{ boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)' }}
-                      >
-                        {proceeding ? (
-                          <span className="flex items-center gap-2">
-                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            Processing...
-                          </span>
-                        ) : (
-                          'Proceed to Guest Details'
-                        )}
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </Card>
-              <div className="rounded-2xl" style={{ height: 'calc(100vh - 2rem)' }}>
-                <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]} />
               </div>
             </div>
           </div>
         </div>
         {selectedRoomImages && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-            onClick={() => {
-              setSelectedRoomImages(null);
-              setCarouselIndex(0);
-            }}
-            tabIndex={-1}
-            aria-modal="true"
-            role="dialog"
-          >
             <div
-              className="relative max-w-2xl w-full mx-4"
-              onClick={e => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
                 onClick={() => {
                   setSelectedRoomImages(null);
                   setCarouselIndex(0);
-                  swiperInitialized.current = false;
                 }}
-                aria-label="Close image preview"
+                tabIndex={-1}
+                aria-modal="true"
+                role="dialog"
+            >
+              <div
+                  className="relative max-w-2xl w-full mx-4"
+                  onClick={e => e.stopPropagation()}
               >
-                ✕
-              </button>
-              <Swiper
-                modules={[Navigation, Pagination]}
-                navigation
-                pagination={{ clickable: true }}
-                className="rounded-xl"
-                initialSlide={carouselIndex}
-                onSlideChange={swiper => setCarouselIndex(swiper.activeIndex)}
-                onSwiper={swiper => {
-                  swiperRef.current = swiper;
-                  if (!swiperInitialized.current) {
-                    swiper.slideTo(carouselIndex);
-                    swiperInitialized.current = true;
-                  }
-                }}
-              >
-                {selectedRoomImages.map((img, idx) => (
-                  <SwiperSlide key={idx}>
-                    <div style={{ position: 'relative', width: '100%', height: '60vw', maxHeight: '80vh' }}>
-                      <Image
-                        src={img}
-                        alt={`Room image ${idx + 1}`}
-                        fill
-                        className="object-contain rounded-xl"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                <button
+                    className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2 px-4"
+                    onClick={() => {
+                      setSelectedRoomImages(null);
+                      setCarouselIndex(0);
+                      swiperInitialized.current = false;
+                    }}
+                    aria-label="Close image preview"
+                >
+                  ✕
+                </button>
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    navigation={{
+                      nextEl: ".custom-next",
+                      prevEl: ".custom-prev",
+                    }}
+                    pagination={{clickable: true}}
+                    className="rounded-xl"
+                    initialSlide={carouselIndex}
+                    onSlideChange={swiper => setCarouselIndex(swiper.activeIndex)}
+                    onSwiper={swiper => {
+                      swiperRef.current = swiper;
+                      if (!swiperInitialized.current) {
+                        swiper.slideTo(carouselIndex);
+                        swiperInitialized.current = true;
+                      }
+                    }}
+                >
+                  {selectedRoomImages.map((img, idx) => (
+                      <SwiperSlide key={idx}>
+                        <div style={{position: 'relative', width: '100%', height: '60vw', maxHeight: '80vh'}}>
+                          <Image
+                              src={img}
+                              alt={`Room image ${idx + 1}`}
+                              fill
+                              className="object-contain rounded-xl"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        </div>
+                      </SwiperSlide>
+                  ))}
+
+                  {/* Custom arrows */}
+                  <button
+                       className="cursor-pointer flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
+                       custom-prev absolute left-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20
+                       ">
+                    <Image
+                        src="/icons/arrow.svg"
+                        alt="Prev"
+                        className="transform rotate-180"
+                        width={16}
+                        height={16}
+                    />
+                  </button>
+                  <button
+                       className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
+                       custom-next absolute right-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20">
+                    <Image
+                        src="/icons/arrow.svg"
+                        alt="Next"
+                        width={16}
+                        height={16}
+                    />
+                  </button>
+                </Swiper>
+              </div>
             </div>
-          </div>
         )}
       </div>
     </div>
@@ -843,11 +816,11 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <>
-      <title>Soulasia | Search Results</title>
-      <Suspense fallback={<div>Loading search results...</div>}>
-        <SearchResults />
-      </Suspense>
-    </>
+      <>
+        <title>Soulasia | Search Results</title>
+        <Suspense fallback={<div>Loading search results...</div>}>
+          <SearchResults/>
+        </Suspense>
+      </>
   );
 }
