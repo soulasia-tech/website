@@ -13,18 +13,20 @@ export function CustomerReviews() {
         }
     }, []);
 
-    const scrollNext = () => {
+    const scrollNext = (e?: React.MouseEvent) => {
+        e?.preventDefault();
         const btn = document.querySelector(
             ".es-carousel-arrow-control-right"
         ) as HTMLElement | null;
-        btn?.click();
+        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
     };
 
-    const scrollPrev = () => {
+    const scrollPrev = (e?: React.MouseEvent) => {
+        e?.preventDefault();
         const btn = document.querySelector(
             ".es-carousel-arrow-control-left"
         ) as HTMLElement | null;
-        btn?.click();
+        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
     };
 
     return (
@@ -37,7 +39,7 @@ export function CustomerReviews() {
                             <h2 className="h2">What Our Guests Say</h2>
                         </div>
                         <div className="flex gap-x-[10px] items-center">
-                            <div onClick={scrollPrev}
+                            <div onClick={event => scrollPrev(event)}
                                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                                 <Image
                                     src="/icons/arrow.svg"
@@ -47,7 +49,7 @@ export function CustomerReviews() {
                                     className="transform rotate-180"
                                 />
                             </div>
-                            <div onClick={scrollNext}
+                            <div onClick={event => scrollNext(event)}
                                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                                 <Image
                                     src="/icons/arrow.svg"

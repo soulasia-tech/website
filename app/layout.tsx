@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
-      <html lang="en" className={`${manrope.variable} h-full`}>  {/* ⬅️ swap here */}
+      <html lang="en" className={`${manrope.variable} h-full`}>
       <head />
       <body className="min-h-full flex flex-col text-gray-900 antialiased font-sans">
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK" strategy="afterInteractive"/>
