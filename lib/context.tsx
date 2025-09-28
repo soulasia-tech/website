@@ -14,6 +14,10 @@ export interface Property {
         bedroom?: string;
         placeHint?: string;
     };
+    amenities?: {
+        icon?: string;
+        label?: string;
+    }[];
     price_per_day?: number
 }
 
@@ -43,49 +47,89 @@ const propertiesSaved: Property[] = [
         id: "location-1",
         propertyId: "270917",
         propertyName: "Scarletz KLCC Apartments",
-        propertyDesc: "Scarletz KLCC Apartments",
+        propertyDesc: "Scarletz KLCC Apartments by Soulasia offers a comfortable stay with modern interiors, a fully equipped kitchen, and dining space overlooking the city. Just steps from the KLCC Business District, you’ll be close to top attractions, shops, and restaurants. Guests can relax at the rooftop pool and gym with amazing skyline views, or get work done at the 44th-floor co-working space with fast internet and plenty of light. Scarletz is a great choice for couples, business travelers, and digital nomads looking for both convenience and style in the center of Kuala Lumpur.",
         ukey: "Scarletz",
         metadata: {
             "bedroom": "Studio & 1 Bedroom",
             "bathroom": "1 Bathroom",
             "placeHint": "700m from Twin Towers"
-        }
+        },
+        amenities: [
+            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/store.svg', label: "Convenience Store"},
+            {icon: '/icons/coworking.svg', label: "Co-working Space (Free)"},
+            {icon: '/icons/water.svg', label: "Cuckoo Water Filter"},
+            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/pool.svg', label: "Rooftop Pool (Free)"},
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+        ]
     },
     {
         id: "location-2",
         propertyId: "19928",
         propertyName: "Vortex KLCC Apartments",
-        propertyDesc: "Vortex KLCC Apartments",
+        propertyDesc: "Vortex KLCC by Soulasia offers modern, family-friendly apartments in the heart of Kuala Lumpur, just 600m from the iconic Twin Towers and 15 minutes’ walk to Pavilion. Guests enjoy excellent facilities including a swimming pool and fully equipped gym on the 6th floor, while many units feature stunning views of KL Tower and the KL city skyline. The ground floor is home to a cozy café serving great breakfasts and a 7-Eleven convenience store, with countless restaurants, bars, and public transport options right outside the building, making Vortex KLCC the perfect choice for both business and leisure travelers.",
         ukey: "Vortex",
         metadata: {
             "bedroom": "2 Bedroom",
             "bathroom": "2 Bathroom",
             "placeHint": "600m from Twin Towers"
-        }
+        },
+        amenities: [
+            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/store.svg', label: "Convenience Store"},
+            {icon: '/icons/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+        ]
     },
     {
         id: "location-3",
         propertyId: '318151',
         propertyName: "188 Suites KLCC",
-        propertyDesc: "188 Suites KLCC",
+        propertyDesc: "88 Suites by Soulasia is set in a former 5-star hotel building, offering spacious apartments designed for comfort and convenience. Guests can enjoy the swimming pool, rooftop gym, and free parking, making it a great choice for both short and long stays. The building is well connected to public transport, with a KK convenience store and a pastry shop right downstairs. Located close to Kuala Lumpur’s city highlights, 188 Suites combines space, facilities, and a central location for a relaxed and practical stay in the city.",
         ukey: "188",
         metadata: {
             "bedroom": "Studio & 1-2 Bedroom",
             "bathroom": "2 Bathroom",
             "placeHint": "1.2 km from Twin Towers"
-        }
+        },
+        amenities: [
+            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/store.svg', label: "Convenience Store"},
+            {icon: '/icons/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+        ]
     },
     {
         id: "location-5",
         propertyId: "318256",
         propertyName: "Opus Residences",
-        propertyDesc: "Opus Residences",
+        propertyDesc: "Opus Residence by Soulasia offers modern city apartments with sweeping views of Menara 118 and the Kuala Lumpur skyline. Guests can unwind at the rooftop pool, stay active in the gym, and enjoy the comfort of spacious units designed for both short and long stays. The property is well connected to public transport and close to major attractions in KL City Center, making it easy to explore the city while having a quiet place to return to. With its facilities and panoramic views, Opus Residence is a great choice for families, business travelers, and holidaymakers.",
         ukey: "Opus",
         metadata: {
             "bedroom": "1-3 Bedroom",
             "bathroom": "2 Bathroom",
             "placeHint": "2.5 km from Pavilion Bukit Bintang"
-        }
+        },
+        amenities: [
+            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/store.svg', label: "Convenience Store"},
+            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+        ]
     },
 ];
 

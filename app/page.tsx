@@ -206,27 +206,27 @@ export default function Home() {
           {/* OTA Logos Section */}
           <section className="section-padding-y bg-white">
             <h2 className="header-margin-b container h2 font-semibold mb-8">We are listed on</h2>
-              <div
-                    className="pl-[5%] flex gap-6 overflow-x-auto no-scrollbar
-                    lp:flex lp:justify-between lp:items-center lp:gap-8 lp:px-2 lp:container lp:mx-auto
-                    [mask-image:linear-gradient(to_left,transparent_1,black_25px,black_calc(100%-25px),transparent_100%)]
-                    [mask-repeat:no-repeat] [mask-size:100%_100%] lp:[mask-image:none]
-                    "
-              >
-                {Array.from({length: 8}).map((_, idx) => (
-                    <Image
-                        key={idx}
-                        src={`/OTA/${idx + 1}.png`}
-                        alt={`OTA Logo ${idx + 1}`}
-                        width={140}
-                        height={56}
-                        className="h-14 w-auto object-contain transition bg-white rounded-lg"
-                        style={{maxWidth: 150, minWidth: 100}}
-                        priority={false}
-                    />
-                ))}
-              </div>
-            </section>
+            <div
+                  className="pl-[5%] flex gap-6 overflow-x-auto no-scrollbar
+                  lp:flex lp:justify-between lp:items-center lp:gap-8 lp:px-2 lp:container lp:mx-auto
+                  [mask-image:linear-gradient(to_left,transparent_1,black_25px,black_calc(100%-25px),transparent_100%)]
+                  [mask-repeat:no-repeat] [mask-size:100%_100%] lp:[mask-image:none]
+                  "
+            >
+              {Array.from({length: 8}).map((_, idx) => (
+                  <Image
+                      key={idx}
+                      src={`/OTA/${idx + 1}.png`}
+                      alt={`OTA Logo ${idx + 1}`}
+                      width={140}
+                      height={56}
+                      className="h-14 w-auto object-contain transition bg-white rounded-lg"
+                      style={{maxWidth: 150, minWidth: 100}}
+                      priority={false}
+                  />
+              ))}
+            </div>
+          </section>
         </main>
       </div>
     </>

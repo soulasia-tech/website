@@ -149,7 +149,7 @@ const fadeIn = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6 },
+    transition: { duration: 0.3 },
   },
 }
 
@@ -389,17 +389,9 @@ export default function PropertiesPage() {
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Amenities</h2>
                 <ul className="grid grid-cols-2 gap-4 text-[#101828]">
-                  {[
-                    {icon: '/icons/coworking.svg', label: "Co-working Space"},
-                    {icon: '/icons/water.svg', label: "Water Filter"},
-                    {icon: '/icons/wifi.svg', label: "Wi-Fi"},
-                    {icon: '/icons/pool.svg', label: "Rooftop Pool"},
-                    {icon: '/icons/gym.svg', label: "Gym"},
-                    {icon: '/icons/store.svg', label: "Convenience Store"},
-                    {icon: '/icons/coffee.svg', label: "Coffee Booth"},
-                  ].map((amenity, idx) => (
+                  {property?.amenities?.map((amenity, idx) => (
                       <li key={idx} className="flex items-center gap-2 tb:gap-3 lp:gap-5">
-                        <Image src={amenity.icon} alt="Soulasia Logo White"
+                        <Image src={amenity?.icon ?? ''} alt="Soulasia Logo White"
                                className="aspect-[1/1] w-4 tb:w-6 lp:w-8 full:w-10" width={40} height={40} priority/>
                         <span className="font-normal text-sm tb:text-xl full:text-2xl">{amenity.label}</span>
                       </li>

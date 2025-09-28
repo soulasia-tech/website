@@ -249,7 +249,7 @@ export default function ForOwnersPage() {
                       type="submit"
                       className="w-full bg-[#0E3599] text-white font-semibold py-3 rounded-lg hover:bg-[#102e7a] transition-colors focus:ring-2 focus:ring-[#0E3599] focus:ring-offset-2 focus:ring-offset-gray-900"
                   >
-                    Search
+                    Contact Me
                   </button>
                 </form>
               </motion.div>
