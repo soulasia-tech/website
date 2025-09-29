@@ -128,7 +128,7 @@ const Experience = ({
             whileInView="visible"
             viewport={{once: true, margin: "-100px"}}
             variants={fadeIn}
-            className="relative w-full"
+            className="relative overflow-hidden w-full"
         >
           {/* Track */}
           <div
