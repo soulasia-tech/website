@@ -61,9 +61,9 @@ const propertiesSaved: Property[] = [
             {icon: '/icons/coworking.svg', label: "Co-working Space (Free)"},
             {icon: '/icons/water.svg', label: "Cuckoo Water Filter"},
             {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
             {icon: '/icons/pool.svg', label: "Rooftop Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -82,10 +82,10 @@ const propertiesSaved: Property[] = [
             {icon: '/icons/coffee.svg', label: "Coffee Shop"},
             {icon: '/icons/store.svg', label: "Convenience Store"},
             {icon: '/icons/water.svg', label: "Coway Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
-            {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+            {icon: '/icons/gym.svg', label: "Fitness & Gym (Paid)"},
+            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
+            {icon: '/icons/pool.svg', label: "Pool (Paid)"},
+            {icon: '/icons/sauna.svg', label: "Sauna (Paid)"},
         ]
     },
     {
@@ -105,9 +105,9 @@ const propertiesSaved: Property[] = [
             {icon: '/icons/store.svg', label: "Convenience Store"},
             {icon: '/icons/water.svg', label: "Coway Water Filter"},
             {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/parking.svg', label: "Parking (Free)"},
             {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -126,9 +126,9 @@ const propertiesSaved: Property[] = [
             {icon: '/icons/coffee.svg', label: "Coffee Shop"},
             {icon: '/icons/store.svg', label: "Convenience Store"},
             {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"}, //TODO Icon
+            {icon: '/icons/parking.svg', label: "Parking (Free)"},
             {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"}, //TODO Icon
+            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
         ]
     },
 ];
