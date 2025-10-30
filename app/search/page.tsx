@@ -162,7 +162,7 @@ function SearchResults() {
           const propertyRoomsByType: { [roomTypeID: string]: string[] } = {};
           if (roomData.success && Array.isArray(roomData.roomTypes)) {
             // Fetch actual rooms for this property
-            const roomsRes = await fetch(`/api/cloudbeds/rooms?propertyId=${property.propertyId}`);
+            const roomsRes = await fetch(`/api/cloudbeds/rooms?propertyId=${property.propertyId}&pageSize=100`);
             const roomsData = await roomsRes.json();
             if (roomsData.success && Array.isArray(roomsData.rooms)) {
               roomsData.rooms.forEach((room: unknown) => {
