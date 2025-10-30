@@ -8,7 +8,11 @@ export async function GET(request: Request) {
     if (!propertyId) {
       return NextResponse.json({ success: false, error: 'propertyId is required' }, { status: 400 });
     }
-    const roomsData = await getRooms(propertyId);
+
+    const pageSize = searchParams.get('pageSize');
+    const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : undefined;
+    const roomsData = await getRooms(propertyId, pageSizeNumber);
+
     // Flatten if necessary
     let rooms = [];
     if (Array.isArray(roomsData) && roomsData.length > 0 && Array.isArray(roomsData[0].rooms)) {

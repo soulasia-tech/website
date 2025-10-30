@@ -36,9 +36,13 @@ export async function getRoomTypes(propertyId: string) {
   return data.data;
 }
 
-export async function getRooms(propertyId: string) {
+export async function getRooms(propertyId: string, pageSize?: number) {
   const property = await getCloudbedsProperty(propertyId);
-  const url = `${CLOUDBEDS_API_BASE}/getRooms?propertyID=${propertyId}`;
+  let url = `${CLOUDBEDS_API_BASE}/getRooms?propertyID=${propertyId}`;
+  if (pageSize) {
+    url += `&pageSize=${pageSize}`;
+  }
+
   const res = await fetch(url, {
     headers: {
       'Authorization': `Bearer ${property.api_key}`,
