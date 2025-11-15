@@ -12,8 +12,7 @@ export default function PrivacyPolicyPage() {
             <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
             <div className="space-y-6">
               <section>
-                <h2 className="text-xl font-semibold mb-3">1. Introduction</h2>
-                <p className="text-gray-600">This is a sample privacy policy. Your privacy is important to us. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us.</p>
+                <p className="text-gray-600">This Privacy Policy explains how Soulasia Management Sdn. Bhd. (“Soulasia”, “we”, “us”, or “our”) collects, uses, discloses, and protects your personal data when you visit our websites, make a booking, stay at one of our properties, or otherwise interact with us. We are committed to handling your personal data in accordance with the Personal Data Protection Act 2010 (PDPA) of Malaysia and other applicable laws. By using our services or providing your personal data to us, you acknowledge that you have read and understood this Privacy Policy.</p>
               </section>
               <section>
                 <h2 className="text-xl font-semibold mb-3">2. Information We Collect</h2>
