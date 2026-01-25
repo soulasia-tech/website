@@ -344,7 +344,7 @@ function SearchResults() {
           {
             roomTypeID: room.id,
             roomName: room.name,
-            price: rates[room.id].totalRate,
+            price: rates[room.id]?.sumAllRate ?? rates[room.id].totalRate,
             quantity: qty,
             maxAvailable: rates[room.id].roomsAvailable,
             propertyId: room.propertyId,
