@@ -519,9 +519,6 @@ function SearchResults() {
                                 ${rates[room.id]?.sumAllRate !== undefined ? rates[room.id]?.sumAllRate?.toFixed(2) : rates[room.id].totalRate.toFixed(2)}
                                  total` : 'N/A'}
                               </span>
-                              <span className="text-base tb:text-lg font-medium text-gray-700">
-                                {rates[room.id] !== undefined ? `MYR } total` : 'N/A'}
-                              </span>
                           </div>
                         </div>
                         <div
