@@ -21,7 +21,6 @@ interface RoomResult {
   name: string;
   description: string;
   price: number;
-  fullPrice: number;
   maxGuests: number;
   available: boolean;
   images: string[];
@@ -211,8 +210,7 @@ function SearchResults() {
                 id: room.roomTypeID,
                 name: room.roomTypeName,
                 description: room.roomTypeDescription,
-                price: propertyRates[room.roomTypeID]?.totalRate || 0,
-                fullPrice: propertyRates[room.roomTypeID]?.sumAllRate || 0,
+                price: propertyRates[room.roomTypeID]?.sumAllRate || propertyRates[room.roomTypeID]?.totalRate || 0,
                 maxGuests: room.maxGuests,
                 available: propertyRates[room.roomTypeID] !== undefined,
                 images: room.roomTypePhotos || [],
@@ -511,16 +509,18 @@ function SearchResults() {
                         <div className=" items-baseline gap-2">
                           <div className="flex flex-wrap items-center">
                             <span className="mr-1 text-lg tb:text-xl font-bold text-[#0E3599]">
-                              {rates[room.id] !== undefined ? `MYR ${(rates[room.id].totalRate / numberOfNights).toFixed(2)}` : 'N/A'}
+                              {rates[room.id] !== undefined ? `MYR ${((rates[room.id]?.sumAllRate ?? rates[room.id].totalRate) / numberOfNights).toFixed(2)}` : 'N/A'}
                             </span>
                             <span className="text-gray-500 text-sm tb:text-base">per night</span>
                           </div>
                           <div className="flex flex-wrap items-center ">
                               <span className="text-base tb:text-lg font-medium text-gray-700">
-                                {rates[room.id] !== undefined ? `MYR ${rates[room.id].totalRate.toFixed(2)} total` : 'N/A'}
+                                {rates[room.id] !== undefined ? `MYR 
+                                ${rates[room.id]?.sumAllRate !== undefined ? rates[room.id]?.sumAllRate?.toFixed(2) : rates[room.id].totalRate.toFixed(2)}
+                                 total` : 'N/A'}
                               </span>
                               <span className="text-base tb:text-lg font-medium text-gray-700">
-                                {rates[room.id] !== undefined ? `MYR ${rates[room.id]?.sumAllRate?.toFixed(2)} total` : 'N/A'}
+                                {rates[room.id] !== undefined ? `MYR } total` : 'N/A'}
                               </span>
                           </div>
                         </div>
