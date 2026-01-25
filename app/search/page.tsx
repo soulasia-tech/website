@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, {Suspense, useEffect, useRef, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { parseISO } from "date-fns";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import {Button} from "@/components/ui/button";
+import {Card} from "@/components/ui/card";
+import {parseISO} from "date-fns";
+import {Swiper, SwiperSlide} from 'swiper/react';
+import {Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import type { Swiper as SwiperType } from 'swiper';
-import { calculateTotalGuests } from '@/lib/guest-utils';
-import { AvailablePropertiesMap } from '@/components/AvailablePropertiesMap';
+import type {Swiper as SwiperType} from 'swiper';
+import {calculateTotalGuests} from '@/lib/guest-utils';
+import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
 import {useUI} from "@/lib/context";
 
 interface RoomResult {
@@ -21,6 +21,7 @@ interface RoomResult {
   name: string;
   description: string;
   price: number;
+  fullPrice: number;
   maxGuests: number;
   available: boolean;
   images: string[];
@@ -35,6 +36,19 @@ interface RatePlan {
   totalRate: number;
   roomsAvailable: number;
   ratePlanNamePublic?: string;
+  sumAllRate?: number;
+  roomRateDetailed?: DetailRatePlan[]
+  [key: string]: unknown; // For any extra fields
+}
+
+interface DetailRatePlan {
+  closedToArrival: boolean
+  closedToDeparture: boolean
+  date: string
+  lastMinuteBooking: number
+  rate: number
+  roomsAvailable: number
+  totalRate: number
   [key: string]: unknown; // For any extra fields
 }
 
@@ -177,6 +191,7 @@ function SearchResults() {
             if (rateData.success && Array.isArray(rateData.ratePlans)) {
               rateData.ratePlans.forEach((rate: RatePlan) => {
                 if (rate.ratePlanNamePublic === "Book Direct and Save – Up to 30% Cheaper Than Online Rates!") {
+                  rate.sumAllRate = rate?.roomRateDetailed?.reduce((sum, d) => sum + d.totalRate, 0)
                   propertyRates[rate.roomTypeID] = rate;
                   allRates[rate.roomTypeID] = rate;
                   console.log(`[Rate Selection] Room ${rate.roomTypeID}: Selected rate \"${rate.ratePlanNamePublic}\" with totalRate ${rate.totalRate}`);
@@ -197,6 +212,7 @@ function SearchResults() {
                 name: room.roomTypeName,
                 description: room.roomTypeDescription,
                 price: propertyRates[room.roomTypeID]?.totalRate || 0,
+                fullPrice: propertyRates[room.roomTypeID]?.sumAllRate || 0,
                 maxGuests: room.maxGuests,
                 available: propertyRates[room.roomTypeID] !== undefined,
                 images: room.roomTypePhotos || [],
