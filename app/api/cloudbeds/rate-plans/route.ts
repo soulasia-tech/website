@@ -40,7 +40,8 @@ export async function GET(request: Request) {
     const params = new URLSearchParams({
       propertyID: propertyId,
       startDate: startDate,
-      endDate: endDate
+      endDate: endDate,
+      detailedRates: "true"
     });
 
     const response = await fetch(`${cloudbedsUrl}?${params}`, {
