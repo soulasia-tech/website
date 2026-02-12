@@ -253,12 +253,13 @@ export default function PropertiesPage() {
                 className="cursor-pointer flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
                   mb-4 lp:mb-5 rounded-lg tb:rounded-[10px] px-2 py-1 tb:px-3 tb:py-2 lp:px-4 lp:py-3
                   text-xs tb:text-sm lp:text-base">
-              <svg className="w-3 h-3 lp:w-4 lp:h-4" width="16" height="16" viewBox="0 0 16 16" fill="none"
-                   xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.666 8H3.33268" stroke="#4A4F5B" stroke-width="1.33333" stroke-linejoin="round"/>
-                <path d="M8 12.667L3.33333 8.00033L8 3.33366" stroke="#4A4F5B" stroke-width="1.33333"
-                      stroke-linejoin="round"/>
-              </svg>
+              <Image
+                  src="/icons/arrow.svg"
+                  alt="Arrow"
+                  width={16}
+                  height={16}
+                  className="w-3 h-3 lp:w-4 lp:h-4 transform rotate-180"
+              />
               Back
             </button>
 
@@ -378,10 +379,11 @@ export default function PropertiesPage() {
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Rooms</h2>
                 {!loading ? (
-                    <Rooms propertyId={propertyId} rooms={rooms}/>) :
+                    <Rooms propertyId={propertyId} placeHint={property?.metadata?.placeHint} rooms={rooms}/>) :
                     (<div className="grid grid-cols-2 lp:grid-cols-3 gap-6">
                       {roomsLocal.map((room) => (
                           <RoomCard
+                              placeHint={property?.metadata?.placeHint}
                               key={room.roomTypeID}
                               roomName={room.roomTypeName}
                               propertyName={room.propertyName}
@@ -411,7 +413,7 @@ export default function PropertiesPage() {
   );
 }
 
-function Rooms({propertyId, rooms}: { propertyId: string, rooms: PropertyRoom[] | null }) {
+function Rooms({propertyId, placeHint, rooms}: { propertyId: string, placeHint?: string, rooms: PropertyRoom[] | null }) {
   const filtered = rooms?.filter((room) => room.propertyId === propertyId);
   return (
       <div className="grid grid-cols-2 lp:grid-cols-3 gap-6">
@@ -419,6 +421,7 @@ function Rooms({propertyId, rooms}: { propertyId: string, rooms: PropertyRoom[] 
           (filtered?.length ? filtered : roomsLocal).map((room) => (
               <RoomCard
                   key={room.roomTypeID}
+                  placeHint={placeHint}
                   roomName={room.roomTypeName}
                   propertyName={room.propertyName}
                   photos={room.roomTypePhotos}

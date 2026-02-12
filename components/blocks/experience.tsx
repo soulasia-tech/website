@@ -107,7 +107,7 @@ const Experience = ({
             <div onClick={prev}
                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
-                  src="/icons/arrow.svg" alt="" className="transform rotate-180"
+                  src="/icons/arrow-dark.svg" alt="" className="transform rotate-180"
                   width={16}
                   height={16}
               />
@@ -115,7 +115,7 @@ const Experience = ({
             <div onClick={next}
                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
-                  src="/icons/arrow.svg" alt=""
+                  src="/icons/arrow-dark.svg" alt=""
                   width={16}
                   height={16}
               />

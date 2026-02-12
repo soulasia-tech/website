@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import Image from "next/image"
 import {ChevronLeft, ChevronRight} from "lucide-react"
 import {cn} from "@/lib/utils"
@@ -9,6 +9,7 @@ import {Gallery} from "@/components/Gallery";
 interface RoomCardProps {
     roomName: string
     propertyName?: string
+    placeHint?: string
     photos: {
         url: string
         caption?: string
@@ -17,10 +18,31 @@ interface RoomCardProps {
     amenities?: string[]
 }
 
-export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) {
+export function RoomCard({roomName, propertyName, placeHint, photos, rate}: RoomCardProps) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [imageLoaded, setImageLoaded] = useState(false)
     const [fullScreen, setFullScreen] = useState(false)
+
+    const hasPrev = currentImageIndex > 0;
+    const hasNext = currentImageIndex < photos.length - 1;
+
+    useEffect(() => {
+        if (photos.length > 0) {
+            setCurrentImageIndex(0);
+        }
+    }, [photos]);
+
+    const handleNext = () => {
+        setCurrentImageIndex((prev) =>
+            prev < photos.length - 1 ? prev + 1 : prev
+        );
+    };
+
+    const handlePrev = () => {
+        setCurrentImageIndex((prev) =>
+            prev > 0 ? prev - 1 : prev
+        );
+    };
 
     const nextImage = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -63,6 +85,15 @@ export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) 
                         {/* After first image is loaded, render the carousel */}
                         {imageLoaded && (
                             <>
+                                {
+                                    placeHint && false && (
+                                        <div
+                                            className="absolute z-2 max-w-[90%] top-2 lp:top-3 left-2 lp:left-3 bg-white/90 text-gray-900 text-[10px] inline-block w-fit tb:text-xs lp:text-base leading-tight font-medium px-2 lp:px-3 py-0.5 lp:py-1 rounded-full shadow">
+                                            {placeHint}
+                                        </div>
+                                    )
+                                }
+
                                 <Image
                                     src={photos[currentImageIndex].url}
                                     alt={photos[currentImageIndex].caption || roomName}
@@ -115,6 +146,37 @@ export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) 
                                             />
                                         ))}
                                     </div>
+                                )}
+                                {photos.length > 1 && (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                handlePrev()
+                                            }}
+                                            className={cn("absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer mb-2 flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]",
+                                                !hasPrev ? "bg-white/20" : "bg-white")}>
+                                            <Image
+                                                src={`/icons/arrow-${!hasPrev ? 'light' : 'dark'}.svg`}
+                                                alt="Prev"
+                                                className="transform rotate-180"
+                                                width={16}
+                                                height={16}
+                                            />
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                handleNext()
+                                            }}
+                                            className={cn("cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 mb-2 flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px] custom-next",
+                                                !hasNext ? "bg-white/20" : "bg-white")}>
+                                            <Image
+                                                src={`/icons/arrow-${!hasNext ? 'light' : 'dark'}.svg`}
+                                                alt="Next"
+                                                width={16}
+                                                height={16}
+                                            />
+                                        </button>
+                                    </>
                                 )}
                             </>
                         )}
