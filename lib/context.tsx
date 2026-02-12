@@ -3,7 +3,6 @@
 
 import {createContext, useContext, useState, ReactNode, useEffect} from "react";
 import {PropertiesMap} from "@/components/PropertiesMap";
-import {z} from "zod";
 import {usePathname} from "next/navigation";
 
 export interface Property {
@@ -41,6 +40,11 @@ interface PropertyMarker {
     address?: string;
 }
 
+interface MapProperties {
+    propertyMarkers: PropertyMarker[],
+    zoom?: number;
+}
+
 type UIContextType = {
     isActive: boolean;
     setIsActive: (value: boolean) => void;
@@ -54,11 +58,8 @@ type UIContextType = {
     rooms: PropertyRoom[] | null;
     loading: boolean;
 
-    openMap: (props: { propertyMarkers: PropertyMarker[], zoom?: number }) => void;
+    openMap: (props: MapProperties) => void;
     closeMap: () => void;
-
-    openGallery: (props: { propertyMarkers: PropertyMarker[], zoom?: number }) => void;
-    closeGallery: () => void;
 };
 
 const propertiesSaved: Property[] = [
@@ -239,24 +240,18 @@ export function UIProvider({children}: { children: ReactNode }) {
 
     const [modalContent, setModalContent] = useState<React.ReactNode>(null);
 
-    const openMap = (props: any) => {
+    const openMap = (props: MapProperties) => {
         setModalContent(<PropertiesMap propertyMarkers={props.propertyMarkers} fullScreenMode={true} zoom={props.zoom}/>);
     };
 
     const closeMap = () => setModalContent(null);
-
-    const openGallery = (props: any) => {
-        setModalContent(<PropertiesMap propertyMarkers={props.propertyMarkers} fullScreenMode={true} zoom={props.zoom}/>);
-    };
-
-    const closeGallery = () => setModalContent(null);
 
     return (
         <UIContext.Provider
             value={{
                 isActive, setIsActive, isDark, setIsDark,
                 propertiesSaved, properties, rooms, loading,
-                openMap, closeMap, openGallery, closeGallery
+                openMap, closeMap
             }}
         >
             <div className={!removePadding && !isDark && isActive ? 'mt-50 tb:mt-[calc(var(--action-h-1xl)+24px)]' : '' }>

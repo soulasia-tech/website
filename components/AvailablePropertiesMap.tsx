@@ -1,7 +1,5 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import Map, {MapRef, Marker, Popup} from "react-map-gl";
-import Image from "next/image";
 import {PropertiesMap} from "@/components/PropertiesMap";
 
 type CloudbedsPropertyDetailsResponse = {

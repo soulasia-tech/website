@@ -6,15 +6,12 @@ import Image from 'next/image';
 import {Button} from "@/components/ui/button";
 import {Card} from "@/components/ui/card";
 import {parseISO} from "date-fns";
-import {Swiper, SwiperSlide} from 'swiper/react';
-import {Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type {Swiper as SwiperType} from 'swiper';
 import {calculateTotalGuests} from '@/lib/guest-utils';
 import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
-import {useUI} from "@/lib/context";
 import {Gallery} from "@/components/Gallery";
 
 interface RoomResult {

@@ -1,11 +1,8 @@
 "use client";
 import Image from "next/image";
 import {useParams, useRouter} from "next/navigation";
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useRef} from "react";
 import {motion} from "framer-motion";
-import {format} from "date-fns";
-import {DateRange} from "react-day-picker";
-import {calculateTotalGuests} from '@/lib/guest-utils';
 import {PropertyRoom, useUI} from "@/lib/context";
 import {RoomCard} from "@/components/room-card";
 import {PropertiesMap} from "@/components/PropertiesMap";
@@ -164,7 +161,7 @@ const fadeIn = {
 export default function PropertiesPage() {
   const router = useRouter();
 
-  const {isActive, propertiesSaved, rooms, loading} = useUI();
+  const {propertiesSaved, rooms, loading} = useUI();
 
   const p = useParams() as { propertyId?: string | string[] };
   const propertyId = typeof p.propertyId === 'string' ? p.propertyId :
@@ -221,28 +218,28 @@ export default function PropertiesPage() {
   const visibleImages: string[] = getVisibleImages();
 
   // Booking widget state
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
-  const [adults, setAdults] = useState('2');
-  const [children, setChildren] = useState('0');
-  const [apartment, setApartment] = useState('1');
-  const [submitting, setSubmitting] = useState(false);
+  // const [date, setDate] = useState<DateRange | undefined>(undefined);
+  // const [adults, setAdults] = useState('2');
+  // const [children, setChildren] = useState('0');
+  // const [apartment, setApartment] = useState('1');
+  // const [submitting, setSubmitting] = useState(false);
 
-  const handleBookNow = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!date?.from || !date?.to) return;
-    setSubmitting(true);
-    const totalGuests = calculateTotalGuests(Number(adults), Number(children));
-    const params = new URLSearchParams({
-      propertyId: propertyId.toString(),
-      startDate: format(date.from, 'yyyy-MM-dd'),
-      endDate: format(date.to, 'yyyy-MM-dd'),
-      adults,
-      children,
-      apartment,
-      guests: totalGuests.toString(),
-    });
-    router.push(`/search?${params.toString()}`);
-  };
+  // const handleBookNow = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!date?.from || !date?.to) return;
+  //   setSubmitting(true);
+  //   const totalGuests = calculateTotalGuests(Number(adults), Number(children));
+  //   const params = new URLSearchParams({
+  //     propertyId: propertyId.toString(),
+  //     startDate: format(date.from, 'yyyy-MM-dd'),
+  //     endDate: format(date.to, 'yyyy-MM-dd'),
+  //     adults,
+  //     children,
+  //     apartment,
+  //     guests: totalGuests.toString(),
+  //   });
+  //   router.push(`/search?${params.toString()}`);
+  // };
 
   return (
       <>

@@ -34,10 +34,6 @@ export function PropertiesMap({ propertyMarkers, fullScreenMode = false, zoom = 
     openMap({propertyMarkers, zoom: 12}); // pass props to MapComponent
   };
 
-  const handleCloseMap = () => {
-    closeMap(); // pass props to MapComponent
-  };
-
   return (
       <>
         {center &&
