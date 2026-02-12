@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
+import React, {useState, useEffect, useRef} from "react"
+import {useRouter} from "next/navigation"
+import {Button} from "@/components/ui/button"
+import {Loader2} from "lucide-react"
+import {format} from "date-fns"
+import {cn} from "@/lib/utils"
+import {Calendar} from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
@@ -19,8 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { DateRange } from "react-day-picker"
-import { calculateTotalGuests } from '@/lib/guest-utils'
+import {DateRange} from "react-day-picker"
+import {calculateTotalGuests} from '@/lib/guest-utils'
 import Image from "next/image";
 
 interface BookingWidgetProps {
@@ -32,12 +32,28 @@ interface BookingWidgetProps {
     children: string;
     apartments?: string;
   };
-  alwaysSticky?: boolean;
-  stickyMode?: 'hero' | 'always';
+  guestsPopoverOpen?: boolean
+  setGuestsPopoverOpen?: React.Dispatch<React.SetStateAction<boolean>>
+
+  citySelectOpen?: boolean
+  setCitySelectOpen?: React.Dispatch<React.SetStateAction<boolean>>
+
+  datePopoverOpen?: boolean
+  setDatePopoverOpen?: React.Dispatch<React.SetStateAction<boolean>>
+
   hide?: boolean;
 }
 
-export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetProps) {
+export function BookingWidgetNew({
+                                   initialSearchParams,
+                                   guestsPopoverOpen,
+                                   setGuestsPopoverOpen,
+                                   citySelectOpen,
+                                   setCitySelectOpen,
+                                   datePopoverOpen,
+                                   setDatePopoverOpen,
+                                   hide
+                                 }: BookingWidgetProps) {
   const router = useRouter()
   const [searchParams, setSearchParams] = useState({
     touchRooms: false,
@@ -63,7 +79,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
   const cityRef = useRef<HTMLButtonElement | null>(null);
   const dateButtonRef = useRef<HTMLButtonElement | null>(null);
   // Track if date picker popover is open
-  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  // const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [touchRooms, setTouchRooms] = useState(false);
 
   // Add new state for apartments
@@ -74,7 +90,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
     }
     return 1;
   });
-  const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
+  // const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -83,10 +99,12 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
         const res = await fetch('/api/cloudbeds-properties')
         const data = await res.json()
         if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
-          const uniqueCities: string[] = Array.from(new Set(data.properties.map((p: { city: string }) => String(p.city))))
+          const uniqueCities: string[] = Array.from(new Set(data.properties.map((p: {
+            city: string
+          }) => String(p.city))))
           setCities(uniqueCities)
           if (!initialSearchParams?.city) {
-            setSearchParams(prev => ({ ...prev, city: uniqueCities[0] || '' }))
+            setSearchParams(prev => ({...prev, city: uniqueCities[0] || ''}))
           }
         } else {
           setCities([])
@@ -104,10 +122,10 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (
-      !searchParams.city ||
-      !date?.from ||
-      !date?.to ||
-      date.from.getTime() === date.to.getTime() // Prevent same-day check-in and checkout
+        !searchParams.city ||
+        !date?.from ||
+        !date?.to ||
+        date.from.getTime() === date.to.getTime() // Prevent same-day check-in and checkout
     ) {
       return
     }
@@ -128,7 +146,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
 
   // Restore original handleCityChange
   function handleCityChange(value: string) {
-    setSearchParams(prev => ({ ...prev, city: value }));
+    setSearchParams(prev => ({...prev, city: value}));
   }
 
   // Restore original handleDateChange
@@ -138,12 +156,12 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
 
   // Restore original handleAdultsChange
   function handleAdultsChange(value: string) {
-    setSearchParams(prev => ({ ...prev, adults: value }));
+    setSearchParams(prev => ({...prev, adults: value}));
   }
 
   // Restore original handleChildrenChange
   function handleChildrenChange(value: string) {
-    setSearchParams(prev => ({ ...prev, children: value }));
+    setSearchParams(prev => ({...prev, children: value}));
   }
 
   // Portal logic for sticky mode
@@ -153,14 +171,17 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
           className="flex flex-col tb:flex-row items-center gap-2 "
       >
         {/* City & Dates Group */}
-        <div className="w-full flex justify-center grid grid-cols-1 tb:grid-cols-3 gap-2 ">
+        <div className="w-full flex justify-center grid grid-cols-1 tb:grid-cols-3 lp:grid-cols-[1fr_280px_280px] gap-2 ">
           <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 mb-2 tb:mb-0",
-            "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
+            "w-full lp:w-[280px]",
+            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
           >
             <Select
                 value={searchParams.city}
                 onValueChange={handleCityChange}
                 disabled={loading}
+                open={citySelectOpen}
+                onOpenChange={setCitySelectOpen}
             >
               <SelectTrigger
                   ref={cityRef}
@@ -171,9 +192,9 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
               >
                 <SelectValue placeholder="Enter the direction"></SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="mt-3 w-full">
                 <SelectGroup>
-                  <SelectLabel className="font-semibold p-2 text-xs lp:text-base text-[#101828]">
+                  <SelectLabel className="font-semibold p-2 text-xs tb:text-sm text-[#101828]">
                     Popular destinations
                   </SelectLabel>
                   {cities.map((city) => (
@@ -189,29 +210,25 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                               height={24}
                           />
                         </div>
-                        <div className="text-[#0e3599] font-medium text-xs lp:text-sm ">{city}</div>
+                        <div className="text-[#0e3599] font-medium text-xs">{city}</div>
                       </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
-          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg  mb-2 tb:mb-0",
-            "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
+          <div className={["flex items-center bg-white rounded-lg  mb-2 tb:mb-0",
+            "w-full lp:w-[280px]",
+            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
           >
-            <Popover
-                open={datePopoverOpen}
-                onOpenChange={(open) => {
-                  setDatePopoverOpen(open);
-                }}
-            >
+            <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                     ref={dateButtonRef}
                     size="responsive"
                     variant="none"
                     className={cn(
-                        "cursor-pointer w-full h-full justify-start px-4 font-normal text-left flex items-center truncate" +
+                        "cursor-pointer border border-[#DEE3ED] w-full h-full justify-start px-4 font-normal text-left flex items-center truncate" +
                         "font-normal text-[#4a4f5b] text-xs lp:text-sm",
                         !date?.from && "text-gray-400"
                     )}
@@ -225,28 +242,30 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent
+                  className="mt-1 w-[var(--radix-popover-trigger-width)] max-w-[280px] rounded-lg p-5 flex items-center justify-center"
+                  align="center">
                 <Calendar
                     mode="range"
                     selected={date}
                     onSelect={handleDateChange}
                     numberOfMonths={1}
                     initialFocus
-                    className="rounded-lg border rounded-lg p-2"
                     disabled={{before: new Date()}}
                 />
               </PopoverContent>
             </Popover>
           </div>
-          <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg  mb-2 tb:mb-0",
-            "h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]"].join(' ')}
+          <div className={["flex items-center bg-white  rounded-lg  mb-2 tb:mb-0",
+            "w-full lp:w-[280px]",
+            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
           >
             <Popover open={guestsPopoverOpen} onOpenChange={setGuestsPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
                     variant="none"
                     size="responsive"
-                    className="cursor-pointer px-4 w-full h-full justify-start font-normal text-left flex items-center gap-2
+                    className="cursor-pointer border border-[#DEE3ED] px-4 w-full h-full justify-start font-normal text-left flex items-center gap-2
                         font-normal text-[#4a4f5b] text-xs lp:text-sm"
                     onClick={() => setTouchRooms(true)}
                 >
@@ -256,7 +275,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
                   }
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-4" align="start">
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-4" align="start">
                 <div className="space-y-3 lp:space-y-6">
                   <div className="flex w-max-content items-center justify-between gap-15">
                     <div>
@@ -321,8 +340,7 @@ export function BookingWidgetNew({ initialSearchParams, hide }: BookingWidgetPro
             size="default"
             className={['cursor-pointer flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
               'text-white text-xs lp:text-base font-normal font-semibold',
-              'h-[var(--action-h-lg)] lp:h-[var(--action-h-2xl)] full:h-[var(--action-h-3xl)]',
-              'w-full tb:w-fit tb:px-4 lp:px-6 full:px-9 ',
+              'h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)] w-full tb:w-fit tb:px-4 lp:px-6 full:px-9 ',
             ].join(' ')}
             disabled={submitting}
         >

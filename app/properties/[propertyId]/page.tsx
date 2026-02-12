@@ -1,30 +1,37 @@
 "use client";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
-import React, {useState, useRef} from "react";
-import Map, { Marker } from 'react-map-gl';
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Calendar } from "@/components/ui/calendar";
-import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { DateRange } from "react-day-picker";
-import { calculateTotalGuests } from '@/lib/guest-utils';
+import {useParams, useRouter} from "next/navigation";
+import React, {useState, useRef, useEffect} from "react";
+import {motion} from "framer-motion";
+import {format} from "date-fns";
+import {DateRange} from "react-day-picker";
+import {calculateTotalGuests} from '@/lib/guest-utils';
 import {PropertyRoom, useUI} from "@/lib/context";
 import {RoomCard} from "@/components/room-card";
+import {PropertiesMap} from "@/components/PropertiesMap";
 
 // Store static lat/lng for each propertyId
-const propertyLocationMap: Record<string, { lat: number; lng: number }> = {
-  '270917': { lat: 3.163265, lng: 101.710802 }, // Scarletz Suites, KL
-  '19928': { lat: 3.1579, lng: 101.7075 }, // Vortex KLCC (example coordinates)
-  '318151': { lat: 3.1595, lng: 101.7051 }, // 188 Suites KLCC By Soulasia
-  '318256': { lat: 3.1376, lng: 101.6998 }, // Opus Residences
+const propertyLocationMap: Record<string, { lat: number; lng: number, name: string, address?: string }> = {
+  '270917': {
+    lat: 3.163265,
+    lng: 101.710802,
+    name: 'Scarletz Suites KL',
+  }, // Scarletz Suites, KL
+  '19928': {
+    lat: 3.1579,
+    lng: 101.7075,
+    name: 'Vortex KLCC'
+  }, // Vortex KLCC (example coordinates)
+  '318151': {
+    lat: 3.1595,
+    lng: 101.7051,
+    name: '188 Suites KLCC'
+  }, // 188 Suites KLCC By Soulasia
+  '318256': {
+    lat: 3.1376,
+    lng: 101.6998,
+    name: 'Opus Residences'
+  }, // Opus Residences
 };
 
 // Images for each property
@@ -145,20 +152,19 @@ const roomsLocal: PropertyRoom[] = [
 ];
 
 const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: {opacity: 0, y: 20},
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3 },
+    transition: {duration: 0.3},
   },
 }
-
 
 
 export default function PropertiesPage() {
   const router = useRouter();
 
-  const { isActive, propertiesSaved, rooms, loading } = useUI();
+  const {isActive, propertiesSaved, rooms, loading} = useUI();
 
   const p = useParams() as { propertyId?: string | string[] };
   const propertyId = typeof p.propertyId === 'string' ? p.propertyId :
@@ -170,7 +176,9 @@ export default function PropertiesPage() {
 
   if (property) {
     pageTitle = `Soulasia | ${property.propertyName}`;
-    rooms?.forEach(room => {room.propertyName = property.propertyName ?? ''})
+    rooms?.forEach(room => {
+      room.propertyName = property.propertyName ?? ''
+    })
   }
 
   const mapPosition = propertyLocationMap[String(propertyId)]; /*isVortex && dynamicMapPosition ? dynamicMapPosition : */
@@ -188,7 +196,7 @@ export default function PropertiesPage() {
       if (card) {
         const cardWidth = (card as HTMLElement).offsetWidth;
         const maxScroll =
-            trackRef.current.scrollWidth - trackRef.current.clientWidth ;
+            trackRef.current.scrollWidth - trackRef.current.clientWidth;
 
         setOffset((o) => Math.min(o + cardWidth, maxScroll));
       }
@@ -236,43 +244,11 @@ export default function PropertiesPage() {
     router.push(`/search?${params.toString()}`);
   };
 
-  // State for dynamic map position (for 19928)
-  // const [dynamicMapPosition, setDynamicMapPosition] = useState<{ lat: number; lng: number } | null>(null);
-  // Fetch and geocode location for Vortex (19928) TODO ??
-  // useEffect(() => {
-  //   if (!isVortex) return;
-  //   async function fetchAndGeocode() {
-  //     try {
-  //       const res = await fetch(`/api/cloudbeds/property?propertyId=19928`);
-  //       const data = await res.json();
-  //       if (data.success && data.hotel && data.hotel.propertyAddress) {
-  //         const address = data.hotel.propertyAddress;
-  //         const addressString = [
-  //           address.propertyAddress1,
-  //           address.propertyCity,
-  //           address.propertyState,
-  //           address.propertyPostalCode,
-  //           address.propertyCountry
-  //         ].filter(Boolean).join(", ");
-  //         // Geocode
-  //         const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressString)}`);
-  //         const geoData = await geoRes.json();
-  //         if (geoData && geoData.length > 0) {
-  //           setDynamicMapPosition({ lat: parseFloat(geoData[0].lat), lng: parseFloat(geoData[0].lon) });
-  //         }
-  //       }
-  //     } catch {
-  //       // fallback to static
-  //     }
-  //   }
-  //   fetchAndGeocode();
-  // }, [isVortex]);
-
   return (
       <>
         <title>{pageTitle}</title>
 
-        <main className={["py-8 bg-white", (isActive ? 'mt-50 tb:mt-5 tb:pt-nav' : '')].join(' ')} >
+        <main className={["py-8 bg-white relative"].join(' ')}>
           <div className="container">
             {/* Back button */}
             <button
@@ -280,7 +256,8 @@ export default function PropertiesPage() {
                 className="cursor-pointer flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
                   mb-4 lp:mb-5 rounded-lg tb:rounded-[10px] px-2 py-1 tb:px-3 tb:py-2 lp:px-4 lp:py-3
                   text-xs tb:text-sm lp:text-base">
-              <svg className="w-3 h-3 lp:w-4 lp:h-4" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-3 h-3 lp:w-4 lp:h-4" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                   xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.666 8H3.33268" stroke="#4A4F5B" stroke-width="1.33333" stroke-linejoin="round"/>
                 <path d="M8 12.667L3.33333 8.00033L8 3.33366" stroke="#4A4F5B" stroke-width="1.33333"
                       stroke-linejoin="round"/>
@@ -357,7 +334,7 @@ export default function PropertiesPage() {
             <div onClick={prev}
                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
-                  src="/icons/arrow.svg"
+                  src="/icons/arrow-dark.svg"
                   alt="Arrow"
                   width={16}
                   height={16}
@@ -367,7 +344,7 @@ export default function PropertiesPage() {
             <div onClick={next}
                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white mb-2 flex items-center rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
               <Image
-                  src="/icons/arrow.svg"
+                  src="/icons/arrow-dark.svg"
                   alt="Arrow"
                   width={16}
                   height={16}
@@ -377,11 +354,12 @@ export default function PropertiesPage() {
 
           <div
               className="mt-15 container grid grid-cols-1 lp:grid-cols-3 mb-12 gap-8 space-y-4 tb:space-y-5 lp:space-y-6">
-            <div className="col-span-1 lg:col-span-2 space-y-6">
+            <div className="col-span-1 lg:col-span-3 space-y-6">
               {/* About */}
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">About this property</h2>
-                <div className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
+                <div
+                    className="font-normal text-[#3b4a68] text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit">
                   {property?.propertyDesc}
                 </div>
               </section>
@@ -402,8 +380,9 @@ export default function PropertiesPage() {
               {/* Rooms */}
               <section>
                 <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Rooms</h2>
-                  {!loading ? (<Rooms propertyId={propertyId} rooms={rooms}/>) :
-                    (<div className="grid grid-cols-2 gap-6">
+                {!loading ? (
+                    <Rooms propertyId={propertyId} rooms={rooms}/>) :
+                    (<div className="grid grid-cols-2 lp:grid-cols-3 gap-6">
                       {roomsLocal.map((room) => (
                           <RoomCard
                               key={room.roomTypeID}
@@ -414,167 +393,20 @@ export default function PropertiesPage() {
                           />
                       ))}
                     </div>)
-                  }
+                }
               </section>
-                {/* Map */}
+              {/* Map */}
               <section>
-            <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Location</h2>
-            <div
-                className="w-full aspect-[4/3] tb:aspect-[16/9] rounded-lg overflow-hidden shadow bg-white flex items-center justify-center">
-              {mapPosition ? (
-                  <Map
-                      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                      initialViewState={{longitude: mapPosition.lng, latitude: mapPosition.lat, zoom: 15}}
-                      style={{width: '100%', height: '100%'}}
-                      mapStyle="mapbox://styles/mapbox/streets-v11"
-                  >
-                    <Marker longitude={mapPosition.lng} latitude={mapPosition.lat} anchor="bottom">
-                      <div style={{fontSize: 32, color: '#3b82f6'}}>📍</div>
-                    </Marker>
-                  </Map>
+                <h2 className="h2 font-semibold mb-3 tb:mb-4 lp:mb-5">Location</h2>
+                <div
+                    className="w-full aspect-[4/3] tb:aspect-[16/9] rounded-lg overflow-hidden shadow bg-white flex items-center justify-center">
+                  {mapPosition ? (
+                      <PropertiesMap propertyMarkers={[mapPosition]}></PropertiesMap>
                   ) : (
                       <span className="text-gray-400 text-sm text-center px-2">Location not found on map.</span>
                   )}
-            </div>
-          </section>
-            </div>
-            {/* Right: Sticky Booking Widget */}
-            <div className="col-span-1 w-full flex-shrink-0">
-              <div className="lp:sticky lp:top-24">
-                <div
-                    className="flex flex-col bg-[#f9fafb] rounded-xl max-w-full p-6 ">
-                  <div className="font-semibold text-black text-xl tb:text-2xl mb-4 tb:mb-5">Search apartments</div>
-                  <form className="flex flex-col gap-4" onSubmit={handleBookNow}>
-                    <div className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg ",
-                      "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
-                    >
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                              variant="none"
-                              className={cn(
-                                  "w-full h-full justify-start px-3 font-normal text-left",
-                                  !date?.from && "text-gray-400"
-                              )}
-                          >
-                            {date?.from && date?.to
-                                ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
-                                : (
-                                    <div className="flex gap-3 items-center">
-                                      <Image
-                                          src="/icons/calendar.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
-                                          width={24}
-                                          height={24}
-                                      />
-                                      <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Pick dates</div>
-                                    </div>
-                                )
-                            }
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                              mode="range"
-                              selected={date}
-                              onSelect={setDate}
-                              numberOfMonths={1}
-                              initialFocus
-                              className="rounded-lg border border-border p-2"
-                              disabled={{before: new Date()}}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-3",
-                      "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
-                    >
-                      <div className="flex items-center justify-between w-full gap-6">
-                        <div className="flex gap-3 items-center">
-                          <Image
-                              src="/icons/adults.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
-                              width={24}
-                              height={24}
-                          />
-                          <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Adults</div>
-                        </div>
-                        <div className="flex items-center gap-2 tb:gap-4">
-                          <Button type="button" size="responsive" variant="outline"
-                                  disabled={parseInt(adults) <= 1}
-                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  onClick={() => setAdults((parseInt(adults) - 1).toString())}>-</Button>
-                          <span
-                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{adults}</span>
-                          <Button type="button" size="responsive" variant="outline"
-                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  onClick={() => setAdults((parseInt(adults) + 1).toString())}>+</Button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-3",
-                      "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
-                    >
-                      <div className="flex items-center w-full justify-between">
-                        <div className="flex gap-3 items-center">
-                          <Image
-                              src="/icons/children.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
-                              width={24}
-                              height={24}
-                          />
-                          <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Children</div>
-                        </div>
-                        <div className="flex items-center gap-2 tb:gap-4">
-                          <Button type="button" size="responsive" variant="outline"
-                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  disabled={parseInt(children) <= 0}
-                                  onClick={() => setChildren((parseInt(children) - 1).toString())}>-</Button>
-                          <span
-                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{children}</span>
-                          <Button type="button" size="responsive" variant="outline"
-                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  onClick={() => setChildren((parseInt(children) + 1).toString())}>+</Button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg px-3",
-                      "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
-                    >
-                      <div className="flex items-center w-full justify-between">
-                        <div className="flex gap-3 items-center">
-                          <Image
-                              src="/icons/building.svg" alt="" className="aspect-[1/1] w-4 tb:w-6"
-                              width={24}
-                              height={24}
-                          />
-                          <div className="font-normal text-xs tb:text-s text-[#4a4f5b]">Apartments</div>
-                        </div>
-                        <div className="flex items-center gap-2 tb:gap-4">
-                          <Button type="button" size="responsive" variant="outline"
-                                  className="cursor-pointer text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  disabled={parseInt(apartment) <= 1}
-                                  onClick={() => setApartment((parseInt(apartment) - 1).toString())}>-</Button>
-                          <span
-                              className="w-2 font-semibold text-xs tb:text-base text-[#101828] text-center">{apartment}</span>
-                          <Button type="button" size="responsive" variant="outline"
-                                  className="cursor-pointer bg-[#e5eeff] text-lg tb:text-2xl size-[var(--action-h-sm)] tb:size-[var(--action-h-lg)]"
-                                  onClick={() => setApartment((parseInt(apartment) + 1).toString())}>+</Button>
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                        type="submit"
-                        className={["cursor-pointer flex items-center justify-center bg-[#0E3599] rounded-lg px-2  ",
-                          "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
-                        onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
-                        onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
-                        disabled={submitting}
-                    >
-                      {submitting ? (
-                          <Loader2 className="w-5 h-5 animate-spin"/>
-                      ) : (<span className="text-white  text-sm font-medium">Book</span>)}
-                    </Button>
-                  </form>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
         </main>
@@ -583,20 +415,58 @@ export default function PropertiesPage() {
 }
 
 function Rooms({propertyId, rooms}: { propertyId: string, rooms: PropertyRoom[] | null }) {
-    const filtered = rooms?.filter((room) => room.propertyId === propertyId);
-    return (
-        <div className="grid grid-cols-2 gap-6">
-            {
-                (filtered?.length ? filtered : roomsLocal).map((room) => (
-                    <RoomCard
-                        key={room.roomTypeID}
-                        roomName={room.roomTypeName}
-                        propertyName={room.propertyName}
-                        photos={room.roomTypePhotos}
-                        rate={room.rate}
-                    />
-                ))
-            }
-        </div>
-    );
+  const filtered = rooms?.filter((room) => room.propertyId === propertyId);
+  return (
+      <div className="grid grid-cols-2 lp:grid-cols-3 gap-6">
+        {
+          (filtered?.length ? filtered : roomsLocal).map((room) => (
+              <RoomCard
+                  key={room.roomTypeID}
+                  roomName={room.roomTypeName}
+                  propertyName={room.propertyName}
+                  photos={room.roomTypePhotos}
+                  rate={room.rate}
+              />
+          ))
+        }
+      </div>
+  );
 }
+
+// <div ref={mapContainerRef}
+//      className={`relative flex justify-center items-center w-full h-full rounded-xl shadow bg-white ${isFullscreen ? 'p-10' : 'p-0'}`}
+// >
+//   <Map
+//       ref={mapRef}
+//       mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+//       initialViewState={{longitude: mapPosition.lng, latitude: mapPosition.lat, zoom: 15}}
+//
+//       mapStyle="mapbox://styles/mapbox/streets-v11"
+//   >
+//     <Marker longitude={mapPosition.lng} latitude={mapPosition.lat} anchor="bottom">
+//       <div style={{fontSize: 32, color: '#3b82f6'}}>📍</div>
+//     </Marker>
+//   </Map>
+//
+//
+//   <div className={`absolute flex flex-col gap-2 z-50 ${isFullscreen ? 'top-14 right-14' : 'top-4 right-4'}`}>
+//     <button
+//         onClick={toggleFullscreen}
+//         className="bg-white rounded shadow p-2 hover:bg-gray-100"
+//     >
+//       {isFullscreen ? "✕" : "⛶"}
+//     </button>
+//     <button
+//         onClick={() => mapRef.current?.zoomIn()}
+//         className="bg-white rounded shadow p-2 hover:bg-gray-100"
+//     >
+//       ➕
+//     </button>
+//     <button
+//         onClick={() => mapRef.current?.zoomOut()}
+//         className="bg-white rounded shadow p-2 hover:bg-gray-100"
+//     >
+//       ➖
+//     </button>
+//   </div>
+// </div>

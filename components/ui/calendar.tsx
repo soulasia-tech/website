@@ -18,21 +18,39 @@ function Calendar({
   const defaultClassNames = {
     months: "relative flex flex-col sm:flex-row gap-4",
     month: "w-full",
-    month_caption: "relative mx-10 mb-1 flex h-9 items-center justify-center z-20",
-    caption_label: "text-sm font-medium",
+    month_caption: "relative mx-10 mb-2 flex h-9 items-center justify-center z-20",
+    caption_label: "text-base font-medium text-[#101828]",
     nav: "absolute top-0 flex w-full justify-between z-10",
     button_previous: cn(
       buttonVariants({ variant: "ghost" }),
-      "size-9 text-muted-foreground/80 hover:text-foreground p-0",
+      "size-10 text-[#101828] hover:text-foreground p-0",
     ),
     button_next: cn(
       buttonVariants({ variant: "ghost" }),
-      "size-9 text-muted-foreground/80 hover:text-foreground p-0",
+      "size-10 text-[#101828] hover:text-foreground p-0",
     ),
-    weekday: "size-9 p-0 text-xs font-medium text-muted-foreground/80",
-    day_button:
-      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-lg p-0 text-foreground outline-offset-2 group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 focus:outline-none group-data-[disabled]:pointer-events-none focus-visible:z-10 group-data-[selected]:bg-[#0E3599] group-data-[selected]:text-white group-data-[disabled]:text-foreground/30 group-data-[disabled]:line-through group-data-[outside]:text-foreground/30 group-data-[outside]:group-data-[selected]:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-data-[selected]:group-[.range-middle]:bg-[#0E3599] group-data-[selected]:group-[.range-middle]:text-white",
-    day: "group size-9 px-0 text-sm",
+    weekday: "size-9 p-0 text-xs font-normal text-[#4A4F5B]",
+    day_button: cn(
+      "relative flex size-6.5 items-center justify-center whitespace-nowrap",
+      "rounded-lg p-0 text-foreground outline-offset-2",
+      "focus:outline-none focus-visible:z-10 focus-visible:outline",
+      "focus-visible:outline-2 focus-visible:outline-ring/70",
+
+      "group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow]",
+      "group-[[data-selected]:not(.range-middle)]:duration-150",
+      "group-[[data-selected]:not(.range-middle)]:text-white",
+
+      "group-data-[outside]:group-data-[selected]:text-white",
+      "group-data-[outside]:text-foreground/30",
+
+      "group-data-[disabled]:pointer-events-none",
+      "group-data-[disabled]:text-foreground/30",
+      "group-data-[disabled]:line-through",
+
+      "group-data-[selected]:bg-[#0E3599]",
+      "group-data-[selected]:group-[.range-middle]:bg-[#E5EEFF]",
+    ),
+    day: "group size-9 px-0 text-xs",
     range_start: "range-start",
     range_end: "range-end",
     range_middle: "range-middle",

@@ -4,6 +4,7 @@ import React, {useState} from "react"
 import Image from "next/image"
 import {ChevronLeft, ChevronRight} from "lucide-react"
 import {cn} from "@/lib/utils"
+import {Gallery} from "@/components/Gallery";
 
 interface RoomCardProps {
     roomName: string
@@ -19,6 +20,7 @@ interface RoomCardProps {
 export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [imageLoaded, setImageLoaded] = useState(false)
+    const [fullScreen, setFullScreen] = useState(false)
 
     const nextImage = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -55,6 +57,7 @@ export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) 
                                 )}
                                 priority
                                 onLoad={() => setImageLoaded(true)}
+                                onClick={() => setFullScreen(true)}
                             />
                         )}
                         {/* After first image is loaded, render the carousel */}
@@ -70,6 +73,7 @@ export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) 
                                         "object-cover transition-opacity rounded-xl duration-700",
                                         "opacity-100"
                                     )}
+                                    onClick={() => setFullScreen(true)}
                                 />
                                 {/* Navigation Buttons - Show if there are multiple images */}
                                 {photos.length > 1 && (
@@ -137,7 +141,20 @@ export function RoomCard({roomName, propertyName, photos, rate}: RoomCardProps) 
                     className="font-normal text-[#3b4a68] text-xs tb:text-base">per night</span>
                 </div>
             </div>
-
+            {imageLoaded && photos && fullScreen && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-[#141826] p-5 lp:p-10"
+                    tabIndex={-1}
+                    aria-modal="true"
+                    role="dialog"
+                >
+                    <Gallery
+                        selectedIndex={currentImageIndex}
+                        images={photos.map(photo => ({ src: photo.url, alt: photo.caption }))}
+                        onClose={() => {setFullScreen(false);}}
+                    ></Gallery>
+                </div>
+            )}
         </div>
     );
 }

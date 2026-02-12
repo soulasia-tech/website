@@ -5,7 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import Script from "next/script";
 import {UIProvider} from "@/lib/context";
-import {Suspense} from "react";
+import React, {Suspense} from "react";
 
 // Manrope variable font; includes Cyrillic
 const manrope = Manrope({
@@ -35,14 +35,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK" strategy="afterInteractive"/>
       <Script id="gtag-init" strategy="afterInteractive">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-Z11PKVB3LK');
-          `}
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-Z11PKVB3LK');
+              `}
       </Script>
       <UIProvider>
-          <Suspense fallback={<div>Loading navbar...</div>}>
+          <Suspense fallback={<div></div>}>
               <Navbar/>
           </Suspense>
           <main className="bg-white flex-grow pt-nav">{children}</main>

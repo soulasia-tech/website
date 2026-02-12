@@ -15,6 +15,7 @@ import type {Swiper as SwiperType} from 'swiper';
 import {calculateTotalGuests} from '@/lib/guest-utils';
 import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
 import {useUI} from "@/lib/context";
+import {Gallery} from "@/components/Gallery";
 
 interface RoomResult {
   id: string;
@@ -81,8 +82,6 @@ interface CloudbedsQuote {
 }
 
 function SearchResults() {
-  const { isActive } = useUI();
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -470,8 +469,7 @@ function SearchResults() {
   }
 
   return (
-    <div className={["min-h-screen bg-white section-component-p-y", (isActive ? 'mt-50 tb:mt-20' : '')].join(' ')}>
-      {isActive}
+    <div className={["min-h-screen bg-white section-component-p-y"].join(' ')}>
       <div className="container mx-auto">
         <h2 className="h2 font-semibold mb-5">Available apartments</h2>
         <div className="flex flex-col lp:flex-row gap-5">
@@ -733,7 +731,7 @@ function SearchResults() {
                       </>
                   )}
                 </Card>
-                <div className="rounded-xl" style={{height: 'calc(100vh - 2rem)'}}>
+                <div className="rounded-xl w-full aspect-video lp:min-h-[460px] full:min-h-[630px]">
                   <AvailablePropertiesMap propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]}/>
                 </div>
               </div>
@@ -742,87 +740,19 @@ function SearchResults() {
         </div>
         {selectedRoomImages && (
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-                onClick={() => {
-                  setSelectedRoomImages(null);
-                  setCarouselIndex(0);
-                }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-[#141826] p-5 lp:p-10"
                 tabIndex={-1}
                 aria-modal="true"
                 role="dialog"
             >
-              <div
-                  className="relative max-w-2xl w-full mx-4"
-                  onClick={e => e.stopPropagation()}
-              >
-                <button
-                    className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2 px-4"
-                    onClick={() => {
+              <Gallery
+                  images={selectedRoomImages.map(src => ({ src, alt: "Room image" }))}
+                  onClose={() => {
                       setSelectedRoomImages(null);
                       setCarouselIndex(0);
                       swiperInitialized.current = false;
-                    }}
-                    aria-label="Close image preview"
-                >
-                  ✕
-                </button>
-                <Swiper
-                    modules={[Navigation, Pagination]}
-                    navigation={{
-                      nextEl: ".custom-next",
-                      prevEl: ".custom-prev",
-                    }}
-                    pagination={{clickable: true}}
-                    className="rounded-xl"
-                    initialSlide={carouselIndex}
-                    onSlideChange={swiper => setCarouselIndex(swiper.activeIndex)}
-                    onSwiper={swiper => {
-                      swiperRef.current = swiper;
-                      if (!swiperInitialized.current) {
-                        swiper.slideTo(carouselIndex);
-                        swiperInitialized.current = true;
-                      }
-                    }}
-                >
-                  {selectedRoomImages.map((img, idx) => (
-                      <SwiperSlide key={idx}>
-                        <div style={{position: 'relative', width: '100%', height: '60vw', maxHeight: '80vh'}}>
-                          <Image
-                              src={img}
-                              alt={`Room image ${idx + 1}`}
-                              fill
-                              className="object-contain rounded-xl"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      </SwiperSlide>
-                  ))}
-
-                  {/* Custom arrows */}
-                  <button
-                       className="cursor-pointer flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
-                       custom-prev absolute left-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20
-                       ">
-                    <Image
-                        src="/icons/arrow.svg"
-                        alt="Prev"
-                        className="transform rotate-180"
-                        width={16}
-                        height={16}
-                    />
-                  </button>
-                  <button
-                       className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]
-                       custom-next absolute right-2 top-1/2 -translate-y-1/2 z-20 hover:bg-white/20">
-                    <Image
-                        src="/icons/arrow.svg"
-                        alt="Next"
-                        width={16}
-                        height={16}
-                    />
-                  </button>
-                </Swiper>
-              </div>
+                  }}
+              ></Gallery>
             </div>
         )}
       </div>

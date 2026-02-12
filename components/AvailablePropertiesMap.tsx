@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
+import React, { useEffect, useState, useRef } from "react";
+import Map, {MapRef, Marker, Popup} from "react-map-gl";
+import Image from "next/image";
+import {PropertiesMap} from "@/components/PropertiesMap";
 
 type CloudbedsPropertyDetailsResponse = {
   success: boolean;
@@ -39,7 +41,6 @@ const MALAYSIA_BOUNDS = {
 export function AvailablePropertiesMap({ propertyIds }: { propertyIds: string[] }) {
   const [propertyMarkers, setPropertyMarkers] = useState<PropertyMarker[]>([]);
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const lastIdsRef = useRef<string>("");
 
@@ -128,41 +129,6 @@ export function AvailablePropertiesMap({ propertyIds }: { propertyIds: string[] 
     );
   }
   return (
-    <div className="w-full h-full rounded-xl shadow bg-white">
-      <Map
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-        initialViewState={{ longitude: center.lng, latitude: center.lat, zoom: 12 }}
-        style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/streets-v11"
-      >
-        {propertyMarkers.map((marker, idx) => (
-          <Marker
-            key={idx}
-            longitude={marker.lng}
-            latitude={marker.lat}
-            anchor="bottom"
-            onClick={() => setSelectedIdx(idx)}
-          >
-            <div style={{ fontSize: 32, cursor: "pointer", color: "#3b82f6" }}>📍</div>
-          </Marker>
-        ))}
-        {selectedIdx !== null && propertyMarkers[selectedIdx] && (
-          <Popup
-            longitude={propertyMarkers[selectedIdx].lng}
-            latitude={propertyMarkers[selectedIdx].lat}
-            anchor="top"
-            onClose={() => setSelectedIdx(null)}
-            closeOnClick={false}
-            focusAfterOpen={false}
-          >
-            <div>
-              <strong>{propertyMarkers[selectedIdx].name}</strong>
-              <br />
-              {propertyMarkers[selectedIdx].address}
-            </div>
-          </Popup>
-        )}
-      </Map>
-    </div>
+      <PropertiesMap propertyMarkers={propertyMarkers} zoom={12}></PropertiesMap>
   );
-} 
+}

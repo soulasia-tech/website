@@ -2,6 +2,9 @@
 "use client";
 
 import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import {PropertiesMap} from "@/components/PropertiesMap";
+import {z} from "zod";
+import {usePathname} from "next/navigation";
 
 export interface Property {
     id?: string;
@@ -31,15 +34,31 @@ export interface PropertyRoom {
     rate?: number;
 }
 
+interface PropertyMarker {
+    lat: number;
+    lng: number;
+    name: string;
+    address?: string;
+}
+
 type UIContextType = {
     isActive: boolean;
     setIsActive: (value: boolean) => void;
+
+    isDark: boolean;
+    setIsDark: (value: boolean) => void;
 
     propertiesSaved: Property[];
 
     properties: Property[] | null;
     rooms: PropertyRoom[] | null;
     loading: boolean;
+
+    openMap: (props: { propertyMarkers: PropertyMarker[], zoom?: number }) => void;
+    closeMap: () => void;
+
+    openGallery: (props: { propertyMarkers: PropertyMarker[], zoom?: number }) => void;
+    closeGallery: () => void;
 };
 
 const propertiesSaved: Property[] = [
@@ -137,7 +156,20 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({children}: { children: ReactNode }) {
     // 🔹 UI state
-    const [isActive, setIsActive] = useState(false);
+    const [isActive, setIsActive] = useState(true);
+    const [isDark, setIsDark] = useState(false);
+
+    const pathname = usePathname();
+    const [removePadding, setRemovePadding] = useState(false);
+    useEffect(() => {
+        if (pathname === '/') {
+            setRemovePadding(true);
+        }
+
+        if(window.innerWidth < 768) {
+            setIsActive(false);
+        }
+    }, [pathname]);
 
     // 🔹 Cache state
     const [properties, setProperties] = useState<Property[] | null>(null);
@@ -205,12 +237,36 @@ export function UIProvider({children}: { children: ReactNode }) {
         fetchRooms();
     }, []);
 
+    const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+
+    const openMap = (props: any) => {
+        setModalContent(<PropertiesMap propertyMarkers={props.propertyMarkers} fullScreenMode={true} zoom={props.zoom}/>);
+    };
+
+    const closeMap = () => setModalContent(null);
+
+    const openGallery = (props: any) => {
+        setModalContent(<PropertiesMap propertyMarkers={props.propertyMarkers} fullScreenMode={true} zoom={props.zoom}/>);
+    };
+
+    const closeGallery = () => setModalContent(null);
 
     return (
         <UIContext.Provider
-            value={{isActive, setIsActive, propertiesSaved, properties, rooms, loading}}
+            value={{
+                isActive, setIsActive, isDark, setIsDark,
+                propertiesSaved, properties, rooms, loading,
+                openMap, closeMap, openGallery, closeGallery
+            }}
         >
-            {children}
+            <div className={!removePadding && !isDark && isActive ? 'mt-50 tb:mt-[calc(var(--action-h-1xl)+24px)]' : '' }>
+                {children}
+            </div>
+            {modalContent && (
+                <div className="fixed inset-0 z-60 bg-white flex justify-center items-center p-5 lp:p-10">
+                    {modalContent}
+                </div>
+            )}
         </UIContext.Provider>
     );
 }

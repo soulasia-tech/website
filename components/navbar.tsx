@@ -24,12 +24,13 @@ type NavbarProps = {
 
 const LINKS = [
     {href: '/for-owners', label: 'For Owners'},
+    {href: '/partnership', label: 'Partnership'},
     {href: '/sustainability', label: 'Sustainability'},
 ];
 
 export function Navbar({className}: NavbarProps) {
     const { isActive, setIsActive } = useUI();
-    // const [isActive, setOpened] = useState(false);
+    const { isDark, setIsDark } = useUI();
 
     // Get search parameters
     const searchParams = useSearchParams();
@@ -51,17 +52,14 @@ export function Navbar({className}: NavbarProps) {
     };
 
     const pathname = usePathname();
-    const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
         const dark = document.querySelector(".dark-header");
         if (!dark) {
-            setIsActive(false);
             setIsDark(false); // no hero → always white
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            setIsActive(false);
             setIsDark(entry.isIntersecting);
         }, {threshold: 0.1});
 
@@ -69,29 +67,18 @@ export function Navbar({className}: NavbarProps) {
         return () => observer.disconnect();
     }, [pathname]);
 
-    const [submitting, setSubmitting] = useState(true);
 
     useEffect(() => {
         const search = document.querySelector(".search-widget");
         if (!search) {
-            setIsActive(false);
-            setSubmitting(true); // no hero → always white
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            setIsActive(false);
-            setSubmitting(!entry.isIntersecting);
+            setIsActive(!entry.isIntersecting);
         }, {threshold: 0.1});
 
         observer.observe(search);
         return () => observer.disconnect();
-    }, [pathname]);
-
-    useEffect(() => {
-        if (pathname === '/search') {
-            setIsActive(true);
-            setSubmitting(true); // no hero → always white
-        }
     }, [pathname]);
 
     const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -105,7 +92,7 @@ export function Navbar({className}: NavbarProps) {
             setUser(user);
         };
 
-        getUser();
+        getUser().then();
 
         // Listen for auth changes
         const {data: {subscription}} = supabase.auth.onAuthStateChange((_event, session) => {
@@ -126,93 +113,82 @@ export function Navbar({className}: NavbarProps) {
     };
 
     const toggle = () => {
-        setIsActive(!isDark && !isActive);
+        setIsActive(!isActive);
     };
 
+    const [citySelectOpen, setCitySelectOpen] = useState(false)
+    const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+    const [guestsPopoverOpen, setGuestsPopoverOpen] = useState(false);
+
     return (
-        <header
-            className={[
-                'fixed inset-x-0 top-0 z-50',
-                isDark ? 'bg-transparent border-transparent'
-                    : 'bg-[#f8f9fb] supports-[backdrop-filter]:backdrop-blur border-b border-b-[#dee3ed]',
-                'transition-colors',
-                className ?? '',
-            ].join(' ')}
-            style={{height: 'var(--nav-h)'}}
-        >
-            <div className="container h-full">
-                <div className="flex h-full items-center justify-between gap-4">
-                    <div className="flex h-full items-center">
-                        {/* Brand */}
-                        <Link href="/" aria-label="Soulasia home"
-                              className="cursor-pointer inline-flex items-center mr-20 shrink-0">
-                            <Image
-                                src={isDark ? '/Brand/logo-fill.svg' : '/Brand/logo.svg'}
-                                alt="Soulasia"
-                                width={168}
-                                height={36}
-                                priority
-                                className="h-auto w-[var(--logo-w)]"
-                            />
-                        </Link>
+        <>
+            <header
+                className={[
+                    'fixed inset-x-0 top-0 z-50',
+                    isDark ? 'bg-transparent border-transparent'
+                        : 'bg-[#f8f9fb] supports-[backdrop-filter]:backdrop-blur border-b border-b-[#dee3ed]',
+                    'transition-colors',
+                    className ?? '',
+                ].join(' ')}
+                style={{height: 'var(--nav-h)'}}
+            >
+                <div className="container h-full">
+                    <div className="flex h-full items-center justify-between gap-4">
+                        <div className="flex h-full items-center">
+                            {/* Brand */}
+                            <Link href="/" aria-label="Soulasia home"
+                                  className="cursor-pointer inline-flex items-center mr-20 shrink-0">
+                                <Image
+                                    src={isDark ? '/Brand/logo-fill.svg' : '/Brand/logo.svg'}
+                                    alt="Soulasia"
+                                    width={168}
+                                    height={36}
+                                    priority
+                                    className="h-auto w-[var(--logo-w)]"
+                                />
+                            </Link>
 
-                        {/* Laptop+ inline nav */}
-                        <nav
-                            className={[
-                                'hidden lp:flex ml-5 items-center gap-8 text-base font-normal tracking-[-0.01em] mr-8',
-                                isDark ? 'text-white' : 'text-gray-900',
-                            ].join(' ')}
-                        >
-                            {LINKS.map((l) => (
-                                <Link key={l.href} href={l.href} className="hover:opacity-85 transition-opacity">
-                                    {l.label}
-                                </Link>
-                            ))}
-                        </nav>
+                            {/* Laptop+ inline nav */}
+                            <nav
+                                className={[
+                                    'hidden lp:flex ml-5 items-center gap-8 text-base font-normal tracking-[-0.01em] mr-8',
+                                    isDark ? 'text-white' : 'text-gray-900',
+                                ].join(' ')}
+                            >
+                                {LINKS.map((l) => (
+                                    <Link key={l.href} href={l.href} className="hover:opacity-85 transition-opacity">
+                                        {l.label}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
 
-                        <Button
-                            type="submit"
-                            size="default"
-                            className={['flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
-                                'text-white text-base font-normal font-semibold',
-                                'full:h-[var(--action-h-3xl)] h-[var(--action-h-2xl)] w-[124px]',
-                                submitting ? 'hidden lp:flex' : 'hidden'
-                            ].join(' ')}
-                            onClick={() => toggle()}
-                        >
-                            {!isActive ? 'Search' : 'Close'}
-                        </Button>
-                    </div>
+                        <div className="flex items-center tb:gap-4 gap-2">
+                            {/* Actions */}
+                            <Button
+                                type="submit"
+                                size="responsive"
+                                variant="default"
+                                className={[
+                                    'lp:hidden flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
+                                    'text-white font-medium h-[var(--login-btn)] px-4',
+                                ].join(' ')}
+                                onClick={() => toggle()}
+                            >
+                                {!isActive ? 'Search' : 'Close'}
+                            </Button>
 
-                    <div className="flex items-center tb:gap-4 gap-2">
-                        {/* Actions */}
-                        <Button
-                            type="submit"
-                            size="responsive"
-                            variant="default"
-                            className={[
-                                'lp:hidden flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
-                                'text-white font-medium h-[var(--login-btn)] px-4',
-                                submitting
-                                    ? 'flex'
-                                    : 'hidden',
-                            ].join(' ')}
-                            onClick={() => toggle()}
-                        >
-                            {!isActive ? 'Search' : 'Close'}
-                        </Button>
-
-                        <div className="flex items-center gap-2">
-                            {user ? (
-                                <>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button
-                                                aria-label="Open menu"
-                                                className={[
-                                                    'flex h-[--btn-h] w-[--btn-h] items-center justify-center transition-colors',
-                                                ].join(' ')}
-                                            >
+                            <div className="flex items-center gap-2">
+                                {user ? (
+                                    <>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <button
+                                                    aria-label="Open menu"
+                                                    className={[
+                                                        'flex h-[--btn-h] w-[--btn-h] items-center justify-center transition-colors',
+                                                    ].join(' ')}
+                                                >
                                                 <span
                                                     className={[
                                                         'flex items-center justify-center w-8 h-8 lp:w-10 lp:h-10 rounded-full font-medium text-base lp:text-lg',
@@ -223,76 +199,99 @@ export function Navbar({className}: NavbarProps) {
                                                       return user.user_metadata?.first_name?.[0];
                                                   })()}
                                                 </span>
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-40">
-                                            {LINKS.map((l) => (
-                                                <DropdownMenuItem key={l.href} asChild
-                                                                  className="lp:hidden flex items-center cursor-pointer">
-                                                    <Link href={l.href}>{l.label}</Link>
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40">
+                                                {LINKS.map((l) => (
+                                                    <DropdownMenuItem key={l.href} asChild
+                                                                      className="lp:hidden flex items-center cursor-pointer">
+                                                        <Link href={l.href}>{l.label}</Link>
+                                                    </DropdownMenuItem>
+                                                ))}
+                                                <DropdownMenuSeparator className="lp:hidden"/>
+                                                <DropdownMenuItem asChild>
+                                                    <Link href="/my-bookings"
+                                                          className="flex items-center cursor-pointer gap-2">
+                                                        <svg className="w-4 h-4" width="24" height="24"
+                                                             viewBox="0 0 24 24"
+                                                             fill="none"
+                                                             xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M2 21V6H8V2H16V6H22V21H2ZM9.5 6H14.5V3.5H9.5V6ZM6.175 7.5H3.5V19.5H6.175V7.5ZM16.35 19.5V7.5H7.675V19.5H16.35ZM17.85 7.5V19.5H20.5V7.5H17.85Z"
+                                                                fill="#101828"/>
+                                                        </svg>
+                                                        My bookings
+                                                    </Link>
                                                 </DropdownMenuItem>
-                                            ))}
-                                            <DropdownMenuSeparator className="lp:hidden"/>
-                                            <DropdownMenuItem asChild>
-                                                <Link href="/my-bookings"
-                                                      className="flex items-center cursor-pointer gap-2">
-                                                    <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                <DropdownMenuItem onClick={handleSignOut}
+                                                                  className="flex items-center cursor-pointer gap-2">
+                                                    <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24"
+                                                         fill="none"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <path
-                                                            d="M2 21V6H8V2H16V6H22V21H2ZM9.5 6H14.5V3.5H9.5V6ZM6.175 7.5H3.5V19.5H6.175V7.5ZM16.35 19.5V7.5H7.675V19.5H16.35ZM17.85 7.5V19.5H20.5V7.5H17.85Z"
-                                                            fill="#101828"/>
+                                                            d="M3 21V3H11.975V4.5H4.5V19.5H11.975V21H3ZM16.65 16.375L15.575 15.3L18.125 12.75H9V11.25H18.075L15.525 8.7L16.6 7.625L21 12.025L16.65 16.375Z"
+                                                            fill="black"/>
                                                     </svg>
-                                                    My bookings
-                                                </Link>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={handleSignOut}
-                                                              className="flex items-center cursor-pointer gap-2">
-                                                <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                                     xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M3 21V3H11.975V4.5H4.5V19.5H11.975V21H3ZM16.65 16.375L15.575 15.3L18.125 12.75H9V11.25H18.075L15.525 8.7L16.6 7.625L21 12.025L16.65 16.375Z"
-                                                        fill="black"/>
-                                                </svg>
-                                                Sign out
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </>
-                            ) : (
-                                <>
-                                    <Link href="/auth/sign-in" className="hidden tb:flex">
-                                        <Button
-                                            size="responsive"
-                                            variant="outline"
-                                            className={[
-                                                'h-[var(--login-btn)] px-4 bg-transparent rounded-md font-medium  ',
-                                                isDark
-                                                    ? 'border-white hover:text-white text-white hover:bg-white/10'
-                                                    : 'border-gray-900 text-gray-900 hover:bg-black/5',
-                                            ].join(' ')}
-                                        >
-                                            Log In
-                                        </Button>
-                                    </Link>
-                                    {/* Phone/Tablet: burger + (tablet shows small login) */}
-                                    <div className="lp:hidden flex items-center">
-                                        <MobileMenu isDark={isDark}/>
-                                    </div>
-                                </>
-                            )}
+                                                    Sign out
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link href="/auth/sign-in" className="hidden tb:flex">
+                                            <Button
+                                                size="responsive"
+                                                variant="outline"
+                                                className={[
+                                                    'h-[var(--login-btn)] px-4 bg-transparent rounded-md font-medium  ',
+                                                    isDark
+                                                        ? 'border-white hover:text-white text-white hover:bg-white/10'
+                                                        : 'border-gray-900 text-gray-900 hover:bg-black/5',
+                                                ].join(' ')}
+                                            >
+                                                Log In
+                                            </Button>
+                                        </Link>
+                                        {/* Phone/Tablet: burger + (tablet shows small login) */}
+                                        <div className="lp:hidden flex items-center">
+                                            <MobileMenu isDark={isDark}/>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div
-                className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", submitting && isActive ? 'flex' : 'hidden')}>
-                <div className={cn("container mx-auto")}>
-                    <BookingWidgetNew initialSearchParams={initialSearchParams}/>
+                <div
+                    className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", !isDark && isActive ? 'flex' : 'hidden')}>
+                    <div className={cn("container mx-auto")}>
+                        <BookingWidgetNew
+                            initialSearchParams={initialSearchParams}
+                            guestsPopoverOpen={guestsPopoverOpen}
+                            setGuestsPopoverOpen={setGuestsPopoverOpen}
+                            citySelectOpen={citySelectOpen}
+                            setCitySelectOpen={setCitySelectOpen}
+                            datePopoverOpen={datePopoverOpen}
+                            setDatePopoverOpen={setDatePopoverOpen}
+                        />
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
+            {(guestsPopoverOpen || citySelectOpen || datePopoverOpen) && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/20"
+                    onClick={() => {
+                        setGuestsPopoverOpen(false)
+                        setCitySelectOpen(false)
+                    }}
+                />
+            )}
+        </>
     )
 }
+
+
 
 function MobileMenu({isDark}: { isDark: boolean }) {
     return (
@@ -322,7 +321,8 @@ function MobileMenu({isDark}: { isDark: boolean }) {
                 <DropdownMenuItem asChild>
                     <Link href="/auth/sign-in"
                           className="tb:hidden flex items-center cursor-pointer gap-1">
-                        <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M4 3V21H12.975V19.5H5.5V4.5H12.975V3H4Z"
                                   fill="black"/>
                             <path
