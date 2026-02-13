@@ -17,20 +17,38 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  description: "Soulasia - Your Gateway to Authentic Asian Experiences",
-  openGraph: {
     title: "Soulasia",
-    description: "Your Gateway to Authentic Asian Experiences",
-    type: "website",
-  },
-  icons: { icon: [{ url: "/Brand/favicon.svg", type: "image/svg+xml" }] },
+    description: "Soulasia - Your Gateway to Authentic Asian Experiences",
+
+    openGraph: {
+        title: "Soulasia",
+        description: "Your Gateway to Authentic Asian Experiences",
+        url: "https://soulasia.com.my",
+        siteName: "Soulasia",
+        images: [
+            {
+                url: "https://soulasia.com.my/og-image.jpg",
+                width: 1920,
+                height: 1100,
+            },
+        ],
+        locale: "en_US",
+        type: "website",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Soulasia",
+        description: "Your Gateway to Authentic Asian Experiences",
+        images: ["https://soulasia.com.my/og-image.jpg"],
+    },
+
+    icons: { icon: [{ url: "/Brand/favicon.svg", type: "image/svg+xml" }] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-
   return (
       <html lang="en" className={`${manrope.variable} h-full`}>
-      <head />
       <body className="min-h-full flex flex-col text-gray-900 antialiased font-sans">
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-MX5NERGM62" strategy="afterInteractive"/>
       <Script id="gtag-init" strategy="afterInteractive">

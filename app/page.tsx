@@ -124,6 +124,103 @@ export default function Home() {
               </motion.div>
             </section>
 
+            {/* Official Master Partner of BLUE GROUND */}
+            <section className="section-padding-y relative overflow-hidden ">
+              <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#101828]" aria-hidden="true"/>
+              <div className="container mx-auto relative z-10">
+                <motion.div
+                    key={1}
+                    initial={{opacity: 0, y: 50}}
+                    whileInView={{opacity: 1, y: 0}}
+                    transition={{duration: 0.4, delay: 0.1 / 10}}
+                    viewport={{once: true, amount: 0.2}}
+                    className="flex flex-col lp:flex-row gap-10 tb:gap-12.5 lp:gap-5 full:gap-15 w-full">
+                  <div className="lp:w-1/2 flex flex-col gap-6 tb:gap-10 full:gap-15">
+                    <div className="flex flex-col gap-2.5 lp:gap-4">
+                      <div className="flex items-center gap-2 lp:gap-3">
+                        <span
+                            className="font-medium text-white text-base full:text-xl">Official Master Partner of</span>
+                        <Image
+                            src="/icons/logo-blueground.svg" alt="BLUEGROUND"
+                            className="w-auto h-4 tb:h-4.5 lp:h-5 full:h-6"
+                            width={24}
+                            height={24}
+                        />
+                      </div>
+                      <h2 className="h2 text-white font-semibold mb-2">Apartments to International Standards</h2>
+                      <div
+                          className="font-normal text-white text-base tb:text-lg lp:text-xl full:text-2xl mb-4 max-w-fit pr-4">
+                        We manage apartments in Kuala Lumpur according to Blueground international standards.
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-5 tb:gap-7.5">
+                      {[
+                        {
+                          iconSrc: "/icons/search-check.svg",
+                          title: "Quality Control",
+                          desc: "Apartments that have undergone professional onboarding and quality inspection."
+                        },
+                        {
+                          iconSrc: "/icons/globe.svg",
+                          title: "Global Standards",
+                          desc: "Unified international standards of comfort, design, and amenities."
+                        },
+                        {
+                          iconSrc: "/icons/concierge.svg",
+                          title: "Reliable Service",
+                          desc: "Consistently high level of service."
+                        }
+                      ].map((item, index) => (
+                          <motion.div
+                              key={index}
+                              variants={fadeIn}
+                              className="transition-transform duration-300 w-full bg-white/5 rounded-lg p-5 tb:p-6 gap-5 tb:gap-7.5"
+                          >
+                            <div className="flex max-w-fit items-start gap-2.5 tb:gap-5">
+                              <div className="flex items-center justify-start aspect-[1/1] w-[24px] tb:w-[34px]">
+                                <Image
+                                    src={item.iconSrc} alt={item.title} className="w-full h-full"
+                                    width={24}
+                                    height={24}
+                                />
+                              </div>
+                              <div className="flex flex-col gap-2 tb:gap-2.5">
+                                <h3 className="text-white font-semibold text-lg lp:text-xl full:text-2xl lp:mb-4 leading-tight">
+                                  {item.title}
+                                </h3>
+                                <div
+                                    className="font-normal text-white/60 text-sm tb:text-base lp:text-xl max-w-fit">{item.desc}</div>
+                              </div>
+
+                            </div>
+                          </motion.div>
+                      ))}
+                    </div>
+
+                    <a href="/partnership" className="font-medium text-white text-base full:text-xl underline">
+                      Discover the partnership
+                    </a>
+                  </div>
+                  <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
+                    <div className="relative w-full aspect-[4/3]">
+                      <Image
+                          src="/media-assets/asset11.png"
+                          alt="item.title"
+                          fill
+                          className="object-cover rounded-xl"
+                      />
+                      {/* Distance badge */}
+                      <div
+                          className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-fit leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full">
+                        Смотреть доступные номера →
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </section>
+
             {/* Standard in Every Property (Combined Slider) */}
             <section className="section-padding-y relative overflow-hidden ">
               <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#F9FAFB]" aria-hidden="true"/>
@@ -206,7 +303,7 @@ export default function Home() {
 
             {/* Gallery Section */}
             <Experience/>
-
+x
             {/* Customer Reviews Section (moved to bottom) */}
             <CustomerReviews/>
 
