@@ -74,7 +74,9 @@ export function Navbar({className}: NavbarProps) {
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            setIsActive(!entry.isIntersecting);
+            if(window.innerWidth >= 768) {
+                setIsActive(!entry.isIntersecting);
+            }
         }, {threshold: 0.1});
 
         observer.observe(search);

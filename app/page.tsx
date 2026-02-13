@@ -8,6 +8,8 @@ import { Locations } from "@/components/blocks/locations"
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {Experience} from "@/components/blocks/experience";
 import React from "react";
+import Link from "next/link";
+import {Button} from "@/components/ui/button";
 
 // Animation variants
 const fadeIn = {
@@ -28,6 +30,8 @@ const staggerContainer = {
     },
   },
 }
+
+const partnerLink = "https://www.theblueground.com/sp?placeId=ct-eyJ0eXBlIjoiY2l0eSIsImxhdCI6My4xNDk5MjIyLCJsbmciOjEwMS42OTQ0NjE5fQ";
 
 export default function Home() {
 
@@ -84,7 +88,7 @@ export default function Home() {
 
             {/* Value Proposition Section - moved up */}
             {/* Hero Section */}
-            <section className="section-margin-y bg-white relative mx-auto">
+            <section className="my-0 tb:my-12.5 lp:my-20 full:my-25 bg-white relative mx-2">
               <div
                   className="tb:container mx-auto relative w-full min-h-[332px] tb:min-h-[450px] aspect-[4/3] lp:aspect-[19/10] overflow-hidden tb:rounded-[24px] z-0">
                 <Image
@@ -125,7 +129,7 @@ export default function Home() {
             </section>
 
             {/* Official Master Partner of BLUE GROUND */}
-            <section className="section-padding-y relative overflow-hidden ">
+            <section className="section-padding-y relative overflow-hidden dark-header">
               <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#101828]" aria-hidden="true"/>
               <div className="container mx-auto relative z-10">
                 <motion.div
@@ -186,7 +190,7 @@ export default function Home() {
                                 />
                               </div>
                               <div className="flex flex-col gap-2 tb:gap-2.5">
-                                <h3 className="text-white font-semibold text-lg lp:text-xl full:text-2xl lp:mb-4 leading-tight">
+                                <h3 className="text-white font-semibold text-lg lp:text-xl full:text-2xl leading-tight">
                                   {item.title}
                                 </h3>
                                 <div
@@ -202,20 +206,24 @@ export default function Home() {
                       Discover the partnership
                     </a>
                   </div>
-                  <div className="lp:w-1/2 rounded-[10px] overflow-hidden">
-                    <div className="relative w-full aspect-[4/3]">
+                  <div className="lp:w-1/2 relative rounded-[10px] overflow-hidden">
+                    <div className="h-full aspect-[4/3]">
                       <Image
-                          src="/media-assets/asset11.png"
+                          src="/media-assets/asset11.jpg"
                           alt="item.title"
                           fill
                           className="object-cover rounded-xl"
                       />
-                      {/* Distance badge */}
-                      <div
-                          className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-fit leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full">
-                        Смотреть доступные номера →
-                      </div>
+                      <div className="absolute inset-0 w-full h-full z-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_87.23%,#101828_111.69%)]"/>
                     </div>
+                    {/* Distance badge */}
+                    <Link
+                        href={partnerLink} target="_blank"
+                        className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-max leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full"
+                    >
+                        Смотреть доступные номера →
+                    </Link>
+
                   </div>
                 </motion.div>
               </div>

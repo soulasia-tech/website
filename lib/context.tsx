@@ -157,22 +157,22 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({children}: { children: ReactNode }) {
     // 🔹 UI state
-    const [isActive, setIsActive] = useState(true);
+    const [isActive, setIsActive] = useState(false);
     const [isDark, setIsDark] = useState(false);
 
     const pathname = usePathname();
     const [removePadding, setRemovePadding] = useState(false);
     useEffect(() => {
+        if(window.innerWidth >= 768) {
+            setIsActive(false);
+        }
+
         if (pathname === '/') {
             setRemovePadding(true);
         }
 
         if (pathname.startsWith('/auth')) {
             setRemovePadding(true);
-            setIsActive(false);
-        }
-
-        if(window.innerWidth < 768) {
             setIsActive(false);
         }
     }, [pathname]);
