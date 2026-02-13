@@ -54,7 +54,13 @@ export function PropertiesMap({ propertyMarkers, fullScreenMode = false, zoom = 
                         anchor="bottom"
                         onClick={() => setSelectedIdx(idx)}
                     >
-                      <div style={{fontSize: 32, cursor: "pointer", color: "#3b82f6"}}>📍</div>
+                      <Image
+                          src="/icons/marker.svg"
+                          alt="x"
+                          width={40}
+                          height={44}
+                          className="w-10 h-11 cursor-pointer"
+                      />
                     </Marker>
                 ))}
                 {selectedIdx !== null && propertyMarkers[selectedIdx] && (

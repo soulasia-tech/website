@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { LucideIcon, icons } from "lucide-react";
 import Map, { Marker, Popup } from 'react-map-gl';
@@ -300,7 +300,13 @@ export function PropertyInformation({ propertyId }: PropertyInformationProps) {
                   mapStyle="mapbox://styles/mapbox/streets-v11"
                 >
                   <Marker longitude={mapPosition.lng} latitude={mapPosition.lat} anchor="bottom">
-                    <div style={{ fontSize: 32, color: '#3b82f6' }}>📍</div>
+                    <Image
+                        src="/icons/marker.svg"
+                        alt="x"
+                        width={40}
+                        height={44}
+                        className="w-10 h-11 cursor-pointer"
+                    />
                   </Marker>
                   <Popup
                     longitude={mapPosition.lng}

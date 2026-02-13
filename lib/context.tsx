@@ -167,6 +167,11 @@ export function UIProvider({children}: { children: ReactNode }) {
             setRemovePadding(true);
         }
 
+        if (pathname.startsWith('/auth')) {
+            setRemovePadding(true);
+            setIsActive(false);
+        }
+
         if(window.innerWidth < 768) {
             setIsActive(false);
         }

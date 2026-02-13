@@ -2,7 +2,7 @@
 import {motion} from "framer-motion";
 
 declare const process: { env: Record<string, string | undefined> };
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
 import { PropertyCard } from '@/components/property-card';
 import { RoomCard } from '@/components/room-card';
@@ -169,6 +169,13 @@ function AllPropertiesMap() {
             anchor="bottom"
             onClick={() => setSelectedIdx(idx)}
           >
+            <Image
+                src="/icons/marker.svg"
+                alt="x"
+                width={40}
+                height={44}
+                className="w-10 h-11 cursor-pointer"
+            />
             <div style={{ fontSize: 32, cursor: 'pointer', color: '#3b82f6' }}>📍</div>
           </Marker>
         ))}

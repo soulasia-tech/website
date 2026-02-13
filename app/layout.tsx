@@ -32,13 +32,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en" className={`${manrope.variable} h-full`}>
       <head />
       <body className="min-h-full flex flex-col text-gray-900 antialiased font-sans">
-      <Script src="https://www.googletagmanager.com/gtag/js?id=G-Z11PKVB3LK" strategy="afterInteractive"/>
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-MX5NERGM62" strategy="afterInteractive"/>
       <Script id="gtag-init" strategy="afterInteractive">
           {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', 'G-Z11PKVB3LK');
+                gtag('config', 'G-MX5NERGM62');
               `}
       </Script>
       <UIProvider>

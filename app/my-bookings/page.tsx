@@ -229,7 +229,7 @@ export default function MyBookingsPage() {
   return (
     <>
       <title>Soulasia | My Bookings</title>
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto py-12">
         <h1 className="text-2xl font-bold mb-6">My bookings</h1>
         
         {error && (
