@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     openGraph: {
         title: "Soulasia",
         description: "Your Gateway to Authentic Asian Experiences",
-        url: "https://soulasia.com.my",
+        url: "https://website-six-omega-16.vercel.app",
         siteName: "Soulasia",
         images: [
             {
-                url: "https://soulasia.com.my/og-image.jpg",
+                url: "https://website-six-omega-16.vercel.app/og-image.jpg",
                 width: 1920,
                 height: 1100,
             },
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Soulasia",
         description: "Your Gateway to Authentic Asian Experiences",
-        images: ["https://soulasia.com.my/og-image.jpg"],
+        images: ["https://website-six-omega-16.vercel.app/og-image.jpg"],
     },
 
-    icons: { icon: [{ url: "/Brand/favicon.svg", type: "image/svg+xml" }] },
+    icons: { icon: [{ url: "https://website-six-omega-16.vercel.app/Brand/favicon.svg", type: "image/svg+xml" }] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
