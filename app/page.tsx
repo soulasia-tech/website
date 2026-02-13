@@ -9,7 +9,6 @@ import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {Experience} from "@/components/blocks/experience";
 import React from "react";
 import Link from "next/link";
-import {Button} from "@/components/ui/button";
 
 // Animation variants
 const fadeIn = {
