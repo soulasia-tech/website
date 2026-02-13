@@ -27,7 +27,7 @@ export const metadata: Metadata = {
         siteName: "Soulasia",
         images: [
             {
-                url: "https://website-six-omega-16.vercel.app/og-image.jpg",
+                url: "https://website-six-omega-16.vercel.app/og-image.png",
                 width: 1920,
                 height: 1100,
             },
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Soulasia",
         description: "Your Gateway to Authentic Asian Experiences",
-        images: ["https://website-six-omega-16.vercel.app/og-image.jpg"],
+        images: ["https://website-six-omega-16.vercel.app/og-image.png"],
     },
 
-    icons: { icon: [{ url: "https://website-six-omega-16.vercel.app/Brand/favicon.svg", type: "image/svg+xml" }] },
+    icons: { icon: [{ url: "https://website-six-omega-16.vercel.app/favicon.svg", type: "image/svg+xml" }] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
