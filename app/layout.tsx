@@ -19,7 +19,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
     title: "Soulasia",
     description: "Soulasia - Your Gateway to Authentic Asian Experiences",
-
+    metadataBase: new URL('https://website-six-omega-16.vercel.app'),
     openGraph: {
         title: "Soulasia",
         description: "Your Gateway to Authentic Asian Experiences",
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
         siteName: "Soulasia",
         images: [
             {
-                url: "https://website-six-omega-16.vercel.app/og-image.png",
-                width: 960,
-                height: 550,
+                url: "https://website-six-omega-16.vercel.app/og-image.jpg",
+                width: 1440,
+                height: 825,
             },
         ],
         locale: "en_US",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
         card: "summary_large_image",
         title: "Soulasia",
         description: "Your Gateway to Authentic Asian Experiences",
-        images: ["https://website-six-omega-16.vercel.app/og-image.png"],
+        images: ["https://website-six-omega-16.vercel.app/og-image.jpg"],
     },
 
     icons: { icon: [{ url: "https://website-six-omega-16.vercel.app/favicon.svg", type: "image/svg+xml" }] },
