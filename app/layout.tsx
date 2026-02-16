@@ -28,8 +28,8 @@ export const metadata: Metadata = {
         images: [
             {
                 url: "https://website-six-omega-16.vercel.app/og-image.png",
-                width: 1920,
-                height: 1100,
+                width: 960,
+                height: 550,
             },
         ],
         locale: "en_US",
