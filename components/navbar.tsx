@@ -9,7 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {User as SupabaseUser} from '@supabase/supabase-js';
 import Image from 'next/image';
@@ -29,8 +29,8 @@ const LINKS = [
 ];
 
 export function Navbar({className}: NavbarProps) {
-    const { isActive, setIsActive } = useUI();
-    const { isDark, setIsDark } = useUI();
+    const {isActive, setIsActive} = useUI();
+    const {isDark, setIsDark} = useUI();
 
     // Get search parameters
     const searchParams = useSearchParams();
@@ -74,10 +74,10 @@ export function Navbar({className}: NavbarProps) {
             return;
         }
         const observer = new IntersectionObserver(([entry]) => {
-            if(window.innerWidth >= 768) {
+            if (window.innerWidth >= 768) {
                 setIsActive(!entry.isIntersecting);
             }
-        }, {threshold: 0.1});
+        }, {threshold: 1});
 
         observer.observe(search);
         return () => observer.disconnect();
@@ -292,7 +292,6 @@ export function Navbar({className}: NavbarProps) {
         </>
     )
 }
-
 
 
 function MobileMenu({isDark}: { isDark: boolean }) {

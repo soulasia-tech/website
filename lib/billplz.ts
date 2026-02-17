@@ -1,73 +1,73 @@
 // Mock Billplz API abstraction
 
 interface CreateBillParams {
-  amount: number;
-  name: string;
-  email: string;
-  callback_url: string;
-  redirect_url: string;
-  reference_1?: string;
-  reference_2?: string;
+    amount: number;
+    name: string;
+    email: string;
+    callback_url: string;
+    redirect_url: string;
+    reference_1?: string;
+    reference_2?: string;
 }
 
 interface VerifyPaymentParams {
-  bill_id: string;
-  x_signature: string;
+    bill_id: string;
+    x_signature: string;
 }
 
-export async function createBill({ amount, name, email, callback_url, redirect_url, reference_1, reference_2 }: CreateBillParams) {
-  const apiKey = process.env.BILLPLZ_API_KEY;
-  const collectionId = process.env.BILLPLZ_COLLECTION_ID;
-  if (!apiKey || !collectionId) {
-    throw new Error('Missing BILLPLZ_API_KEY or BILLPLZ_COLLECTION_ID');
-  }
+export async function createBill({amount, name, email, callback_url, redirect_url, reference_1, reference_2}: CreateBillParams) {
+    const apiKey = process.env.BILLPLZ_API_KEY;
+    const collectionId = process.env.BILLPLZ_COLLECTION_ID;
+    if (!apiKey || !collectionId) {
+        throw new Error('Missing BILLPLZ_API_KEY or BILLPLZ_COLLECTION_ID');
+    }
 
-  const payload: Record<string, string | number | undefined> = {
-    collection_id: collectionId,
-    description: `Booking for ${name}`,
-    email,
-    name,
-    amount,
-    callback_url,
-    redirect_url,
-    reference_1,
-    reference_1_label: 'Booking Data',
-    reference_2,
-    reference_2_label: 'Property ID',
-  };
+    const payload: Record<string, string | number | undefined> = {
+        collection_id: collectionId,
+        description: `Booking for ${name}`,
+        email,
+        name,
+        amount,
+        callback_url,
+        redirect_url,
+        reference_1,
+        reference_1_label: 'Booking Data',
+        reference_2,
+        reference_2_label: 'Property ID',
+    };
 
-  const res = await fetch('https://www.billplz.com/api/v3/bills', {
-    method: 'POST',
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64'),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error?.message || 'Failed to create Billplz bill');
-  }
-  return data;
+    const res = await fetch('https://www.billplz.com/api/v3/bills', {
+        method: 'POST',
+        headers: {
+            Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.error?.message || 'Failed to create Billplz bill');
+    }
+    return data;
 }
 
-export async function verifyPayment({ bill_id, x_signature: _x_signature }: VerifyPaymentParams) {
-  const apiKey = process.env.BILLPLZ_API_KEY;
-  if (!apiKey) {
-    throw new Error('Missing BILLPLZ_API_KEY');
-  }
-  void _x_signature; // In production, verify the signature as per Billplz docs
-  console.log('[verifyPayment] Fetching Billplz bill:', bill_id);
-  const res = await fetch(`https://www.billplz.com/api/v3/bills/${bill_id}`, {
-    headers: {
-      Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64'),
-      'Content-Type': 'application/json',
-    },
-  });
-  const data = await res.json();
-  console.log('[verifyPayment] Billplz API response:', data);
-  if (!res.ok) {
-    throw new Error(data.error?.message || 'Failed to verify Billplz payment');
-  }
-  return data;
+export async function verifyPayment({bill_id, x_signature: _x_signature}: VerifyPaymentParams) {
+    const apiKey = process.env.BILLPLZ_API_KEY;
+    if (!apiKey) {
+        throw new Error('Missing BILLPLZ_API_KEY');
+    }
+    void _x_signature; // In production, verify the signature as per Billplz docs
+    console.log('[verifyPayment] Fetching Billplz bill:', bill_id);
+    const res = await fetch(`https://www.billplz.com/api/v3/bills/${bill_id}`, {
+        headers: {
+            Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64'),
+            'Content-Type': 'application/json',
+        },
+    });
+    const data = await res.json();
+    console.log('[verifyPayment] Billplz API response:', data);
+    if (!res.ok) {
+        throw new Error(data.error?.message || 'Failed to verify Billplz payment');
+    }
+    return data;
 } 

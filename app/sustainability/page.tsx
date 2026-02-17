@@ -116,7 +116,7 @@ export default function SustainabilityPage() {
                                 <img
                                     src="/sustainability/energy.jpg"
                                     alt="Sustainable Energy"
-                                     className="w-full h-auto object-cover rounded-[14px]"
+                                    className="w-full h-auto object-cover rounded-[14px]"
                                 />
                             </div>
                         </motion.div>
@@ -155,7 +155,7 @@ export default function SustainabilityPage() {
                             key={3}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.4, delay: 0.3/ 10}}
+                            transition={{duration: 0.4, delay: 0.3 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -191,7 +191,7 @@ export default function SustainabilityPage() {
                             key={4}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.4, delay: 0.4/ 10}}
+                            transition={{duration: 0.4, delay: 0.4 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">
@@ -220,7 +220,7 @@ export default function SustainabilityPage() {
                             key={5}
                             initial={{opacity: 0, y: 50}}
                             whileInView={{opacity: 1, y: 0}}
-                            transition={{duration: 0.4, delay: 0.5/ 10}}
+                            transition={{duration: 0.4, delay: 0.5 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col lp:flex-row items-start gap-6 lp:gap-10 full:gap-[60px] w-full">
                             <div className="lp:w-1/2 flex flex-col gap-4">

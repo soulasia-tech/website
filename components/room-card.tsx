@@ -212,8 +212,10 @@ export function RoomCard({roomName, propertyName, placeHint, photos, rate}: Room
                 >
                     <Gallery
                         selectedIndex={currentImageIndex}
-                        images={photos.map(photo => ({ src: photo.url, alt: photo.caption }))}
-                        onClose={() => {setFullScreen(false);}}
+                        images={photos.map(photo => ({src: photo.url, alt: photo.caption}))}
+                        onClose={() => {
+                            setFullScreen(false);
+                        }}
                     ></Gallery>
                 </div>
             )}

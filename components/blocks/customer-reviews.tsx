@@ -18,7 +18,7 @@ export function CustomerReviews() {
         const btn = document.querySelector(
             ".es-carousel-arrow-control-right"
         ) as HTMLElement | null;
-        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        btn?.dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true}));
     };
 
     const scrollPrev = (e?: React.MouseEvent) => {
@@ -26,7 +26,7 @@ export function CustomerReviews() {
         const btn = document.querySelector(
             ".es-carousel-arrow-control-left"
         ) as HTMLElement | null;
-        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        btn?.dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true}));
     };
 
     return (
