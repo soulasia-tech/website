@@ -40,6 +40,7 @@ export function Navbar({className}: NavbarProps) {
     const adults = searchParams.get('adults');
     const children = searchParams.get('children');
     const apartments = parseInt(searchParams.get('apartments') || '1', 10);
+    const headerRef = useRef<HTMLDivElement>(null);
 
     // Create initial search params object for BookingWidget
     const initialSearchParams = {
@@ -125,6 +126,7 @@ export function Navbar({className}: NavbarProps) {
     return (
         <>
             <header
+                ref={headerRef}
                 className={[
                     'fixed inset-x-0 top-0 z-50',
                     isDark ? 'bg-transparent border-transparent'
@@ -166,20 +168,22 @@ export function Navbar({className}: NavbarProps) {
                         </div>
 
                         <div className="flex items-center tb:gap-4 gap-2">
-                            {/* Actions */}
-                            <Button
-                                type="submit"
-                                size="responsive"
-                                variant="default"
-                                className={[
-                                    'lp:hidden flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
-                                    'text-white font-medium h-[var(--login-btn)] px-4',
-                                ].join(' ')}
-                                onClick={() => toggle()}
-                            >
-                                {!isActive ? 'Search' : 'Close'}
-                            </Button>
-
+                            {
+                                !isDark && (
+                                    <Button
+                                        type="submit"
+                                        size="responsive"
+                                        variant="default"
+                                        className={[
+                                            'lp:hidden flex items-center justify-center bg-[#0E3599] hover:bg-[#0b297a]',
+                                            'text-white font-medium h-[var(--login-btn)] px-4',
+                                        ].join(' ')}
+                                        onClick={() => toggle()}
+                                    >
+                                        {!isActive ? 'Search' : 'Close'}
+                                    </Button>
+                                )
+                            }
                             <div className="flex items-center gap-2">
                                 {user ? (
                                     <>

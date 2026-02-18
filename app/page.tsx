@@ -133,9 +133,8 @@ export default function Home() {
                     </section>
 
                     {/* Official Master Partner of BLUE GROUND */}
-                    <section className="section-padding-y relative overflow-hidden ">
-                        <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#101828]"
-                             aria-hidden="true"/>
+                    <section className="section-padding-y relative overflow-hidden">
+                        <div className=" absolute inset-0 w-full h-full z-0 pointer-events-none bg-[#101828]"></div>
                         <div className="container px-0 tb:px-4 mx-auto relative z-10">
                             <motion.div
                                 key={1}
@@ -147,8 +146,7 @@ export default function Home() {
                                 <div className="lp:w-1/2 flex flex-col gap-6 tb:gap-10 full:gap-15">
                                     <div className="flex flex-col gap-2.5 lp:gap-4">
                                         <div className="flex items-center gap-2 lp:gap-3">
-                        <span
-                            className="font-medium text-white text-base full:text-xl">Official Master Partner of</span>
+                                            <span className="font-medium text-white text-base full:text-xl">Official Master Partner of</span>
                                             <Image
                                                 src="/icons/logo-blueground.svg" alt="BLUEGROUND"
                                                 className="w-auto h-4 tb:h-4.5 lp:h-5 full:h-6"

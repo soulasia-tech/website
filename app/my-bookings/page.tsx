@@ -4,9 +4,6 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
 import {format} from 'date-fns';
 import {useRouter} from 'next/navigation';
-import {Button} from "@/components/ui/button";
-import {Info} from "lucide-react";
-import Link from "next/link";
 import {PropertyInformation} from '@/components/property-information';
 import {ChevronDown, ChevronUp, BedDouble} from 'lucide-react';
 import {User as SupabaseUser} from "@supabase/supabase-js";
@@ -164,7 +161,7 @@ export default function MyBookingsPage() {
             setCloudbedsDetailsMap(detailsMap);
         };
         if (bookings.length > 0) {
-            fetchAllCloudbedsDetails();
+            fetchAllCloudbedsDetails().then();
         }
     }, [bookings]);
 
@@ -224,7 +221,7 @@ export default function MyBookingsPage() {
             if (propertyId && room.roomName) {
                 const cacheKey = `${propertyId}_${room.roomName}`;
                 if (!roomTypeDetailsMap[cacheKey]) {
-                    fetchRoomTypeDetails(propertyId, room.roomName);
+                    fetchRoomTypeDetails(propertyId, room.roomName).then();
                 }
             }
         });

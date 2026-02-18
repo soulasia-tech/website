@@ -167,7 +167,7 @@ export function UIProvider({children}: { children: ReactNode }) {
             setIsActive(true);
         }
 
-        if (pathname === '/') {
+        if (['/', '/partnership', '/all-locations'].includes(pathname)) {
             setRemovePadding(true);
         }
 

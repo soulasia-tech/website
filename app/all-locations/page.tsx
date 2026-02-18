@@ -176,7 +176,6 @@ function AllPropertiesMap() {
                 height={44}
                 className="w-10 h-11 cursor-pointer"
             />
-            <div style={{ fontSize: 32, cursor: 'pointer', color: '#3b82f6' }}>📍</div>
           </Marker>
         ))}
         {selectedIdx !== null && propertyMarkers[selectedIdx] && (
@@ -342,6 +341,7 @@ export default function AllLocationsPage() {
             </motion.div>
           </div>
         </section>
+
         <div className="min-h-screen py-12">
           <div className="container mx-auto">
             <div className="grid grid-cols-2 gap-8 items-start">
