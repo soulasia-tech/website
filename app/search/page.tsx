@@ -105,6 +105,24 @@ function SearchResults() {
     const [cloudbedsQuote, setCloudbedsQuote] = useState<CloudbedsQuote | null>(null);
     const [reserveStatus, setReserveStatus] = useState<{ [roomId: string]: 'idle' | 'loading' | 'added' }>({});
 
+    const totalAmountRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+        if (!totalAmountRef.current) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                console.log(entry.isIntersecting)
+                setIsVisible(entry.isIntersecting)
+            }, {root: null, threshold: 0.1}
+        );
+
+        observer.observe(totalAmountRef.current);
+
+        return () => observer.disconnect();
+    }, [propertyLoading, loading]);
+
     // Get search parameters
     const city = searchParams.get('city');
     const startDate = searchParams.get('startDate');
@@ -495,7 +513,7 @@ function SearchResults() {
 
     return (
         <div className={["min-h-screen bg-white section-component-p-y"].join(' ')}>
-            <div className="container mx-auto">
+            <div className="container relative mx-auto">
                 <h2 className="h2 font-semibold mb-5">Available apartments</h2>
                 <div className="flex flex-col lp:flex-row gap-5">
                     {/* Left: Search Results */}
@@ -535,7 +553,7 @@ function SearchResults() {
                                                 </div>
                                             </div>
                                             <div className="border-t border-[#dee3ed]"></div>
-                                            <div className=" items-baseline gap-2">
+                                            <div className="items-baseline gap-2">
                                                 <div className="flex flex-wrap items-center">
                             <span className="mr-1 text-lg tb:text-xl font-bold text-[#0E3599]">
                               {rates[room.id] !== undefined ? `MYR ${((rates[room.id]?.sumAllRate ?? rates[room.id].totalRate) / numberOfNights).toFixed(2)}` : 'N/A'}
@@ -652,7 +670,7 @@ function SearchResults() {
                                                     onClick={() => handleAddToCart(room)}
                                                     disabled={isOtherProperty || rates[room.id] === undefined || rates[room.id].roomsAvailable === 0 || reserveStatus[room.id] === 'loading'}
                                                     variant="default"
-                                                    className={["font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full tb:w-auto",
+                                                    className={["mt-auto font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full tb:w-auto",
                                                         "h-[var(--action-h-1xl)] lp:h-[var(--action-h-3xl)]"].join(' ')}
 
                                                     onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
@@ -660,18 +678,18 @@ function SearchResults() {
                                                 >
                                                     {reserveStatus[room.id] === 'loading' ? (
                                                         <span className="flex items-center gap-2">
-                                    <span
-                                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                    Adding...
-                                  </span>
+                                                        <span
+                                                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                                        Adding...
+                                                      </span>
                                                     ) : reserveStatus[room.id] === 'added' ? (
                                                         <span className="flex items-center gap-2 text-green-200">
-                                    <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor"
-                                         strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round"
-                                                                                   strokeLinejoin="round"
-                                                                                   d="M5 13l4 4L19 7"/></svg>
-                                    Added!
-                                  </span>
+                                                        <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor"
+                                                             strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round"
+                                                                                                       strokeLinejoin="round"
+                                                                                                       d="M5 13l4 4L19 7"/></svg>
+                                                        Added!
+                                                      </span>
                                                     ) : (
                                                         'Reserve'
                                                     )}
@@ -684,94 +702,106 @@ function SearchResults() {
                         </div>
                     </div>
                     {/* Right: Booking Cart */}
-                    <div className="lp:w-1/3 w-full flex flex-col gap-5">
+                    <div className="lp:w-1/3 w-full flex flex-col gap-5"  ref={totalAmountRef}>
                         {/* Sticky container for desktop */}
-                        <div className="block lp:sticky top-20">
-                            <div className="flex flex-col gap-6">
-                                <Card className="p-6 shadow-none rounded-xl">
-                                    <h2 className="text-xl lp:text-2xl font-semibold">Your Reservation</h2>
-                                    {cart.length === 0 ? (
-                                        <div className="text-gray-500 text-center py-8">No apartments added yet.</div>
-                                    ) : (
-                                        <>
-                                            {cart.map(item => (
-                                                <div key={item.roomTypeID}
-                                                     className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
-                                                    <div className="flex items-start justify-between">
-                                                        <div>
-                                                            <div className="flex items-center gap-2 mb-1">
-                                    <span
-                                        className="text-xl font-bold text-gray-900">{item.quantity} x {item.roomName}</span>
+                        <div className="block lp:sticky lp:top-[calc(var(--nav-h)*2)]">
+                            <div className="flex flex-col gap-5">
+                                <div>
+                                    <h2 className="font-semibold text-black text-xl tb:text-2xl mb-2.5">Your Reservation:</h2>
+                                    <div
+                                        className="bg-[#f7f7f7] h-full p-4 lp:p-6 text-card-foreground gap-4 tb:gap-5 rounded-xl border overflow-hidden">
+                                        {cart.length === 0 ? (
+                                            <div className="text-[#4a4f5b] text-center py-8">No apartments added
+                                                yet.</div>
+                                        ) : (
+                                            <>
+                                                {cart.map(item => (
+                                                    <div key={item.roomTypeID}
+                                                         className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                                                        <div className="flex items-start justify-between">
+                                                            <div className="flex flex-col gap-2 tb:gap-2.5">
+                                                                <div className="text-base tb:text-xl full:text-2xl font-semibold text-[#101828]">
+                                                                    {item.quantity} x {item.roomName}
+                                                                </div>
+                                                                <div className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
+                                                                    MYR {item.price.toFixed(2)} per apartment
+                                                                </div>
+                                                                <div className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
+                                                                    Details:
+                                                                    <div className="flex gap-5 font-normal text-[#4a4f5b]">
+                                                                        <span>Adults: {item.adults}</span>
+                                                                        <span>Children: {item.children}</span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div
-                                                                className="text-sm text-gray-500 mb-2">MYR {item.price.toFixed(2)} per
-                                                                apartment
-                                                            </div>
-                                                            <div
-                                                                className="flex flex-col gap-1 mt-1 text-xs text-gray-600">
-                                                                <span>Adults: {item.adults}</span>
-                                                                <span>Children: {item.children}</span>
-                                                            </div>
+                                                            <Button type="button" size="responsive"
+                                                                    className="text-red-500 hover:bg-red-70 p-2 ml-4 shadow-none bg-[#fee] text-base tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
+                                                                    onClick={() => handleRemoveFromCart(item.roomTypeID)}
+                                                                    aria-label="Remove from cart"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                     viewBox="0 0 24 24"
+                                                                     strokeWidth={1.5} stroke="currentColor"
+                                                                     className="w-5 h-5">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                                                          d="M6 18L18 6M6 6l12 12"/>
+                                                                </svg>
+                                                            </Button>
                                                         </div>
-                                                        <Button type="button" size="responsive"
-                                                                className="text-red-500 hover:bg-red-70 p-2 ml-4 shadow-none bg-[#fee] text-lg tb:text-2xl  size-[var(--action-h-sm)] tb:size-[var(--action-h-md)]"
-                                                                onClick={() => handleRemoveFromCart(item.roomTypeID)}
-                                                                aria-label="Remove from cart"
-                                                        >
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                 viewBox="0 0 24 24"
-                                                                 strokeWidth={1.5} stroke="currentColor"
-                                                                 className="w-5 h-5">
-                                                                <path strokeLinecap="round" strokeLinejoin="round"
-                                                                      d="M6 18L18 6M6 6l12 12"/>
-                                                            </svg>
-                                                        </Button>
                                                     </div>
-                                                </div>
-                                            ))}
-                                            <div
-                                                className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-                                                <span className="text-base text-gray-500 font-semibold">Total</span>
-                                                <span className="text-2xl font-bold text-gray-900">
-                          {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
-                        </span>
-                                            </div>
-                                            {cloudbedsQuote && (
-                                                <div className="text-xs text-gray-600 mt-2">
-                                                    <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
-                                                    <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
-                                                    <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
-                                                </div>
-                                            )}
-                                            <div>
-                                                <Button
-                                                    disabled={cart.length === 0 || proceeding}
-                                                    onClick={() => {
-                                                        setProceeding(true);
-                                                        handleProceed();
-                                                    }}
-                                                    style={{boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)'}}
-                                                    variant="default"
-                                                    className={["font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full text-lg",
-                                                        "h-[var(--action-h-1xl)] lp:h-[var(--action-h-3xl)]"].join(' ')}
-
-                                                    onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
-                                                    onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
-                                                >
-                                                    {proceeding ? (
-                                                        <span className="flex items-center gap-2">
-                              <span
-                                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                              Processing...
-                            </span>
-                                                    ) : (
-                                                        'Proceed to Guest Details'
+                                                ))}
+                                                <div
+                                                    className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                                                    <div className="flex flex-col gap-1 justify-between">
+                                                        <span
+                                                            className="text-sm lp:text-lp text-gray-500 font-semibold">Total</span>
+                                                        <span className="text-lg lp:text-xl font-bold text-[#0E3599]">
+                                                            {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                    {cloudbedsQuote && (
+                                                        <div className="text-xs lp:text-sm text-gray-600">
+                                                            <div>Subtotal:
+                                                                MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                                                            <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                                                            <div>Grand Total:
+                                                                MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                                                        </div>
                                                     )}
-                                                </Button>
-                                            </div>
-                                        </>
-                                    )}
-                                </Card>
+                                                </div>
+
+                                                <div>
+                                                    <Button
+                                                        disabled={cart.length === 0 || proceeding}
+                                                        onClick={() => {
+                                                            setProceeding(true);
+                                                            handleProceed();
+                                                        }}
+                                                        style={{boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)'}}
+                                                        variant="default"
+                                                        className={["font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full text-lg",
+                                                            "h-[var(--action-h-1xl)] lp:h-[var(--action-h-3xl)]"].join(' ')}
+
+                                                        onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                                                        onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+                                                    >
+                                                        {proceeding ? (
+                                                            <span className="flex items-center gap-2">
+                                                            <span
+                                                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin">
+                                                            </span>
+                                                          Processing...
+                                                        </span>
+                                                        ) : (
+                                                            'Proceed to Guest Details'
+                                                        )}
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
                                 <div className="rounded-xl w-full aspect-video lp:min-h-[460px] full:min-h-[630px]">
                                     <AvailablePropertiesMap
                                         propertyIds={[...new Set(filteredRooms.map(r => r.propertyId))]}/>
@@ -796,6 +826,25 @@ function SearchResults() {
                             }}
                         ></Gallery>
                     </div>
+                )}
+                {cart.length !== 0 && !isVisible &&  (
+                    <Button type="button" size="responsive" variant="default"
+                            className="fixed bottom-10 right-10 z-20 flex lp:hidden bg-[#0e3599] text-lg tb:text-2xl  size-[var(--action-h-xl)]"
+                            onClick={() => {
+                                totalAmountRef.current?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "center",
+                                });
+                            }}
+                    >
+                        <Image
+                            src="/icons/arrow-light.svg"
+                            alt="Arrow"
+                            width={16}
+                            height={16}
+                            className="w-6 lp:h-6 transform rotate-90"
+                        />
+                    </Button>
                 )}
             </div>
         </div>

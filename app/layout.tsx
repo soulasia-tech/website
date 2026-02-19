@@ -16,18 +16,20 @@ const manrope = Manrope({
     // weight: ["400","500","600","700"]
 });
 
+const domain = process.env.NEXT_PUBLIC_BASE_URL ?? "https://website-six-omega-16.vercel.app";
+
 export const metadata: Metadata = {
-    title: "Soulasia",
-    description: "Soulasia - Your Gateway to Authentic Asian Experiences",
-    metadataBase: new URL('https://website-six-omega-16.vercel.app'),
+    title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
+    description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
+    metadataBase: new URL(domain),
     openGraph: {
-        title: "Soulasia",
-        description: "Your Gateway to Authentic Asian Experiences",
-        url: "https://website-six-omega-16.vercel.app",
+        title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
+        description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
+        url: domain,
         siteName: "Soulasia",
         images: [
             {
-                url: "https://website-six-omega-16.vercel.app/og-image.jpg",
+                url: `${domain}/og-image.jpg`,
                 width: 1440,
                 height: 825,
             },
@@ -38,12 +40,12 @@ export const metadata: Metadata = {
 
     twitter: {
         card: "summary_large_image",
-        title: "Soulasia",
-        description: "Your Gateway to Authentic Asian Experiences",
-        images: ["https://website-six-omega-16.vercel.app/og-image.jpg"],
+        title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
+        description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
+        images: [`${domain}/og-image.jpg`],
     },
 
-    icons: {icon: [{url: "https://website-six-omega-16.vercel.app/favicon.svg", type: "image/svg+xml"}]},
+    icons: {icon: [{url: `${domain}/favicon.svg`, type: "image/svg+xml"}]},
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {

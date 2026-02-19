@@ -117,6 +117,12 @@ export function BookingWidgetNew({
         fetchProperties()
     }, [initialSearchParams?.city])
 
+    useEffect(() => {
+        if (citySelectOpen && !searchParams.city && cities.length > 0) {
+            setSearchParams(prev => ({...prev, city: cities[0]}));
+        }
+    }, [citySelectOpen, cities]);
+
     if (hide) return null;
 
     const handleSearch = (e: React.FormEvent) => {
