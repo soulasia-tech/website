@@ -7,6 +7,7 @@ import {useRouter} from 'next/navigation';
 import {PropertyInformation} from '@/components/property-information';
 import {ChevronDown, ChevronUp, BedDouble} from 'lucide-react';
 import {User as SupabaseUser} from "@supabase/supabase-js";
+import Image from "next/image";
 
 interface CloudbedsReservationDetails {
     guestName?: string;
@@ -241,7 +242,7 @@ export default function MyBookingsPage() {
                         <div className="lp:sticky lp:top-[calc(var(--nav-h)*2)] lp:flex-[5]">
                             <h2 className="h2 font-semibold mb-5">Profile</h2>
                             <div
-                                className="flex flex-col justify-center items-center  bg-[#f7f7f7] h-max p-4 tb:p-5 text-card-foreground  gap-5 rounded-xl border border-[#DEE3ED] overflow-hidden">
+                                className="flex flex-col relative justify-center items-center  bg-[#f7f7f7] h-max p-4 tb:p-6 lp:p-10 text-card-foreground  gap-5 rounded-xl border border-[#DEE3ED] overflow-hidden">
                                 <span
                                     className="flex justify-center items-center  bg-[#101828] w-15 h-15 tb:w-30 tb:h-30 lp:w-40 lp:h-40 rounded-full font-medium text-white text-3xl tb:text-5xl lp:text-7xl"
                                 >
@@ -257,8 +258,14 @@ export default function MyBookingsPage() {
                                         {user?.email}
                                     </h3>
                                 </div>
+                                <Image
+                                    src="/icons/edit.svg"
+                                    alt=""
+                                    width={16}
+                                    height={16}
+                                    className="w-5 h-5 tb:w-6 tb:h-6 lp:w-8 lp:h-8  absolute top-6 right-6 lp:top-10 lp:right-10 cursor-pointer"
+                                />
                             </div>
-
                         </div>
                         <div className="lp:flex-[7]">
                             <h2 className="h2 font-semibold mb-5">Bookings</h2>
@@ -336,7 +343,7 @@ export default function MyBookingsPage() {
                                             </div>
                                             {/* Expandable Section */}
                                             {expanded && (
-                                                <div className="mt-4 space-y-6">
+                                                <div className="grid gap-4 lp:grid-cols-1 space-y-6">
                                                     {/* Room Cards */}
                                                     <div className="grid gap-4 lp:grid-cols-2">
                                                         {rooms.length > 0 ? rooms.map((room: AssignedRoom, idx: number) => {
