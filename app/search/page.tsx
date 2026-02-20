@@ -4,7 +4,6 @@ import React, {Suspense, useEffect, useRef, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import Image from 'next/image';
 import {Button} from "@/components/ui/button";
-import {Card} from "@/components/ui/card";
 import {parseISO} from "date-fns";
 import 'swiper/css';
 import 'swiper/css/navigation';

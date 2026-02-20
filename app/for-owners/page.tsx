@@ -2,7 +2,8 @@
 
 import {motion} from "framer-motion"
 import Image from "next/image";
-import React from "react";
+import React, {useState} from "react";
+import {Alert, AlertDescription} from "@/components/ui/alert";
 
 // Animation variants
 const fadeIn = {
@@ -24,10 +25,43 @@ const staggerContainer = {
     },
 }
 export default function ForOwnersPage() {
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [success, setSuccess] = useState<boolean | null>(null);
+
+    const handleContact = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSuccess(null);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    phone,
+                }),
+            })
+            setSuccess(response.ok)
+
+            setTimeout(() => {
+                setSuccess(null);
+            }, 5000);
+        } catch (err) {
+            console.log(err instanceof Error ? err.message : 'An unexpected error occurred')
+        }
+    };
+
     return (
         <>
             <title>Soulasia | For Property Owners</title>
+            {success && (
+                <Alert className="fixed z-100 top-10 shadow-layered  left-1/2 w-max -translate-x-1/2">
+                    <AlertDescription>{'Successfully send!'}</AlertDescription>
+                </Alert>
+            )}
             <div className="bg-white">
+
                 <section className="section-component-p-y bg-white">
                     <div className="container relative">
                         <div
@@ -230,12 +264,14 @@ export default function ForOwnersPage() {
                                 viewport={{once: true, amount: 0.2}}
                                 className="flex lp:justify-end w-full"
                             >
-                                <form className="mx-auto lp:mx-0 space-y-6 w-full lp:max-w-[550px]">
+                                <form onSubmit={handleContact} className="mx-auto lp:mx-0 space-y-6 w-full lp:max-w-[550px]">
                                     <div>
                                         <input
                                             type="text"
                                             id="name"
                                             name="name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
                                             placeholder="Name"
                                             className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"
                                         />
@@ -244,6 +280,8 @@ export default function ForOwnersPage() {
                                         <input
                                             type="tel"
                                             id="phone"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
                                             name="phone"
                                             placeholder="Phone Number"
                                             className="w-full bg-transparent text-white placeholder-gray-400 border-b border-gray-600 py-2 px-0 focus:border-[#0E3599] focus:outline-none transition-colors"

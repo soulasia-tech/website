@@ -364,7 +364,6 @@ export default function MyBookingsPage() {
                                 })
                             )}
                         </div>
-
                     </div>
                 </section>
             </div>
