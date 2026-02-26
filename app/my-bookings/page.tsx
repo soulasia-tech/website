@@ -233,6 +233,7 @@ export default function MyBookingsPage() {
                 })
             );
             setCloudbedsDetailsMap(detailsMap);
+            setHasChanged(prevState => !prevState);
         };
         if (bookings.length > 0) {
             fetchAllCloudbedsDetails().then();
@@ -273,7 +274,7 @@ export default function MyBookingsPage() {
 
             return updatedMap;
         });
-    }, [rooms]);
+    }, [rooms, hasChanged]);
 
     useEffect(() => {
         fetchBookings().then();
@@ -362,7 +363,6 @@ export default function MyBookingsPage() {
                                             room.roomTypePhotos?.map(photo => photo.url) || []
                                         ) || ['/rooms/room.svg'];
 
-                                    console.log(roomTypePhotos)
                                     const expanded = expandedBookingId === booking.id;
 
                                     return (
