@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
 import {format} from 'date-fns';
 import {useRouter} from 'next/navigation';
@@ -92,7 +92,6 @@ function RoomPhoto({images, selectedIndex, onClickImage}: {
     };
 
     return (
-
         <div
             className="flex relative rounded-xl aspect-[1/1] max-h-[90px] tb:max-h-[130px] overflow-hidden ">
             {/* arrows */}
@@ -153,10 +152,13 @@ export default function MyBookingsPage() {
     const [hasChanged, setHasChanged] = useState<boolean>(false);
     const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
 
-    const getFilteredBookings = (status: string, bookings: Booking[], cloudbedsDetailsMap: Record<string, CloudbedsReservationDetails>) => {
+    const filteredBookings = useMemo(() => {
         return bookings.filter(booking => {
             const cb = cloudbedsDetailsMap[booking.id];
-            const bookingStatus = cb?.status?.toLowerCase() || booking.status?.toLowerCase() || '';
+            const bookingStatus =
+                cb?.status?.toLowerCase() ||
+                booking.status?.toLowerCase() ||
+                '';
 
             switch (status) {
                 case 'active':
@@ -169,7 +171,7 @@ export default function MyBookingsPage() {
                     return true;
             }
         });
-    };
+    }, [status, bookings, cloudbedsDetailsMap]);
 
     const fetchBookings = useCallback(async () => {
         try {
@@ -238,32 +240,40 @@ export default function MyBookingsPage() {
     }, [bookings]);
 
     useEffect(() => {
-        // If rooms not loaded yet, nothing to do
-        if (!rooms || !cloudbedsDetailsMap) return;
+        if (!rooms) return;
 
-        // Create a new map with updated roomTypes
-        const updatedMap: Record<string, CloudbedsReservationDetails> = {};
+        setCloudbedsDetailsMap(prevMap => {
+            if (!prevMap || Object.keys(prevMap).length === 0) {
+                return prevMap; // prevent running on empty map
+            }
 
-        Object.entries(cloudbedsDetailsMap).forEach(([bookingId, details]) => {
-            const assignedRoomTypeIds = details.assigned?.map(a => a.roomTypeID) || [];
-            const unassignedRoomTypeIds = details.unassigned?.map(u => u.roomTypeID) || [];
-            const allRoomTypeIds = [...assignedRoomTypeIds, ...unassignedRoomTypeIds];
+            const updatedMap: Record<string, CloudbedsReservationDetails> = {};
 
-            // Filter rooms by roomTypeID
-            const matchedRooms = rooms.filter(r => allRoomTypeIds.includes(r.roomTypeID));
+            Object.entries(prevMap).forEach(([bookingId, details]) => {
+                const assignedRoomTypeIds =
+                    details.assigned?.map(a => a.roomTypeID) || [];
 
-            updatedMap[bookingId] = {
-                ...details,
-                roomTypes: matchedRooms,
-            };
+                const unassignedRoomTypeIds =
+                    details.unassigned?.map(u => u.roomTypeID) || [];
+
+                const allRoomTypeIds = [
+                    ...assignedRoomTypeIds,
+                    ...unassignedRoomTypeIds,
+                ];
+
+                const matchedRooms = rooms.filter(r =>
+                    allRoomTypeIds.includes(r.roomTypeID)
+                );
+
+                updatedMap[bookingId] = {
+                    ...details,
+                    roomTypes: matchedRooms,
+                };
+            });
+
+            return updatedMap;
         });
-
-        if (!hasChanged) {
-            setHasChanged(true);
-            setCloudbedsDetailsMap(updatedMap);
-        }
-
-    }, [rooms, cloudbedsDetailsMap]);
+    }, [rooms]);
 
     useEffect(() => {
         fetchBookings().then();
@@ -342,8 +352,8 @@ export default function MyBookingsPage() {
                                 <p className="text-gray-600">Your bookings will appear here.</p>
                             )}
 
-                            {!error && bookings.length > 0 && (
-                                getFilteredBookings(status, bookings, cloudbedsDetailsMap).map((booking) => {
+                            {!error && filteredBookings.length  > 0 && (
+                                filteredBookings.map((booking) => {
                                     const propertyId = booking.cloudbeds_property_id;
                                     const cb = cloudbedsDetailsMap[booking.id];
 
@@ -351,6 +361,8 @@ export default function MyBookingsPage() {
                                         cb?.roomTypes?.flatMap(room =>
                                             room.roomTypePhotos?.map(photo => photo.url) || []
                                         ) || ['/rooms/room.svg'];
+
+                                    console.log(roomTypePhotos)
                                     const expanded = expandedBookingId === booking.id;
 
                                     return (
