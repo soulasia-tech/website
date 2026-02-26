@@ -55,6 +55,7 @@ export function Navbar({className}: NavbarProps) {
     const pathname = usePathname();
 
     useEffect(() => {
+        setButtonText(!isActive ? 'Close' : 'Search')
         const dark = document.querySelector(".dark-header");
         if (!dark) {
             setIsDark(false); // no hero → always white
@@ -85,6 +86,7 @@ export function Navbar({className}: NavbarProps) {
     }, [pathname]);
 
     const [user, setUser] = useState<SupabaseUser | null>(null);
+    const [buttonText, setButtonText] = useState('Close');
     const supabase = createClientComponentClient();
     const router = useRouter();
 
@@ -116,6 +118,7 @@ export function Navbar({className}: NavbarProps) {
     };
 
     const toggle = () => {
+        setButtonText(!isActive ? 'Close' : 'Search')
         setIsActive(!isActive);
     };
 
@@ -180,7 +183,7 @@ export function Navbar({className}: NavbarProps) {
                                         ].join(' ')}
                                         onClick={() => toggle()}
                                     >
-                                        {!isActive ? 'Search' : 'Close'}
+                                        {buttonText}
                                     </Button>
                                 )
                             }

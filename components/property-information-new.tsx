@@ -1,35 +1,42 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Image from "next/image";
-import {LucideIcon, icons} from "lucide-react";
-import Map, {Marker, Popup} from 'react-map-gl';
 import {Swiper, SwiperSlide} from 'swiper/react';
-import {Navigation, Pagination} from 'swiper/modules';
+import {Navigation} from 'swiper/modules';
+import type {Swiper as SwiperType} from "swiper";
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import {Gallery} from "@/components/Gallery";
+import {PropertiesMap} from "@/components/PropertiesMap";
+import {cn} from "@/lib/utils";
 
 interface PropertyInformationProps {
     propertyId: string;
 }
 
 // Map amenity names to Lucide icons (add more as needed)
-const amenityIconMap: Record<string, LucideIcon> = {
-    "ATM on site": icons.PiggyBank,
-    "Baggage storage": icons.Briefcase,
-    "Concierge": icons.UserCheck,
-    "Elevator": icons.ArrowUpDown,
-    "Fitness center": icons.Dumbbell,
-    "Laundry service": icons.Shirt,
-    "Lounge": icons.Lamp,
-    "Meeting rooms": icons.Users,
-    "Printer": icons.Printer,
-    "Room service": icons.Bell,
-    "Swimming pool": icons.Waves,
-    "24-hour front desk": icons.Clock,
-    "24-hour security": icons.ShieldCheck,
-    "Air conditioning": icons.Wind,
-    "24-hour check-in": icons.Clock,
-    "All rooms disinfected daily": icons.Sparkles,
+const amenityIconMap: Record<string, string> = {
+    "ATM on site": '/icons/amenities/atm.svg',
+    "Baggage storage": '/icons/amenities/trolley.svg',
+    "Concierge": '/icons/amenities/concierge.svg',
+    "Elevator": '/icons/amenities/elevator.svg',
+    "Fitness center": '/icons/amenities/gym.svg',
+    "Internet": '/icons/amenities/wifi.svg',
+    "Sauna": '/icons/amenities/sauna.svg',
+    "Swimming pool": '/icons/amenities/pool.svg',
+    "Air conditioning": '/icons/amenities/air-purifier.svg',
+    "Laundry service": '/icons/amenities/styler.svg',
+    "Lounge": '/icons/amenities/lounge.svg',
+    "Printer": '/icons/amenities/print.svg',
+    "Room service": '/icons/amenities/contact-phone.svg',
+    "24-hour front desk": '/icons/amenities/pace.svg',
+    "24-hour check-in": '/icons/amenities/pace.svg',
+    "24-hour security": '/icons/amenities/shield.svg',
+    "All rooms disinfected daily": '/icons/amenities/household-supplies.svg',
+    "Coffee Shop": '/icons/amenities/coffee.svg',
+    "Guest parking": '/icons/amenities/parking.svg',
+
+    "Meeting rooms": '/icons/amenities/chair.svg',
 };
 
 // Define interfaces for property data
@@ -93,14 +100,20 @@ function mapPropertyImages(images: unknown, caption: string): { url: string; cap
     }));
 }
 
-export function PropertyInformation({propertyId}: PropertyInformationProps) {
+export function PropertyInformationNew({propertyId}: PropertyInformationProps) {
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showAllAmenities, setShowAllAmenities] = useState(false);
     // Modal state for image preview
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedIdx, setSelectedIdx] = useState<number>(0);
+    const [selectedImages, setSelectedImages] = useState<{ url: string; caption?: string }[] | null>(null);
     const [mapPosition, setMapPosition] = useState<{ lat: number; lng: number } | null>(null);
+
+    const prevRef = useRef<HTMLButtonElement | null>(null);
+    const nextRef = useRef<HTMLButtonElement | null>(null);
+    const [hasPrev, setHasPrev] = useState(false);
+    const [hasNext, setHasNext] = useState(true);
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -147,7 +160,7 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
 
     if (loading) {
         return (
-            <div className="py-12">
+            <div className="py-4">
                 <div className="h-64 bg-gray-200 animate-pulse rounded-xl mb-8"/>
                 <div className="h-6 w-1/3 bg-gray-200 animate-pulse rounded mb-4"/>
                 <div className="h-4 w-1/2 bg-gray-200 animate-pulse rounded mb-2"/>
@@ -167,7 +180,7 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
     ];
 
     // Amenities
-    const amenities: PropertyAmenity[] = property.propertyAmenities || [];
+    const amenities = property.propertyAmenities || [];
     const shownAmenities = showAllAmenities ? amenities : amenities.slice(0, 12);
 
     // Address & Contact
@@ -181,19 +194,58 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
     const terms = property.termsAndConditions || null;
 
     return (
-        <section className="py-8 w-full">
+        <section className="w-full">
             <div className="w-full px-0 mx-0">
-                <h2 className="text-2xl font-bold mb-6">{property.propertyName ? `${property.propertyName} Information` : 'Property Information'}</h2>
+                <h2 className="text-2xl font-bold mb-5">{property.propertyName ? `${property.propertyName}` : 'Property Information'}</h2>
                 {/* Responsive grid of property photos */}
                 {photos.length > 0 && (
-                    <div className="mb-8 w-full">
+                    <div className="mb-5 w-full relative">
+                        <button
+                            ref={prevRef}
+                            className={cn("absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px]",
+                                !hasPrev ? "bg-white/20" : "bg-white")}>
+                            <Image
+                                src={`/icons/arrow-${!hasPrev ? 'light' : 'dark'}.svg`}
+                                alt="Prev"
+                                className="transform rotate-180"
+                                width={12}
+                                height={12}
+                            />
+                        </button>
+
+
+                        {/* arrows */}
+                        <button
+                            ref={nextRef}
+                            className={cn("cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px] custom-next",
+                                !hasNext ? "bg-white/20" : "bg-white")}>
+                            <Image
+                                src={`/icons/arrow-${!hasNext ? 'light' : 'dark'}.svg`}
+                                alt="Next"
+                                width={12}
+                                height={12}
+                            />
+                        </button>
+
                         <Swiper
-                            modules={[Navigation, Pagination]}
-                            navigation
-                            pagination={{clickable: true}}
+                            modules={[Navigation]}
+                            navigation={{
+                                prevEl: prevRef.current,
+                                nextEl: nextRef.current,
+                            }}
+                            onBeforeInit={(swiper: SwiperType) => {
+                                // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                                swiper.params.navigation.prevEl = prevRef.current;
+                                // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                                swiper.params.navigation.nextEl = nextRef.current;
+                            }}
+                            onSlideChange={(swiper) => {
+                                setHasPrev(!swiper.isBeginning);
+                                setHasNext(!swiper.isEnd);
+                            }}
                             spaceBetween={16}
                             breakpoints={{
-                                0: {slidesPerView: 1},
+                                0: {slidesPerView: 2},
                                 640: {slidesPerView: 3},
                                 1024: {slidesPerView: 4},
                             }}
@@ -203,12 +255,16 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
                                 <SwiperSlide key={idx}>
                                     <div
                                         className="relative aspect-square rounded-xl shadow bg-white overflow-hidden cursor-pointer group"
-                                        onClick={() => setSelectedImage(photo.url)}
                                         tabIndex={0}
                                         aria-label="View image"
                                     >
                                         <Image
                                             src={photo.url}
+                                            onClick={() => {
+                                                console.log(idx)
+                                                setSelectedIdx(idx)
+                                                setSelectedImages(photos)
+                                            }}
                                             alt={photo.caption || "Property photo"}
                                             fill
                                             className="object-cover rounded-xl group-hover:opacity-80 transition"
@@ -222,148 +278,125 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
                     </div>
                 )}
                 {/* Modal for image preview */}
-                {selectedImage && (
+                {selectedImages && (
                     <div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-                        onClick={() => setSelectedImage(null)}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-[#141826] p-5 lp:p-10"
+                        tabIndex={-1}
                         aria-modal="true"
                         role="dialog"
                     >
-                        <div
-                            className="relative max-w-3xl w-full mx-4"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <button
-                                className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full shadow p-2"
-                                onClick={() => setSelectedImage(null)}
-                                aria-label="Close image preview"
-                            >
-                                <icons.X className="w-6 h-6"/>
-                            </button>
-                            <div
-                                className="relative w-full h-[60vw] max-h-[80vh] bg-white/90 rounded-xl flex items-center justify-center">
-                                <Image
-                                    src={selectedImage}
-                                    alt="Enlarged property photo"
-                                    fill
-                                    className="object-contain rounded-xl"
-                                    priority
-                                />
-                            </div>
-                        </div>
+                        <Gallery
+                            images={selectedImages.map(img => ({src: img.url, alt: ''}))}
+                            selectedIndex={selectedIdx}
+                            onClose={() => {
+                                setSelectedImages(null);
+                            }}
+                        ></Gallery>
                     </div>
                 )}
-                {/* Amenities as grid with icons */}
-                {amenities.length > 0 && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold mb-4">{property.propertyName ? `${property.propertyName} Amenities` : 'Property Amenities'}</h3>
-                        <div
-                            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 mb-4">
-                            {shownAmenities.map((a, i) => {
-                                const name = a.amenityName || (typeof a === 'string' ? a : '');
-                                const Icon = amenityIconMap[name] || icons.BadgeCheck;
-                                return (
-                                    <div key={i} className="flex items-center gap-3 text-gray-700">
-                                        <Icon className="w-6 h-6 text-gray-500"/>
-                                        <span className="text-base">{name}</span>
-                                    </div>
-                                );
-                            })}
+                <div className="flex flex-col gap-5">
+                    {/* Amenities as grid with icons */}
+                    <div className="border border-[#dee3ed]"></div>
+                    {amenities.length > 0 && (
+                        <div className="flex flex-col gap-2.5 tb:gap-5">
+                            <h2 className="text-xl lp:text-2xl font-semibold text-[#101828]">Amenities</h2>
+                            <ul className="grid grid-cols-2 lp:grid-cols-3 gap-5 text-[#101828]">
+                                {shownAmenities?.map((amenity, idx) => {
+                                    const name = amenity.amenityName || (typeof amenity === 'string' ? amenity : '');
+                                    const srcIcon = amenityIconMap[name] ?? '/icons/amenities/check-box.svg';
+                                    console.log(srcIcon)
+                                    return (
+                                        <li key={idx} className="flex items-center gap-2 tb:gap-3 ">
+                                            <Image src={srcIcon} alt=""
+                                                   className="flex justify-center aspect-[1/1] w-4 tb:w-6 lp:w-8" width={40}
+                                                   height={40} priority/>
+                                            <span
+                                                className="font-normal text-sm tb:text-lg">{name}</span>
+                                        </li>
+                                    )
+                                })}
+                            </ul>
+                            {amenities.length > 12 && !showAllAmenities && (
+                                <div className="flex justify-end w-full">
+                                    <button
+                                        className="border border-[#4A4F5B] rounded-full text-xs tb:text-sm cursor-pointer font-medium mt-2 px-3 py-1 tb:px-5 tb:py-2 text-[#4A4F5B] hover:bg-black/5 transition"
+                                        onClick={() => setShowAllAmenities(true)}
+                                    >
+                                        View All ({amenities.length}) →
+                                    </button>
+                                </div>
+
+                            )}
                         </div>
-                        {amenities.length > 12 && !showAllAmenities && (
-                            <button
-                                className="mt-2 px-5 py-2 border border-green-500 text-green-600 rounded-full font-medium hover:bg-green-50 transition"
-                                onClick={() => setShowAllAmenities(true)}
-                            >
-                                View All ({amenities.length}) →
-                            </button>
-                        )}
-                    </div>
-                )}
-                {/* Address & Contact + Map */}
-                <div className="mb-8">
-                    <h3 className="text-xl font-semibold mb-2">Address & Contact</h3>
-                    <div className="flex flex-col md:flex-row gap-6 items-start">
-                        <div className="text-gray-700 mb-1 md:w-1/2">
+                    )}
+                    {/* Address & Contact + Map */}
+                    <div className="border border-[#dee3ed]"></div>
+                    <div className="flex flex-col gap-2.5 tb:gap-5">
+                        <div className="gap-1 tb:gap-2.5 items-start">
+                        <h2 className="text-xl lp:text-2xl font-semibold text-[#101828]">Address & Contact</h2>
                             {address && (
-                                <div>
-                                    {address.propertyAddress1}<br/>
-                                    {address.propertyCity}, {address.propertyState} {address.propertyPostalCode}<br/>
-                                    {address.propertyCountry}
+                                <div className="text-sm tb:text-base text-[#4a4f5b] font-normal">
+                                    {address.propertyAddress1}, {address.propertyCity}, {address.propertyState} {address.propertyPostalCode}, {address.propertyCountry}
                                 </div>
                             )}
                             {contact && (
-                                <div className="text-gray-700 mt-2">
+                                <div className="text-sm tb:text-base text-[#4a4f5b] font-normal">
                                     {contact.phone && <div>Phone: {contact.phone}</div>}
                                     {contact.email && <div>Email: {contact.email}</div>}
                                 </div>
-                            )}
-                        </div>
+                            )}                        </div>
                         {/* Map */}
                         <div
-                            className="w-full md:w-1/2 min-h-[256px] h-64 rounded-xl overflow-hidden shadow bg-white flex items-center justify-center"
-                            style={{minWidth: 240, minHeight: 200, position: 'relative', zIndex: 1}}>
+                            className="w-full aspect-[4/3] tb:aspect-[16/9] rounded-lg overflow-hidden shadow bg-white flex items-center justify-center">
                             {mapPosition ? (
-                                <Map
-                                    mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                                    initialViewState={{longitude: mapPosition.lng, latitude: mapPosition.lat, zoom: 15}}
-                                    style={{width: '100%', height: '100%'}}
-                                    mapStyle="mapbox://styles/mapbox/streets-v11"
-                                >
-                                    <Marker longitude={mapPosition.lng} latitude={mapPosition.lat} anchor="bottom">
-                                        <Image
-                                            src="/icons/marker.svg"
-                                            alt="x"
-                                            width={40}
-                                            height={44}
-                                            className="w-10 h-11 cursor-pointer"
-                                        />
-                                    </Marker>
-                                    <Popup
-                                        longitude={mapPosition.lng}
-                                        latitude={mapPosition.lat}
-                                        anchor="top"
-                                        closeOnClick={false}
-                                        focusAfterOpen={false}
-                                    >
-                                        {property.propertyName || "Property Location"}
-                                    </Popup>
-                                </Map>
+                                <PropertiesMap propertyMarkers={[{
+                                    ...mapPosition,
+                                    name: property.propertyName || "Property Location"
+                                }]}></PropertiesMap>
                             ) : (
                                 <span
                                     className="text-gray-400 text-sm text-center px-2">Location not found on map.</span>
                             )}
                         </div>
                     </div>
+                    {/* Check-In/Check-Out Policies */}
+                    {(checkIn || checkOut) && (
+                        <>
+                            <div className="border border-[#dee3ed]"></div>
+                            <div>
+                                <h3 className="text-xl font-semibold mb-2">Check-In & Check-Out</h3>
+                                <div className="text-gray-700">
+                                    {checkIn && <div>Check-In: {checkIn}</div>}
+                                    {checkOut && <div>Check-Out: {checkOut}</div>}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    {/* Property & Cancellation Policies */}
+                    {policies.length > 0 && (
+                        <>
+                            <div className="border border-[#dee3ed]"></div>
+                            <div>
+                                <h3 className="text-xl font-semibold mb-2">Property & Cancellation Policies</h3>
+                                <ul className="list-disc pl-6 text-gray-700">
+                                    {policies.map((p, i) => (
+                                        <li key={i}>{p.policyName || p.policy || (typeof p === 'string' ? p : '')}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </>
+                    )}
+                    {/* Terms & Conditions */}
+                    {terms && (
+                        <>
+                            <div className="border border-[#dee3ed]"></div>
+                            <div>
+                                <h3 className="text-xl font-semibold mb-2">Terms & Conditions</h3>
+                                <div className="text-gray-700 whitespace-pre-line">{terms}</div>
+                            </div>
+                        </>
+                    )}
                 </div>
-                {/* Check-In/Check-Out Policies */}
-                {(checkIn || checkOut) && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold mb-2">Check-In & Check-Out</h3>
-                        <div className="text-gray-700">
-                            {checkIn && <div>Check-In: {checkIn}</div>}
-                            {checkOut && <div>Check-Out: {checkOut}</div>}
-                        </div>
-                    </div>
-                )}
-                {/* Property & Cancellation Policies */}
-                {policies.length > 0 && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold mb-2">Property & Cancellation Policies</h3>
-                        <ul className="list-disc pl-6 text-gray-700">
-                            {policies.map((p, i) => (
-                                <li key={i}>{p.policyName || p.policy || (typeof p === 'string' ? p : '')}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                {/* Terms & Conditions */}
-                {terms && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold mb-2">Terms & Conditions</h3>
-                        <div className="text-gray-700 whitespace-pre-line">{terms}</div>
-                    </div>
-                )}
             </div>
         </section>
     );

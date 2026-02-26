@@ -117,32 +117,32 @@ export default function ForOwnersPage() {
                         >
                             {[
                                 {
-                                    iconSrc: "/icons/provenExperience.svg",
+                                    iconSrc: "/icons/for-owners/provenExperience.svg",
                                     title: "Proven Experience",
                                     desc: "Years of rental properties, we know what guests need."
                                 },
                                 {
-                                    iconSrc: "/icons/attentionToDetail.svg",
+                                    iconSrc: "/icons/for-owners/attentionToDetail.svg",
                                     title: "Attention to Detail",
                                     desc: "Cleanliness, appliance maintenance, regular servicing."
                                 },
                                 {
-                                    iconSrc: "/icons/transparency.svg",
+                                    iconSrc: "/icons/for-owners/transparency.svg",
                                     title: "Transparency",
                                     desc: "Video reports on property condition."
                                 },
                                 {
-                                    iconSrc: "/icons/peaceOfMind.svg",
+                                    iconSrc: "/icons/for-owners/peaceOfMind.svg",
                                     title: "Peace of Mind",
                                     desc: "Handle property repairs and maintenance."
                                 },
                                 {
-                                    iconSrc: "/icons/onTimePayments.svg",
+                                    iconSrc: "/icons/for-owners/onTimePayments.svg",
                                     title: "On-Time Payments",
                                     desc: "Automated on-time payouts."
                                 },
                                 {
-                                    iconSrc: "/icons/liabilityInsurance.svg",
+                                    iconSrc: "/icons/for-owners/liability-insurance.svg",
                                     title: "Liability Insurance",
                                     desc: "Additional protection for unforeseen incidents."
                                 },

@@ -45,7 +45,7 @@ export const metadata: Metadata = {
         images: [`${domain}/og-image.jpg`],
     },
 
-    icons: {icon: [{url: `${domain}/favicon.svg`, type: "image/svg+xml"}]},
+    icons: {icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}]},
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {

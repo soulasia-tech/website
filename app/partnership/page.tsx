@@ -249,9 +249,9 @@ export default function PartnershipPage() {
                                 className="grid grid-cols-1 lp:grid-cols-3 gap-[10px] tb:gap-[20px]"
                             >
                                 {[
-                                    {icon: '/icons/growth.svg', label: "Growth demands clarity"},
-                                    {icon: '/icons/consistency.svg', label: "Consistency demands systems"},
-                                    {icon: '/icons/family-home.svg', label: "Сomfort requires discipline"},
+                                    {icon: '/icons/partnership/growth.svg', label: "Growth demands clarity"},
+                                    {icon: '/icons/partnership/consistency.svg', label: "Consistency demands systems"},
+                                    {icon: '/icons/partnership/family-home.svg', label: "Сomfort requires discipline"},
                                 ].map((item, index) => (
                                     // Step
                                     <motion.div
@@ -472,22 +472,22 @@ export default function PartnershipPage() {
                         <div className="grid grid-cols-1 mb-6 tb:mb-10 tb:grid-cols-2 lp:grid-cols-4 gap-5">
                             {[
                                 {
-                                    icon: '/icons/furnished.svg',
+                                    icon: '/icons/partnership/furnished.svg',
                                     title: "Defined Furnishing Standards",
                                     desc: "Apartments are no longer “well furnished” — they are furnished according to precise requirements",
                                 },
                                 {
-                                    icon: '/icons/file-copy.svg',
+                                    icon: '/icons/partnership/file-copy.svg',
                                     title: "Documented Operations",
                                     desc: "Teams don’t rely on personal memory — they rely on shared documentation",
                                 },
                                 {
-                                    icon: '/icons/renew.svg',
+                                    icon: '/icons/partnership/renew.svg',
                                     title: "Scalable Tools",
                                     desc: "Tools are chosen for clarity and scalability, not convenience",
                                 },
                                 {
-                                    icon: '/icons/pan-zoom.svg',
+                                    icon: '/icons/partnership/pan-zoom.svg',
                                     title: "Systemised Processes",
                                     desc: "Processes are designed to be repeatable, not reactive",
                                 },
@@ -640,17 +640,17 @@ export default function PartnershipPage() {
                         >
                             {[
                                 {
-                                    iconSrc: "/icons/travel-bags.svg",
+                                    iconSrc: "/icons/partnership/travel-bags.svg",
                                     title: "Guests",
                                     desc: "Spaces that feel intentional  not accidental"
                                 },
                                 {
-                                    iconSrc: "/icons/location-away.svg",
+                                    iconSrc: "/icons/partnership/location-away.svg",
                                     title: "Owners",
                                     desc: "Properties managed through systems, not assumptions"
                                 },
                                 {
-                                    iconSrc: "/icons/concierge-black.svg",
+                                    iconSrc: "/icons/partnership/concierge.svg",
                                     title: "For us",
                                     desc: "Building something that can grow without losing control"
                                 },

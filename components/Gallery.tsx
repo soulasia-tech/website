@@ -33,7 +33,7 @@ export function Gallery({images, onClose, selectedIndex}: GalleryProps) {
 
     useEffect(() => {
         if (images.length > 0) {
-            setSelectedIdx(0);
+            setSelectedIdx(selectedIndex ?? 0);
         }
     }, [images]);
 
@@ -120,6 +120,7 @@ export function Gallery({images, onClose, selectedIndex}: GalleryProps) {
                                     src={selectedImage.src}
                                     alt={selectedImage?.alt ?? ""}
                                     fill
+                                    quality={100}
                                     className="object-cover transition-transform duration-300 group-hover:scale-110"
                                 />)
                             }
@@ -142,7 +143,6 @@ export function Gallery({images, onClose, selectedIndex}: GalleryProps) {
                     </div>
                     <div
                         className="flex w-full justify-center items-center text-lg lp:text-xl full:text-2xl font-semibold text-white">{selectedIdx + 1} of {images.length}</div>
-
                 </div>
                 {/*Images*/}
                 <div
@@ -164,6 +164,7 @@ export function Gallery({images, onClose, selectedIndex}: GalleryProps) {
                                     src={image.src}
                                     alt={`Property image ${idx + 1}`}
                                     fill
+                                    sizes="100vw"
                                     className="object-cover rounded-xl"
                                 />
                             </div>

@@ -75,15 +75,15 @@ const propertiesSaved: Property[] = [
             "placeHint": "700m from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/coworking.svg', label: "Co-working Space (Free)"},
-            {icon: '/icons/water.svg', label: "Cuckoo Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
-            {icon: '/icons/pool.svg', label: "Rooftop Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/coworking.svg', label: "Co-working Space (Free)"},
+            {icon: '/icons/amenities/water.svg', label: "Cuckoo Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Paid)"},
+            {icon: '/icons/amenities/pool.svg', label: "Rooftop Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -98,14 +98,14 @@ const propertiesSaved: Property[] = [
             "placeHint": "600m from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/water.svg', label: "Coway Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Paid)"},
-            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
-            {icon: '/icons/pool.svg', label: "Pool (Paid)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Paid)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Paid)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Paid)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Paid)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Paid)"},
         ]
     },
     {
@@ -120,14 +120,14 @@ const propertiesSaved: Property[] = [
             "placeHint": "1.2 km from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/water.svg', label: "Coway Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"},
-            {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Free)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -142,13 +142,13 @@ const propertiesSaved: Property[] = [
             "placeHint": "2.5 km from Pavilion Bukit Bintang"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"},
-            {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Free)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
 ];
@@ -157,12 +157,13 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({children}: { children: ReactNode }) {
     // 🔹 UI state
-    const [isActive, setIsActive] = useState(false);
+    const [isActive, setIsActive] = useState(true);
     const [isDark, setIsDark] = useState(false);
 
     const pathname = usePathname();
     const [removePadding, setRemovePadding] = useState(false);
     useEffect(() => {
+        setRemovePadding(false);
         if(window.innerWidth >= 768) {
             setIsActive(true);
         }
@@ -240,7 +241,8 @@ export function UIProvider({children}: { children: ReactNode }) {
                 setLoading(false);
             }
         };
-        fetchRooms();
+
+        fetchRooms().then();
     }, []);
 
     const [modalContent, setModalContent] = useState<React.ReactNode>(null);
@@ -259,7 +261,8 @@ export function UIProvider({children}: { children: ReactNode }) {
                 openMap, closeMap
             }}
         >
-            <div className={!removePadding && !isDark && isActive ? 'mt-50 tb:mt-[calc(var(--action-h-1xl)+24px)]' : '' }>
+            <div
+                className={!removePadding && !isDark && isActive ? 'mt-50 tb:mt-[calc(var(--action-h-1xl)+24px)]' : ''}>
                 {children}
             </div>
             {modalContent && (

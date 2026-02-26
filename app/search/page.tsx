@@ -112,7 +112,6 @@ function SearchResults() {
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                console.log(entry.isIntersecting)
                 setIsVisible(entry.isIntersecting)
             }, {root: null, threshold: 0.1}
         );

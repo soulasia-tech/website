@@ -239,8 +239,7 @@ export default function PropertiesPage() {
     return (
         <>
             <title>{pageTitle}</title>
-
-            <main className={["py-8 bg-white relative"].join(' ')}>
+            <main className={"py-8 bg-white relative"}>
                 <div className="container">
                     {/* Back button */}
                     <button

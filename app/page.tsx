@@ -166,17 +166,17 @@ export default function Home() {
                                     <div className="flex flex-col gap-5 tb:gap-7.5">
                                         {[
                                             {
-                                                iconSrc: "/icons/search-check.svg",
+                                                iconSrc: "/icons/main/search-check.svg",
                                                 title: "Quality Control",
                                                 desc: "Apartments that have undergone professional onboarding and quality inspection."
                                             },
                                             {
-                                                iconSrc: "/icons/globe.svg",
+                                                iconSrc: "/icons/main/globe.svg",
                                                 title: "Global Standards",
                                                 desc: "Unified international standards of comfort, design, and amenities."
                                             },
                                             {
-                                                iconSrc: "/icons/concierge.svg",
+                                                iconSrc: "/icons/main/concierge.svg",
                                                 title: "Reliable Service",
                                                 desc: "Consistently high level of service."
                                             }
@@ -264,32 +264,32 @@ export default function Home() {
                             >
                                 {[
                                     {
-                                        iconSrc: "/icons/stayHassle.svg",
+                                        iconSrc: "/icons/main/stayHassle.svg",
                                         title: "Stay Hassle-Free",
                                         desc: "24/7 keyless entry. No check-ins or outs"
                                     },
                                     {
-                                        iconSrc: "/icons/support.svg",
+                                        iconSrc: "/icons/main/support.svg",
                                         title: "Friendly support",
                                         desc: "Our team is available 24/7 to make your stay seamless"
                                     },
                                     {
-                                        iconSrc: "/icons/nourished.svg",
+                                        iconSrc: "/icons/main/nourished.svg",
                                         title: "Stay nourished",
                                         desc: "Breakfast partners at nearby handpicked venues"
                                     },
                                     {
-                                        iconSrc: "/icons/locations.svg",
+                                        iconSrc: "/icons/main/locations.svg",
                                         title: "Prime locations",
                                         desc: "Stay in the heart of the city, close to top attractions and dining"
                                     },
                                     {
-                                        iconSrc: "/icons/rested.svg",
+                                        iconSrc: "/icons/main/rested.svg",
                                         title: "Stay Rested",
                                         desc: "Premium beds. Luxury pillows and duvets. Black out blinds."
                                     },
                                     {
-                                        iconSrc: "/icons/sustainable.svg",
+                                        iconSrc: "/icons/main/sustainable.svg",
                                         title: "Stay Sustainable",
                                         desc: "All renewable energy. Smart recycling and minimizing waste"
                                     },
