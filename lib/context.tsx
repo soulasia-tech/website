@@ -157,7 +157,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({children}: { children: ReactNode }) {
     // 🔹 UI state
-    const [isActive, setIsActive] = useState(true);
+    const [isActive, setIsActive] = useState(false);
     const [isDark, setIsDark] = useState(false);
 
     const pathname = usePathname();
@@ -170,6 +170,13 @@ export function UIProvider({children}: { children: ReactNode }) {
 
         if (['/', '/partnership', '/all-locations'].includes(pathname)) {
             setRemovePadding(true);
+        }
+
+        if (['/search'].includes(pathname)) {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
         }
 
         if (pathname.startsWith('/auth')) {

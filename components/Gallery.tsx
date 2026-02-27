@@ -31,12 +31,6 @@ export function Gallery({images, onClose, selectedIndex}: GalleryProps) {
     const hasNext = selectedIdx < images.length - 1;
     const selectedImage = images[selectedIdx];
 
-    useEffect(() => {
-        if (images.length > 0) {
-            setSelectedIdx(selectedIndex ?? 0);
-        }
-    }, [images]);
-
     const handleNext = () => {
         setSelectedIdx((prev) =>
             prev < images.length - 1 ? prev + 1 : prev
