@@ -12,6 +12,9 @@ import type {Swiper as SwiperType} from 'swiper';
 import {calculateTotalGuests} from '@/lib/guest-utils';
 import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
 import {Gallery} from "@/components/Gallery";
+import {cn} from "@/lib/utils";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Navigation, Pagination} from "swiper/modules";
 
 interface RoomResult {
     id: string;
@@ -78,6 +81,91 @@ interface CloudbedsQuote {
     sst: number;
     grandTotal: number;
     breakdown?: Breakdown;
+}
+
+function RoomPhoto({images, selectedIndex, onClickImage}: {
+    images: string[];
+    selectedIndex?: number,
+    onClickImage: () => void;
+}) {
+
+    const prevRef = useRef<HTMLButtonElement | null>(null);
+    const nextRef = useRef<HTMLButtonElement | null>(null);
+    const [hasPrev, setHasPrev] = useState(false);
+    const [hasNext, setHasNext] = useState(true);
+
+    return (
+        <div className="rounded-xl max-h-[200px] tb:max-h-[600px] overflow-hidden relative">
+            <button
+                ref={prevRef}
+                className={cn("absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px]",
+                    !hasPrev ? "bg-white/20" : "bg-white")}>
+                <Image
+                    src={`/icons/arrow-${!hasPrev ? 'light' : 'dark'}.svg`}
+                    alt="Prev"
+                    className="transform rotate-180"
+                    width={12}
+                    height={12}
+                />
+            </button>
+
+
+            {/* arrows */}
+            <button
+                ref={nextRef}
+                className={cn("cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px] custom-next",
+                    !hasNext ? "bg-white/20" : "bg-white")}>
+                <Image
+                    src={`/icons/arrow-${!hasNext ? 'light' : 'dark'}.svg`}
+                    alt="Next"
+                    width={12}
+                    height={12}
+                />
+            </button>
+
+            <Swiper
+                modules={[Navigation, Pagination]}
+                navigation={{
+                    prevEl: prevRef.current,
+                    nextEl: nextRef.current,
+                }}
+                slidesPerView={1}
+                pagination={{
+                    clickable: true,
+                }}
+                onBeforeInit={(swiper: SwiperType) => {
+                    // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                    swiper.params.navigation.prevEl = prevRef.current;
+                    // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                    swiper.params.navigation.nextEl = nextRef.current;
+                }}
+                onSlideChange={(swiper) => {
+                    setHasPrev(!swiper.isBeginning);
+                    setHasNext(!swiper.isEnd);
+                }}
+                className="rounded-xl w-full h-full"
+            >
+                {images.map((photo, idx) => (
+                    <SwiperSlide key={idx}>
+                        <div
+                            className="relative rounded-xl w-full h-full">
+
+                            <Image
+                                src={`${photo}?w=600&h=400&fit=crop`}
+                                alt="room"
+                                width={600}
+                                height={400}
+                                className="object-cover cursor-pointer w-full h-full"
+                                onClick={() => {
+                                    onClickImage()
+                                }}
+                            />
+                        </div>
+                    </SwiperSlide>
+                ))}
+            </Swiper>
+        </div>
+    );
 }
 
 function SearchResults() {
@@ -530,17 +618,9 @@ function SearchResults() {
                                     // flex flex-col md:flex-row
                                     <div key={room.id}
                                          className="grid grid-cols-1 tb:grid-cols-[1fr_auto] items-strech bg-[#f7f7f7] h-full p-4 tb:p-5 text-card-foreground items-stretch gap-5 rounded-xl border overflow-hidden">
-                                        <div
-                                            className="relative rounded-xl max-h-[200px] tb:max-h-[600px] overflow-hidden ">
-                                            <Image
-                                                src={`${room.images[0]}?w=600&h=400&fit=crop`}
-                                                alt={room.name}
-                                                width={600}
-                                                height={400}
-                                                className="object-cover cursor-pointer w-full h-full"
-                                                onClick={() => setSelectedRoomImages(room.images)}
-                                            />
-                                        </div>
+                                        <RoomPhoto images={room.images} onClickImage={() => {
+                                            setSelectedRoomImages(room.images)
+                                        }}></RoomPhoto>
                                         <div className="flex flex-col space-y-2.5 tb:space-y-5 w-full lp:min-w-[450px]">
                                             <div className="gap-1 tb:gap-2.5">
                                                 <h2 className="text-xl lp:text-2xl font-semibold  text-gray-900 mb-1">{room.name}</h2>
@@ -553,18 +633,18 @@ function SearchResults() {
                                             <div className="border-t border-[#dee3ed]"></div>
                                             <div className="items-baseline gap-2">
                                                 <div className="flex flex-wrap items-center">
-                            <span className="mr-1 text-lg tb:text-xl font-bold text-[#0E3599]">
-                              {rates[room.id] !== undefined ? `MYR ${((rates[room.id]?.sumAllRate ?? rates[room.id].totalRate) / numberOfNights).toFixed(2)}` : 'N/A'}
-                            </span>
-                                                    <span
-                                                        className="text-gray-500 text-sm tb:text-base">per night</span>
+                                                    <span className="mr-1 text-lg tb:text-xl font-bold text-[#0E3599]">
+                                                      {rates[room.id] !== undefined ? `MYR ${((rates[room.id]?.sumAllRate ?? rates[room.id].totalRate) / numberOfNights).toFixed(2)}` : 'N/A'}
+                                                    </span>
+                                                    <span className="text-gray-500 text-sm tb:text-base">per night</span>
                                                 </div>
                                                 <div className="flex flex-wrap items-center ">
-                              <span className="text-base tb:text-lg font-medium text-gray-700">
-                                {rates[room.id] !== undefined ? `MYR 
-                                ${rates[room.id]?.sumAllRate !== undefined ? rates[room.id]?.sumAllRate?.toFixed(2) : rates[room.id].totalRate.toFixed(2)}
-                                 total` : 'N/A'}
-                              </span>
+                                                      <span className="text-base tb:text-lg font-medium text-gray-700 mr-1">
+                                                        {rates[room.id] !== undefined ? `MYR 
+                                                        ${rates[room.id]?.sumAllRate !== undefined ? rates[room.id]?.sumAllRate?.toFixed(2) : rates[room.id].totalRate.toFixed(2)}
+                                                         total` : 'N/A'}
+                                                      </span>
+                                                    <span className="text-gray-500 text-sm tb:text-base">before tax</span>
                                                 </div>
                                             </div>
                                             <div
@@ -682,10 +762,12 @@ function SearchResults() {
                                                       </span>
                                                     ) : reserveStatus[room.id] === 'added' ? (
                                                         <span className="flex items-center gap-2 text-green-200">
-                                                        <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor"
-                                                             strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round"
-                                                                                                       strokeLinejoin="round"
-                                                                                                       d="M5 13l4 4L19 7"/></svg>
+                                                        <svg className="w-4 h-4 text-green-300" fill="none"
+                                                             stroke="currentColor"
+                                                             strokeWidth="2" viewBox="0 0 24 24"><path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M5 13l4 4L19 7"/></svg>
                                                         Added!
                                                       </span>
                                                     ) : (
@@ -700,12 +782,13 @@ function SearchResults() {
                         </div>
                     </div>
                     {/* Right: Booking Cart */}
-                    <div className="lp:w-1/3 w-full flex flex-col gap-5"  ref={totalAmountRef}>
+                    <div className="lp:w-1/3 w-full flex flex-col gap-5" ref={totalAmountRef}>
                         {/* Sticky container for desktop */}
                         <div className="block lp:sticky lp:top-[calc(var(--nav-h)*2)]">
                             <div className="flex flex-col gap-5">
                                 <div>
-                                    <h2 className="font-semibold text-black text-xl tb:text-2xl mb-2.5">Your Reservation:</h2>
+                                    <h2 className="font-semibold text-black text-xl tb:text-2xl mb-2.5">Your
+                                        Reservation:</h2>
                                     <div
                                         className="bg-[#f7f7f7] h-full p-4 lp:p-6 text-card-foreground gap-4 tb:gap-5 rounded-xl border overflow-hidden">
                                         {cart.length === 0 ? (
@@ -718,15 +801,19 @@ function SearchResults() {
                                                          className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
                                                         <div className="flex items-start justify-between">
                                                             <div className="flex flex-col gap-2 tb:gap-2.5">
-                                                                <div className="text-base tb:text-xl full:text-2xl font-semibold text-[#101828]">
+                                                                <div
+                                                                    className="text-base tb:text-xl full:text-2xl font-semibold text-[#101828]">
                                                                     {item.quantity} x {item.roomName}
                                                                 </div>
-                                                                <div className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
+                                                                <div
+                                                                    className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
                                                                     MYR {item.price.toFixed(2)} per apartment
                                                                 </div>
-                                                                <div className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
+                                                                <div
+                                                                    className="text-sm tb:text-base lp:text-lg full:text-xl font-semibold text-[#101828]">
                                                                     Details:
-                                                                    <div className="flex gap-5 font-normal text-[#4a4f5b]">
+                                                                    <div
+                                                                        className="flex gap-5 font-normal text-[#4a4f5b]">
                                                                         <span>Adults: {item.adults}</span>
                                                                         <span>Children: {item.children}</span>
                                                                     </div>
@@ -748,8 +835,7 @@ function SearchResults() {
                                                         </div>
                                                     </div>
                                                 ))}
-                                                <div
-                                                    className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                                                <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
                                                     <div className="flex flex-col gap-1 justify-between">
                                                         <span
                                                             className="text-sm lp:text-lp text-gray-500 font-semibold">Total</span>
@@ -767,7 +853,6 @@ function SearchResults() {
                                                         </div>
                                                     )}
                                                 </div>
-
                                                 <div>
                                                     <Button
                                                         disabled={cart.length === 0 || proceeding}
@@ -785,11 +870,11 @@ function SearchResults() {
                                                     >
                                                         {proceeding ? (
                                                             <span className="flex items-center gap-2">
-                                                            <span
-                                                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin">
+                                                                <span
+                                                                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin">
+                                                                </span>
+                                                                Processing...
                                                             </span>
-                                                          Processing...
-                                                        </span>
                                                         ) : (
                                                             'Proceed to Guest Details'
                                                         )}
@@ -825,7 +910,7 @@ function SearchResults() {
                         ></Gallery>
                     </div>
                 )}
-                {cart.length !== 0 && !isVisible &&  (
+                {cart.length !== 0 && !isVisible && (
                     <Button type="button" size="responsive" variant="default"
                             className="fixed bottom-10 right-10 z-20 flex lp:hidden bg-[#0e3599] text-lg tb:text-2xl  size-[var(--action-h-xl)]"
                             onClick={() => {

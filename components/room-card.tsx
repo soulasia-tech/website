@@ -1,10 +1,13 @@
 "use client"
 
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import Image from "next/image"
 import {ChevronLeft, ChevronRight} from "lucide-react"
 import {cn} from "@/lib/utils"
 import {Gallery} from "@/components/Gallery";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Navigation, Pagination} from "swiper/modules";
+import type {Swiper as SwiperType} from "swiper";
 
 interface RoomCardProps {
     roomName: string
@@ -86,7 +89,7 @@ export function RoomCard({roomName, propertyName, placeHint, photos, rate}: Room
                         {imageLoaded && (
                             <>
                                 {
-                                    placeHint && false && (
+                                    placeHint && (
                                         <div
                                             className="absolute z-2 max-w-[90%] top-2 lp:top-3 left-2 lp:left-3 bg-white/90 text-gray-900 text-[10px] inline-block w-fit tb:text-xs lp:text-base leading-tight font-medium px-2 lp:px-3 py-0.5 lp:py-1 rounded-full shadow">
                                             {placeHint}

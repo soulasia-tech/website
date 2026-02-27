@@ -378,6 +378,7 @@ p {
 
     --login-btn: var(--action-h-md);
 
+    --color-bullet: 229 238 255; /* gray-50 */
 }
 
 /* ≥ tb (Tablet) */
@@ -497,6 +498,15 @@ p {
 
     .header-margin-b {
         @apply mb-6 tb:mb-10 full:mb-15;
+    }
+
+    .swiper-pagination-bullet {
+        background: #E5EEFF !important;
+        opacity: 40% !important;
+        @apply w-2 h-2 rounded-full mx-1.5;
+    }
+    .swiper-pagination-bullet-active {
+        opacity: 100% !important;
     }
 }
 

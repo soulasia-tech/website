@@ -55,7 +55,7 @@ export function Navbar({className}: NavbarProps) {
     const pathname = usePathname();
 
     useEffect(() => {
-        setButtonText(!isActive ? 'Close' : 'Search')
+        setButtonText(isActive ? 'Close' : 'Search')
         const dark = document.querySelector(".dark-header");
         if (!dark) {
             setIsDark(false); // no hero → always white
