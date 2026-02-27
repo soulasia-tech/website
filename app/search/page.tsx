@@ -83,7 +83,7 @@ interface CloudbedsQuote {
     breakdown?: Breakdown;
 }
 
-function RoomPhoto({images, selectedIndex, onClickImage}: {
+function RoomPhoto({images, onClickImage}: {
     images: string[];
     selectedIndex?: number,
     onClickImage: () => void;

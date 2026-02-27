@@ -1,13 +1,10 @@
 "use client"
 
-import React, {useEffect, useRef, useState} from "react"
+import React, {useEffect, useState} from "react"
 import Image from "next/image"
 import {ChevronLeft, ChevronRight} from "lucide-react"
 import {cn} from "@/lib/utils"
 import {Gallery} from "@/components/Gallery";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {Navigation, Pagination} from "swiper/modules";
-import type {Swiper as SwiperType} from "swiper";
 
 interface RoomCardProps {
     roomName: string
