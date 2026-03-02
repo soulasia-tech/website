@@ -214,25 +214,27 @@ export default function Home() {
                                         Discover the partnership
                                     </a>
                                 </div>
-                                <div className="lp:w-1/2 relative rounded-[10px] overflow-hidden">
-                                    <div className="h-full aspect-[4/3]">
-                                        <Image
-                                            src="/media-assets/asset11.jpg"
-                                            alt="item.title"
-                                            fill
-                                            className="object-cover rounded-xl"
-                                        />
-                                        <div
-                                            className="absolute inset-0 w-full h-full z-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_87.23%,#101828_111.69%)]"/>
-                                    </div>
-                                    {/* Distance badge */}
-                                    <Link
-                                        href={partnerLink} target="_blank"
-                                        className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-max leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full"
-                                    >
-                                        Смотреть доступные номера →
-                                    </Link>
+                                <div className="lp:w-1/2 flex items-center bg-[#1C2433] rounded-[10px] tb:rounded-[16px] full:rounded-[20px] overflow-hidden px-5 pt-10 pb-6 tb:pt-15 tb:pb-10">
+                                    <div className="w-full flex flex-col items-center gap-6 tb:gap-10 lp:gap-16 full:gap-25">
 
+                                        {/* Image wrapper with fixed ratio */}
+                                        <div className="relative w-full tb:max-w-[520px] lp:max-w-[600px] aspect-[13/9]">
+                                            <Image
+                                                src="/media-assets/mock-blueground.png"
+                                                alt="Blueground preview"
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
+
+                                        {/* Button */}
+                                        <Link
+                                            href={partnerLink} target="_blank"
+                                            className="bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-max leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full"
+                                        >
+                                            View available apartments →
+                                        </Link>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>

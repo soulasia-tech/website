@@ -350,7 +350,7 @@ export default function PartnershipPage() {
                                     href={partnerLink} target="_blank"
                                     className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white text-base tb:text-lg lp:text-xl full:text-2xl font-semibold inline-block w-max leading-tight px-5 py-3 tb:py-4 full:py-5 rounded-full"
                                 >
-                                    Смотреть доступные номера →
+                                    View available apartments →
                                 </Link>
 
                             </div>

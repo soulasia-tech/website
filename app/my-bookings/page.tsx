@@ -11,6 +11,7 @@ import {PropertyRoom, useUI} from "@/lib/context";
 import {Gallery} from "@/components/Gallery";
 import {PropertyInformationNew} from "@/components/property-information-new";
 import {cn} from "@/lib/utils";
+import {formatDate, formatDateDay} from "@/lib/guest-utils";
 
 interface CloudbedsReservationDetails {
     guestName?: string;
@@ -29,26 +30,6 @@ interface CloudbedsReservationDetails {
     subtotal?: number;
     sst?: number;
     tax?: number;
-}
-
-function formatDateDay(dateString: string | undefined | null): string {
-    if (!dateString) return '';
-    try {
-        return format(new Date(dateString), 'EEE, d MMMM yyyy');
-    } catch (error) {
-        console.error('Error formatting date:', error);
-        return dateString;
-    }
-}
-
-function formatDate(dateString: string | undefined | null): string {
-    if (!dateString) return '';
-    try {
-        return format(new Date(dateString), 'd MMMM yyyy');
-    } catch (error) {
-        console.error('Error formatting date:', error);
-        return dateString;
-    }
 }
 
 interface Booking {

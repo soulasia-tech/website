@@ -9,7 +9,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type {Swiper as SwiperType} from 'swiper';
-import {calculateTotalGuests} from '@/lib/guest-utils';
+import {calculateTotalGuests, formatDate, formatDateDay } from '@/lib/guest-utils';
 import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
 import {Gallery} from "@/components/Gallery";
 import {cn} from "@/lib/utils";
@@ -835,7 +835,25 @@ function SearchResults() {
                                                         </div>
                                                     </div>
                                                 ))}
-                                                <div className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
+                                                <div
+                                                    className="flex flex-wrap justify-between gap-x-5 tb:justify-normal tb:gap-x-20 lp:gap-x-10 gap-y-2.5 items-center border-b border-gray-200 pb-4">
+                                                    <div className="whitespace-nowrap">
+                                                        <div
+                                                            className="font-normal text-[#4A4F5B] text-xs tb:text-sm whitespace-nowrap">Check-in
+                                                        </div>
+                                                        <div
+                                                            className="flex font-medium text-base tb:text-lg whitespace-nowrap">{formatDateDay(startDate)}</div>
+                                                    </div>
+                                                    <div className="whitespace-nowrap">
+                                                        <div
+                                                            className="font-normal text-[#4A4F5B] text-xs tb:text-sm whitespace-nowrap">Check-out
+                                                        </div>
+                                                        <div
+                                                            className="flex font-medium text-base tb:text-lg whitespace-nowrap">{formatDateDay(endDate)}</div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    className="flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
                                                     <div className="flex flex-col gap-1 justify-between">
                                                         <span
                                                             className="text-sm lp:text-lp text-gray-500 font-semibold">Total</span>
