@@ -272,20 +272,22 @@ export function Navbar({className}: NavbarProps) {
                         </div>
                     </div>
                 </div>
-                <div
-                    className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center", !isDark && isActive ? 'flex' : 'hidden')}>
-                    <div className={cn("container mx-auto")}>
-                        <BookingWidgetNew
-                            initialSearchParams={initialSearchParams}
-                            guestsPopoverOpen={guestsPopoverOpen}
-                            setGuestsPopoverOpen={setGuestsPopoverOpen}
-                            citySelectOpen={citySelectOpen}
-                            setCitySelectOpen={setCitySelectOpen}
-                            datePopoverOpen={datePopoverOpen}
-                            setDatePopoverOpen={setDatePopoverOpen}
-                        />
+                { !isDark && isActive && (
+                    <div
+                        className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center flex")}>
+                        <div className={cn("container mx-auto")}>
+                            <BookingWidgetNew
+                                initialSearchParams={initialSearchParams}
+                                guestsPopoverOpen={guestsPopoverOpen}
+                                setGuestsPopoverOpen={setGuestsPopoverOpen}
+                                citySelectOpen={citySelectOpen}
+                                setCitySelectOpen={setCitySelectOpen}
+                                datePopoverOpen={datePopoverOpen}
+                                setDatePopoverOpen={setDatePopoverOpen}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
             </header>
             {(guestsPopoverOpen || citySelectOpen || datePopoverOpen) && (
                 <div

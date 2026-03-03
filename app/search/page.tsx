@@ -218,16 +218,6 @@ function SearchResults() {
     const propertyIdParam = searchParams.get('propertyId');
     const apartments = parseInt(searchParams.get('apartments') || '1', 10);
 
-    // Create initial search params object for BookingWidget
-    // const initialSearchParams = {
-    //   city: city || '',
-    //   startDate: startDate || '',
-    //   endDate: endDate || '',
-    //   adults: adults || '2',
-    //   children: children || '0',
-    //   apartments: apartments.toString(),
-    // };
-
     useEffect(() => {
         // Validate search parameters
         if ((!city && !propertyIdParam) || !startDate || !endDate || !adults || !children) {
@@ -836,7 +826,7 @@ function SearchResults() {
                                                     </div>
                                                 ))}
                                                 <div
-                                                    className="flex flex-wrap justify-between gap-x-5 tb:justify-normal tb:gap-x-20 lp:gap-x-10 gap-y-2.5 items-center border-b border-gray-200 pb-4">
+                                                    className="flex flex-wrap justify-between gap-x-5 tb:justify-normal tb:gap-x-20 lp:gap-x-10 gap-y-2.5 items-center border-b border-gray-200 mb-4 pb-4">
                                                     <div className="whitespace-nowrap">
                                                         <div
                                                             className="font-normal text-[#4A4F5B] text-xs tb:text-sm whitespace-nowrap">Check-in

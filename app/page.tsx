@@ -7,7 +7,7 @@ import {CustomerReviews} from "@/components/blocks/customer-reviews"
 import {Locations} from "@/components/blocks/locations"
 import {BookingWidgetNew} from "@/components/booking-widget-new";
 import {Experience} from "@/components/blocks/experience";
-import React from "react";
+import React, {useState} from "react";
 import Link from "next/link";
 
 // Animation variants
@@ -33,6 +33,8 @@ const staggerContainer = {
 const partnerLink = "https://www.theblueground.com/sp?placeId=ct-eyJ0eXBlIjoiY2l0eSIsImxhdCI6My4xNDk5MjIyLCJsbmciOjEwMS42OTQ0NjE5fQ";
 
 export default function Home() {
+
+    const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
     return (
         <>
@@ -78,7 +80,7 @@ export default function Home() {
                                  id="booking-widget-hero-anchor">
                                 <div
                                     className="bg-[#f9fafb] rounded-lg lp:rounded-xl mx-auto p-[10px] z-30 duration-300 w-full">
-                                    <BookingWidgetNew/>
+                                    <BookingWidgetNew datePopoverOpen={datePopoverOpen} setDatePopoverOpen={setDatePopoverOpen}/>
                                 </div>
                             </div>
                         </motion.div>

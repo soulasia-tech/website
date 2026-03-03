@@ -79,8 +79,12 @@ export function BookingWidgetNew({
     const cityRef = useRef<HTMLButtonElement | null>(null);
     const dateButtonRef = useRef<HTMLButtonElement | null>(null);
     // Track if date picker popover is open
-    // const [datePopoverOpen, setDatePopoverOpen] = useState(false);
-    const [touchRooms, setTouchRooms] = useState(false);
+    const [touchRooms, setTouchRooms] = useState(() => {
+        if (initialSearchParams?.adults && initialSearchParams?.children) {
+            return true
+        }
+        return false
+    });
 
     // Add new state for apartments
     const [apartments, setApartments] = useState(() => {
@@ -158,6 +162,10 @@ export function BookingWidgetNew({
     // Restore original handleDateChange
     function handleDateChange(newDate: DateRange | undefined) {
         setDate(newDate);
+
+        if (newDate?.from && newDate?.to && newDate.from.getTime() !== newDate.to.getTime()) {
+            setDatePopoverOpen?.(false);
+        }
     }
 
     // Restore original handleAdultsChange

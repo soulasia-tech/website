@@ -164,6 +164,7 @@ export function UIProvider({children}: { children: ReactNode }) {
     const [removePadding, setRemovePadding] = useState(false);
     useEffect(() => {
         setRemovePadding(false);
+        console.log(window.innerWidth)
         if(window.innerWidth >= 768) {
             setIsActive(true);
         }
