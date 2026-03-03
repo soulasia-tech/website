@@ -9,7 +9,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import type {Swiper as SwiperType} from 'swiper';
-import {calculateTotalGuests, formatDate, formatDateDay } from '@/lib/guest-utils';
+import {calculateTotalGuests, formatDateDay } from '@/lib/guest-utils';
 import {AvailablePropertiesMap} from '@/components/AvailablePropertiesMap';
 import {Gallery} from "@/components/Gallery";
 import {cn} from "@/lib/utils";

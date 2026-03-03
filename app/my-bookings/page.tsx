@@ -2,7 +2,6 @@
 
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
-import {format} from 'date-fns';
 import {useRouter} from 'next/navigation';
 import {ChevronDown, ChevronUp} from 'lucide-react';
 import {User as SupabaseUser} from "@supabase/supabase-js";
