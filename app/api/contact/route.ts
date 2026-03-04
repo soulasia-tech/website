@@ -54,7 +54,7 @@ async function sendEmail(body: { name: string; phone: string; message?: string }
       replyTo: 'no-reply@gmail.com',
       to: "aziz_khakimov@yahoo.com",
       subject: "New Contact",
-      text: `New Contact from Soulasia For-Owners <br/><br/>Name: ${body.name}<br/>Phone: ${body.phone}`,
+      html: `New Contact from Soulasia For-Owners <br/><br/>Name: ${body.name}<br/>Phone: ${body.phone}`,
     });
 
     return NextResponse.json({ success: true });
