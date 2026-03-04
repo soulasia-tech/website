@@ -213,21 +213,53 @@ export default function PropertiesPage() {
     const visibleImages: string[] = getVisibleImages();
 
     // Booking widget state
-    const [date, setDate] = useState<DateRange | undefined>(undefined);
+    const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+    const [selectedDates, setSelectedDates] = useState<DateRange | undefined>(undefined);
     const [adults, setAdults] = useState('2');
     const [children, setChildren] = useState('0');
     const [apartment, setApartment] = useState('1');
     const [submitting, setSubmitting] = useState(false);
 
+    const handleDayClick = (
+        day: Date, modifiers: {
+            disabled?: boolean;
+            hidden?: boolean;
+        }
+    ) => {
+        if (modifiers.disabled || modifiers.hidden) return;
+
+        setSelectedDates(prev => {
+            // 1️⃣ No selection yet
+            if (!prev?.from) {
+                return { from: day, to: undefined };
+            }
+
+            // 2️⃣ Selecting second date
+            if (prev.from && !prev.to) {
+                setDatePopoverOpen?.(false);
+                if (day < prev.from) {
+                    // If clicked before start → reset start
+                    return { from: day, to: prev.from };
+                }
+
+                // Complete the range
+                return { from: prev.from, to: day };
+            }
+
+            // 3️⃣ Full range already exists → restart selection
+            return { from: day, to: undefined };
+        });
+    };
+
     const handleBookNow = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!date?.from || !date?.to) return;
+        if (!selectedDates?.from || !selectedDates?.to) return;
         setSubmitting(true);
         const totalGuests = calculateTotalGuests(Number(adults), Number(children));
         const params = new URLSearchParams({
             propertyId: propertyId.toString(),
-            startDate: format(date.from, 'yyyy-MM-dd'),
-            endDate: format(date.to, 'yyyy-MM-dd'),
+            startDate: format(selectedDates.from, 'yyyy-MM-dd'),
+            endDate: format(selectedDates.to, 'yyyy-MM-dd'),
             adults,
             children,
             apartment,
@@ -419,17 +451,17 @@ export default function PropertiesPage() {
                                         className={["cursor-pointer flex items-center bg-white border border-[#DEE3ED] rounded-lg ",
                                             "h-[var(--action-h-lg)] tb:h-[var(--action-h-3xl)]"].join(' ')}
                                     >
-                                        <Popover>
+                                        <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                                             <PopoverTrigger asChild>
                                                 <Button
                                                     variant="none"
                                                     className={cn(
                                                         "w-full h-full justify-start px-3 font-normal text-left",
-                                                        !date?.from && "text-gray-400"
+                                                        !selectedDates?.from && "text-gray-400"
                                                     )}
                                                 >
-                                                    {date?.from && date?.to
-                                                        ? `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`
+                                                    {selectedDates?.from && selectedDates?.to
+                                                        ? `${format(selectedDates.from, "MMM d, yyyy")} - ${format(selectedDates.to, "MMM d, yyyy")}`
                                                         : (
                                                             <div className="flex gap-3 items-center">
                                                                 <Image
@@ -450,8 +482,8 @@ export default function PropertiesPage() {
                                             <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar
                                                     mode="range"
-                                                    selected={date}
-                                                    onSelect={setDate}
+                                                    selected={selectedDates}
+                                                    onDayClick={handleDayClick}
                                                     numberOfMonths={1}
                                                     initialFocus
                                                     className="rounded-lg border border-border p-2"

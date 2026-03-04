@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {DateRange} from "react-day-picker"
+import {DateRange, rangeIncludesDate} from "react-day-picker"
 import {calculateTotalGuests} from '@/lib/guest-utils'
 import Image from "next/image";
 
@@ -61,7 +61,7 @@ export function BookingWidgetNew({
         adults: initialSearchParams?.adults || '2',
         children: initialSearchParams?.children || '0',
     })
-    const [date, setDate] = useState<DateRange | undefined>(() => {
+    const [selectedDates, setSelectedDates] = useState<DateRange | undefined>(() => {
         if (initialSearchParams?.startDate && initialSearchParams?.endDate) {
             return {
                 from: new Date(initialSearchParams.startDate),
@@ -133,9 +133,9 @@ export function BookingWidgetNew({
         e.preventDefault()
         if (
             !searchParams.city ||
-            !date?.from ||
-            !date?.to ||
-            date.from.getTime() === date.to.getTime() // Prevent same-day check-in and checkout
+            !selectedDates?.from ||
+            !selectedDates?.to ||
+            selectedDates.from.getTime() === selectedDates.to.getTime() // Prevent same-day check-in and checkout
         ) {
             return
         }
@@ -143,8 +143,8 @@ export function BookingWidgetNew({
         const totalGuests = calculateTotalGuests(Number(searchParams.adults), Number(searchParams.children));
         const queryString = new URLSearchParams({
             city: searchParams.city,
-            startDate: format(date.from, 'yyyy-MM-dd'),
-            endDate: format(date.to, 'yyyy-MM-dd'),
+            startDate: format(selectedDates.from, 'yyyy-MM-dd'),
+            endDate: format(selectedDates.to, 'yyyy-MM-dd'),
             adults: searchParams.adults,
             children: searchParams.children,
             // apartments: apartments.toString(),
@@ -159,14 +159,36 @@ export function BookingWidgetNew({
         setSearchParams(prev => ({...prev, city: value}));
     }
 
-    // Restore original handleDateChange
-    function handleDateChange(newDate: DateRange | undefined) {
-        setDate(newDate);
-
-        if (newDate?.from && newDate?.to && newDate.from.getTime() !== newDate.to.getTime()) {
-            setDatePopoverOpen?.(false);
+    const handleDayClick = (
+        day: Date, modifiers: {
+            disabled?: boolean;
+            hidden?: boolean;
         }
-    }
+    ) => {
+        if (modifiers.disabled || modifiers.hidden) return;
+
+        setSelectedDates(prev => {
+            // 1️⃣ No selection yet
+            if (!prev?.from) {
+                return { from: day, to: undefined };
+            }
+
+            // 2️⃣ Selecting second date
+            if (prev.from && !prev.to) {
+                setDatePopoverOpen?.(false);
+                if (day < prev.from) {
+                    // If clicked before start → reset start
+                    return { from: day, to: prev.from };
+                }
+
+                // Complete the range
+                return { from: prev.from, to: day };
+            }
+
+            // 3️⃣ Full range already exists → restart selection
+            return { from: day, to: undefined };
+        });
+    };
 
     // Restore original handleAdultsChange
     function handleAdultsChange(value: string) {
@@ -246,13 +268,13 @@ export function BookingWidgetNew({
                                 className={cn(
                                     "cursor-pointer border border-[#DEE3ED] w-full h-full justify-start px-4 font-normal text-left flex items-center truncate" +
                                     "font-normal text-[#4a4f5b] text-xs lp:text-sm",
-                                    !date?.from && "text-gray-400"
+                                    !selectedDates?.from && "text-gray-400"
                                 )}
                             >
-                                {date?.from && date?.to && date.from.getTime() !== date.to.getTime() ? (
-                                    `${format(date.from, "MMM d")} - ${format(date.to, "MMM d")}`
-                                ) : date?.from ? (
-                                    `${format(date.from, "MMM d")} - Select checkout`
+                                {selectedDates?.from && selectedDates?.to && selectedDates.from.getTime() !== selectedDates.to.getTime() ? (
+                                    `${format(selectedDates.from, "MMM d")} - ${format(selectedDates.to, "MMM d")}`
+                                ) : selectedDates?.from ? (
+                                    `${format(selectedDates.from, "MMM d")} - Select checkout`
                                 ) : (
                                     <span className="text-[#4a4f5b]">Arrival date - Departure date</span>
                                 )}
@@ -263,8 +285,14 @@ export function BookingWidgetNew({
                             align="center">
                             <Calendar
                                 mode="range"
-                                selected={date}
-                                onSelect={handleDateChange}
+                                modifiers={{
+                                    selected: selectedDates,
+                                    range_start: selectedDates?.from,
+                                    range_end: selectedDates?.to,
+                                    range_middle: (date: Date) =>
+                                        selectedDates ? rangeIncludesDate(selectedDates, date, true) : false,
+                                }}
+                                onDayClick={handleDayClick}
                                 numberOfMonths={1}
                                 initialFocus
                                 disabled={{before: new Date()}}
