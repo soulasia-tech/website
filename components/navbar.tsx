@@ -29,8 +29,7 @@ const LINKS = [
 ];
 
 export function Navbar({className}: NavbarProps) {
-    const {isActive, setIsActive} = useUI();
-    const {isDark, setIsDark} = useUI();
+    const {isActive, setIsActive, isDark, setIsDark} = useUI();
 
     // Get search parameters
     const searchParams = useSearchParams();
@@ -55,7 +54,6 @@ export function Navbar({className}: NavbarProps) {
     const pathname = usePathname();
 
     useEffect(() => {
-        setButtonText(isActive ? 'Close' : 'Search')
         const dark = document.querySelector(".dark-header");
         if (!dark) {
             setIsDark(false); // no hero → always white
@@ -85,8 +83,14 @@ export function Navbar({className}: NavbarProps) {
         return () => observer.disconnect();
     }, [pathname]);
 
+    useEffect(() => {
+        setButtonText(isActive ? 'Close' : 'Search')
+        setFilterHidden(!isActive)
+    }, [isActive]);
+
     const [user, setUser] = useState<SupabaseUser | null>(null);
-    const [buttonText, setButtonText] = useState('Close');
+    const [filterHidden, setFilterHidden] = useState(false);
+    const [buttonText, setButtonText] = useState('Search');
     const supabase = createClientComponentClient();
     const router = useRouter();
 
@@ -118,7 +122,6 @@ export function Navbar({className}: NavbarProps) {
     };
 
     const toggle = () => {
-        setButtonText(!isActive ? 'Close' : 'Search')
         setIsActive(!isActive);
     };
 
@@ -272,22 +275,20 @@ export function Navbar({className}: NavbarProps) {
                         </div>
                     </div>
                 </div>
-                { !isDark && isActive && (
-                    <div
-                        className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center flex")}>
-                        <div className={cn("container mx-auto")}>
-                            <BookingWidgetNew
-                                initialSearchParams={initialSearchParams}
-                                guestsPopoverOpen={guestsPopoverOpen}
-                                setGuestsPopoverOpen={setGuestsPopoverOpen}
-                                citySelectOpen={citySelectOpen}
-                                setCitySelectOpen={setCitySelectOpen}
-                                datePopoverOpen={datePopoverOpen}
-                                setDatePopoverOpen={setDatePopoverOpen}
-                            />
-                        </div>
+                <div
+                    className={cn("bg-[#f8f9fb] w-full border-b border-b-[#dee3ed] h-max mt-[-1px] py-3 flex justify-center flex", !isDark && !filterHidden ? "block" : "hidden")}>
+                    <div className={cn("container mx-auto")}>
+                        <BookingWidgetNew
+                            initialSearchParams={initialSearchParams}
+                            guestsPopoverOpen={guestsPopoverOpen}
+                            setGuestsPopoverOpen={setGuestsPopoverOpen}
+                            citySelectOpen={citySelectOpen}
+                            setCitySelectOpen={setCitySelectOpen}
+                            datePopoverOpen={datePopoverOpen}
+                            setDatePopoverOpen={setDatePopoverOpen}
+                        />
                     </div>
-                )}
+                </div>
             </header>
             {(guestsPopoverOpen || citySelectOpen || datePopoverOpen) && (
                 <div
@@ -333,7 +334,7 @@ function MobileMenu({isDark}: { isDark: boolean }) {
                           className="tb:hidden flex items-center cursor-pointer gap-1">
                         <svg className="w-4 h-4" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4 3V21H12.975V19.5H5.5V4.5H12.975V3H4Z"
+                            <path fillRule="evenodd" clipRule="evenodd" d="M4 3V21H12.975V19.5H5.5V4.5H12.975V3H4Z"
                                   fill="black"/>
                             <path
                                 d="M12.5502 16.5L13.6679 15.425L11.4752 12.875H20.5V11.375H11.4252L13.6679 8.825L12.5002 7.75L8.50035 12.15L12.5502 16.5Z"

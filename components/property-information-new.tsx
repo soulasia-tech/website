@@ -261,7 +261,6 @@ export function PropertyInformationNew({propertyId}: PropertyInformationProps) {
                                         <Image
                                             src={photo.url}
                                             onClick={() => {
-                                                console.log(idx)
                                                 setSelectedIdx(idx)
                                                 setSelectedImages(photos)
                                             }}
@@ -304,7 +303,6 @@ export function PropertyInformationNew({propertyId}: PropertyInformationProps) {
                                 {shownAmenities?.map((amenity, idx) => {
                                     const name = amenity.amenityName || (typeof amenity === 'string' ? amenity : '');
                                     const srcIcon = amenityIconMap[name] ?? '/icons/amenities/check-box.svg';
-                                    console.log(srcIcon)
                                     return (
                                         <li key={idx} className="flex items-center gap-2 tb:gap-3 ">
                                             <Image src={srcIcon} alt=""

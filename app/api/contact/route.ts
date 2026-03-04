@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import nodemailer from "nodemailer";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-const resendKey = process.env.RESEND_API_KEY;
+
+const MAIL_HOST = process.env.MAIL_HOST;
+const MAIL_USER = process.env.MAIL_USER;
+const MAIL_APP_PASSWORD = process.env.MAIL_APP_PASSWORD;
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -35,19 +38,28 @@ export async function POST(req: Request) {
 }
 
 async function sendEmail(body: { name: string; phone: string; message?: string }) {
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${resendKey}`,
-      "Content-Type": "application/json"
+  const transporter = nodemailer.createTransport({
+    host: MAIL_HOST,
+    port: 465,
+    secure: true,
+    auth: {
+      user: MAIL_USER,
+      pass: MAIL_APP_PASSWORD,
     },
-    body: JSON.stringify({
-      from: "kongratbayevn@gmail.com",
+  });
+
+  try {
+    await transporter.sendMail({
+      from: `Soulasia Contacts`,
+      replyTo: 'no-reply@gmail.com',
       to: "aziz_khakimov@yahoo.com",
       subject: "New Contact",
-      html: `<p>Name: ${body.name} <br/> - Phone: ${body.phone}</p>`
-    })
-  })
+      text: `New Contact from Soulasia For-Owners <br/><br/>Name: ${body.name}<br/>Phone: ${body.phone}`,
+    });
 
-  return {status: "ok"}
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: err }, { status: 500 });
+  }
+
 }
