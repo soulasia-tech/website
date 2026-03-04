@@ -1,338 +1,488 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { format } from 'date-fns';
-import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
-import Link from "next/link";
-import { PropertyInformation } from '@/components/property-information';
-import { ChevronDown, ChevronUp, BedDouble } from 'lucide-react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
+import {useRouter} from 'next/navigation';
+import {ChevronDown, ChevronUp} from 'lucide-react';
+import {User as SupabaseUser} from "@supabase/supabase-js";
+import Image from "next/image";
+import {PropertyRoom, useUI} from "@/lib/context";
+import {Gallery} from "@/components/Gallery";
+import {PropertyInformationNew} from "@/components/property-information-new";
+import {cn} from "@/lib/utils";
+import {formatDate, formatDateDay} from "@/lib/guest-utils";
 
 interface CloudbedsReservationDetails {
-  guestName?: string;
-  status?: string;
-  assigned?: { roomName?: string }[];
-  startDate?: string;
-  endDate?: string;
-  total?: number;
-  numberOfChildren?: number;
-  // Add other fields as needed
-  grandTotal?: number;
-  subtotal?: number;
-  sst?: number;
-  tax?: number;
-}
-
-function formatDate(dateString: string | undefined | null): string {
-  if (!dateString) return '';
-  try {
-    return format(new Date(dateString), 'MMM d, yyyy');
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return dateString;
-  }
+    guestName?: string;
+    status?: string;
+    propertyName?: string;
+    roomNames?: string;
+    roomTypes?: PropertyRoom[];
+    assigned?: { roomName?: string, roomTypeName?: string, roomTypeID?: string }[];
+    unassigned?: { roomName?: string, roomTypeName?: string, roomTypeID?: string }[];
+    startDate?: string;
+    endDate?: string;
+    total?: number;
+    numberOfChildren?: number;
+    // Add other fields as needed
+    grandTotal?: number;
+    subtotal?: number;
+    sst?: number;
+    tax?: number;
 }
 
 interface Booking {
-  id: string;
-  created_at: string;
-  user_id: string;
-  room_id: string;
-  check_in: string;
-  check_out: string;
-  number_of_guests: number;
-  total_price: number;
-  status: string;
-  cloudbeds_res_id?: string;
-  cloudbeds_property_id?: string;
+    id: string;
+    created_at: string;
+    user_id: string;
+    room_id: string;
+    check_in: string;
+    check_out: string;
+    number_of_guests: number;
+    total_price: number;
+    status: string;
+    cloudbeds_res_id?: string;
+    cloudbeds_property_id?: string;
 }
 
 interface BookingError {
-  message: string;
+    message: string;
 }
 
-// Add type for room type details
-interface RoomTypeDetails {
-  photos: { url: string; caption?: string }[];
-  amenities?: string[];
-  roomTypeID?: string;
-  roomTypeName?: string;
-}
+function RoomPhoto({images, selectedIndex, onClickImage}: {
+    images: string[];
+    selectedIndex?: number,
+    onClickImage: () => void;
+}) {
+    const [selectedIdx, setSelectedIdx] = useState<number>(selectedIndex ?? 0);
 
-interface CloudbedsRoomType {
-  roomTypeID: string;
-  roomTypeName: string;
-  roomTypePhotos?: string[];
-  amenities?: string[];
-}
+    const hasPrev = selectedIdx > 0;
+    const hasNext = selectedIdx < images.length - 1;
 
-interface AssignedRoom {
-  roomName?: string;
-  rate?: number;
-  photos?: { url: string; caption?: string }[];
-}
+    const handleNext = () => {
+        setSelectedIdx((prev) =>
+            prev < images.length - 1 ? prev + 1 : prev
+        );
+    };
 
-// Minimal RoomCard for MyBookingsPage (no images)
-function MinimalRoomCard({ roomName, amenities, rate }: { roomName: string; amenities?: string[]; rate?: number }) {
-  return (
-    <div className="w-full group">
-      <div className="flex flex-col gap-1">
-        <h3 className="font-medium text-[15px] leading-5">{roomName}</h3>
-        {rate !== undefined && (
-          <p className="text-[15px] leading-5 mt-1">
-            <span className="font-medium">MYR {rate.toFixed(2)}</span>
-            <span className="text-gray-500"> night</span>
-          </p>
-        )}
-        {amenities && amenities.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {amenities.slice(0, 6).map((amenity: string, idx: number) => (
-              <span key={idx} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                {amenity}
-              </span>
-            ))}
-            {amenities.length > 6 && (
-              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">+{amenities.length - 6} more</span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    const handlePrev = () => {
+        setSelectedIdx((prev) =>
+            prev > 0 ? prev - 1 : prev
+        );
+    };
+
+    return (
+        <div
+            className="flex relative rounded-xl aspect-[1/1] max-h-[90px] tb:max-h-[130px] overflow-hidden ">
+            {/* arrows */}
+            <button
+                onClick={() => {
+                    handlePrev()
+                }}
+                className={cn("absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer mb-2 flex items-center rounded-sm justify-center aspect-[1/1] w-[16px] tb:w-[24px]",
+                    !hasPrev ? "bg-white/20" : "bg-white")}>
+                <Image
+                    src={`/icons/arrow-${!hasPrev ? 'light' : 'dark'}.svg`}
+                    alt="Prev"
+                    className="transform rotate-180 w-2 h-2 tb:w-2.5 tb:h-2.5"
+                    width={8}
+                    height={8}
+                />
+            </button>
+
+
+            {/* arrows */}
+            <button
+                onClick={() => {
+                    handleNext()
+                }}
+                className={cn("cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 mb-2 flex items-center rounded-sm justify-center aspect-[1/1] w-[16px] tb:w-[24px] custom-next",
+                    !hasNext ? "bg-white/20" : "bg-white")}>
+                <Image
+                    src={`/icons/arrow-${!hasNext ? 'light' : 'dark'}.svg`}
+                    alt="Next"
+                    className="w-2 h-2 tb:w-2.5 tb:h-2.5"
+                    width={8}
+                    height={8}
+                />
+            </button>
+            <Image
+                src={`${images[selectedIdx]}?w=400&h=400&fit=crop`}
+                alt="room"
+                width={130}
+                height={130}
+                className="object-cover cursor-pointer w-full h-full"
+                onClick={() => onClickImage()}
+            />
+        </div>
+    );
 }
 
 export default function MyBookingsPage() {
-  const supabase = createClientComponentClient();
-  const router = useRouter();
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [error, setError] = useState<BookingError | null>(null);
-  const [cloudbedsDetailsMap, setCloudbedsDetailsMap] = useState<Record<string, CloudbedsReservationDetails>>({});
-  const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
-  const [roomTypeDetailsMap, setRoomTypeDetailsMap] = useState<Record<string, RoomTypeDetails>>({});
-  
-  const fetchBookings = useCallback(async () => {
-    try {
-      // Get current user first
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/');
-        return;
-      }
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (bookingsError) {
-        console.error('Supabase error:', bookingsError);
-        throw bookingsError;
-      }
-      setBookings(bookingsData || []);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      setError({ message: error instanceof Error ? error.message : 'Failed to fetch bookings' });
-    }
-  }, [supabase, router]);
+    const supabase = createClientComponentClient();
+    const router = useRouter();
+    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [error, setError] = useState<BookingError | null>(null);
+    const [cloudbedsDetailsMap, setCloudbedsDetailsMap] = useState<Record<string, CloudbedsReservationDetails>>({});
+    const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
+    const {propertiesSaved, rooms} = useUI();
 
-  // Fetch Cloudbeds details for all bookings
-  useEffect(() => {
-    const fetchAllCloudbedsDetails = async () => {
-      const detailsMap: Record<string, CloudbedsReservationDetails> = {};
-      await Promise.all(
-        bookings.map(async (booking) => {
-          if (booking.cloudbeds_res_id && booking.cloudbeds_property_id) {
-            try {
-              const res = await fetch(`/api/fetch-cloudbeds-reservation?propertyId=${booking.cloudbeds_property_id}&reservationId=${booking.cloudbeds_res_id}`);
-              const data = await res.json();
-              if (data.success) {
-                detailsMap[booking.id] = data.data;
-              }
-            } catch {}
-          }
-        })
-      );
-      setCloudbedsDetailsMap(detailsMap);
-    };
-    if (bookings.length > 0) {
-      fetchAllCloudbedsDetails();
-    }
-  }, [bookings]);
+    const [user, setUser] = useState<SupabaseUser | null>(null);
+    const [status, setStatus] = useState<string>('active');
+    const [hasChanged, setHasChanged] = useState<boolean>(false);
+    const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
 
-  // Helper to fetch and cache room type details
-  const fetchRoomTypeDetails = useCallback(async (propertyId: string, roomNameOrId: string) => {
-    const cacheKey = `${propertyId}_${roomNameOrId}`;
-    if (roomTypeDetailsMap[cacheKey]) return roomTypeDetailsMap[cacheKey];
-    try {
-      const res = await fetch(`/api/cloudbeds/room-types?propertyId=${propertyId}`);
-      const data = await res.json();
-      if (data.success && Array.isArray(data.roomTypes)) {
-        const roomTypes: CloudbedsRoomType[] = data.roomTypes;
-        // Try to match by roomTypeName (case-insensitive, trimmed)
-        let found = roomTypes.find((rt) =>
-          rt.roomTypeName?.trim().toLowerCase() === roomNameOrId?.trim().toLowerCase()
-        );
-        // If not found, try by roomTypeID
-        if (!found) {
-          found = roomTypes.find((rt) =>
-            rt.roomTypeID?.trim().toLowerCase() === roomNameOrId?.trim().toLowerCase()
-          );
-        }
-        // If still not found, try includes (partial match)
-        if (!found) {
-          found = roomTypes.find((rt) =>
-            rt.roomTypeName?.toLowerCase().includes(roomNameOrId?.trim().toLowerCase())
-          );
-        }
-        if (found) {
-          const details: RoomTypeDetails = {
-            photos: Array.isArray(found.roomTypePhotos)
-              ? found.roomTypePhotos.map((url: string) => ({ url, caption: '' }))
-              : [],
-            amenities: Array.isArray(found.amenities) ? found.amenities : [],
-            roomTypeID: found.roomTypeID,
-            roomTypeName: found.roomTypeName,
-          };
-          setRoomTypeDetailsMap(prev => ({ ...prev, [cacheKey]: details }));
-          return details;
-        }
-      }
-    } catch {}
-    setRoomTypeDetailsMap(prev => ({ ...prev, [cacheKey]: { photos: [], amenities: [] } }));
-    return { photos: [], amenities: [] };
-  }, [roomTypeDetailsMap]);
-
-  // Prefetch room type details for expanded booking's rooms
-  useEffect(() => {
-    if (!expandedBookingId) return;
-    const booking = bookings.find(b => b.id === expandedBookingId);
-    if (!booking) return;
-    const cb = cloudbedsDetailsMap[booking.id];
-    const propertyId = booking.cloudbeds_property_id;
-    const rooms = Array.isArray(cb?.assigned) ? cb.assigned : [];
-    rooms.forEach(room => {
-      if (propertyId && room.roomName) {
-        const cacheKey = `${propertyId}_${room.roomName}`;
-        if (!roomTypeDetailsMap[cacheKey]) {
-          fetchRoomTypeDetails(propertyId, room.roomName);
-        }
-      }
-    });
-  }, [expandedBookingId, bookings, cloudbedsDetailsMap, roomTypeDetailsMap, fetchRoomTypeDetails]);
-
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
-
-  return (
-    <>
-      <title>Soulasia | My Bookings</title>
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold mb-6">My bookings</h1>
-        
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-            {error.message}
-          </div>
-        )}
-
-        {!error && bookings.length === 0 && (
-          <p className="text-gray-600">Your bookings will appear here.</p>
-        )}
-
-        {!error && bookings.length > 0 && (
-          bookings.map((booking) => {
+    const filteredBookings = useMemo(() => {
+        return bookings.filter(booking => {
             const cb = cloudbedsDetailsMap[booking.id];
-            const propertyId = booking.cloudbeds_property_id;
-            const rooms = Array.isArray(cb?.assigned) ? cb.assigned : [];
-            const expanded = expandedBookingId === booking.id;
-            return (
-              <div
-                key={booking.id}
-                className="w-full bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6"
-              >
-                {/* Summary Row */}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <BedDouble className="w-5 h-5 text-primary" />
-                  </div>
-                  <button onClick={() => setExpandedBookingId(expanded ? null : booking.id)} className="ml-auto p-2 rounded hover:bg-gray-100 transition">
-                    {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                  </button>
-                </div>
-                {/* Grouped Info */}
-                <div className="flex flex-wrap gap-6 mt-2">
-                  <div>
-                    <div className="text-gray-500 text-xs">Guest</div>
-                    <div className="font-medium text-base">{cb?.guestName || '-'}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 text-xs">Check-in</div>
-                    <div className="font-medium text-base">{cb?.startDate || formatDate(booking.check_in)}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500 text-xs">Check-out</div>
-                    <div className="font-medium text-base">{cb?.endDate || formatDate(booking.check_out)}</div>
-                  </div>
-                  {/* Removed Adults, Children, Apartments fields */}
-                  <div className="ml-auto text-right">
-                    <div className="text-gray-500 text-xs">Total</div>
-                    <div className="font-bold text-lg">MYR {cb?.grandTotal !== undefined ? cb.grandTotal.toFixed(2) : (cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-'))}</div>
-                    {/* Always show breakdown if available */}
-                    {(cb?.subtotal !== undefined || cb?.sst !== undefined || cb?.tax !== undefined || cb?.grandTotal !== undefined) && (
-                      <div className="mt-1 text-xs text-gray-600 text-right">
-                        <div>Subtotal: MYR {cb?.subtotal !== undefined ? cb.subtotal : '-'}</div>
-                        <div>SST/Tax: MYR {cb?.sst !== undefined ? cb.sst : (cb?.tax !== undefined ? cb.tax : '-')}</div>
-                        <div>Grand Total: MYR {cb?.grandTotal !== undefined ? cb.grandTotal : (cb?.total !== undefined ? cb.total : '-')}</div>
-                        <div className="text-[10px] text-gray-400 mt-1">This is the official total from Cloudbeds, including all taxes and fees.</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {/* Expandable Section */}
-                {expanded && (
-                  <div className="mt-4 space-y-6">
-                    {/* Room Cards */}
-                    <div className="grid gap-4 lp:grid-cols-2">
-                      {rooms.length > 0 ? rooms.map((room: AssignedRoom, idx: number) => {
-                        // No name shown in MinimalRoomCard
-                        return (
-                          <MinimalRoomCard
-                            key={idx}
-                            roomName={''}
-                            amenities={[]}
-                            rate={typeof room.rate === 'number' ? room.rate : undefined}
-                          />
-                        );
-                      }) : <div className="text-gray-400">Room info loading...</div>}
-                    </div>
-                    {/* Property Information */}
-                    {propertyId && (
-                      <div className="bg-gray-50 rounded-xl p-4">
-                        <PropertyInformation propertyId={propertyId} />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
+            const bookingStatus =
+                cb?.status?.toLowerCase() ||
+                booking.status?.toLowerCase() ||
+                '';
 
-        <div className="mt-12 flex flex-col items-center gap-6">
-          <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg px-8 py-4 text-base font-semibold">
-            <Link href="/">Book Your Next Trip</Link>
-          </Button>
-          <div className="max-w-xl w-full bg-blue-50 border border-blue-200 rounded-lg px-6 py-5 flex items-center gap-4 shadow-sm">
-            <Info className="w-6 h-6 text-blue-500 flex-shrink-0" />
-            <div className="text-blue-900 text-base font-medium">
-              If you want to modify your booking, please refer to your confirmation email or contact support@soulasia.com.my
+            switch (status) {
+                case 'active':
+                    return ['confirmed', 'checked_in'].includes(bookingStatus);
+                case 'past':
+                    return ['checked_out', 'not_confirmed', 'no_show'].includes(bookingStatus);
+                case 'canceled':
+                    return bookingStatus === 'canceled';
+                default:
+                    return true;
+            }
+        });
+    }, [status, bookings, cloudbedsDetailsMap]);
+
+    const fetchBookings = useCallback(async () => {
+        try {
+            // Get current user first
+            const {data: {user}} = await supabase.auth.getUser();
+            if (!user) {
+                router.push('/');
+                return;
+            }
+
+            setUser(user);
+
+            const {data: bookingsData, error: bookingsError} = await supabase
+                .from('bookings')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', {ascending: false});
+            if (bookingsError) {
+                console.error('Supabase error:', bookingsError);
+                throw bookingsError;
+            }
+            setBookings(bookingsData || []);
+            setError(null);
+        } catch (error) {
+            console.error('Error fetching bookings:', error);
+            setError({message: error instanceof Error ? error.message : 'Failed to fetch bookings'});
+        }
+    }, [supabase, router]);
+
+    // Fetch Cloudbeds details for all bookings
+    useEffect(() => {
+        const fetchAllCloudbedsDetails = async () => {
+            const detailsMap: Record<string, CloudbedsReservationDetails> = {};
+            await Promise.all(
+                bookings.map(async (booking) => {
+                    if (booking.cloudbeds_res_id && booking.cloudbeds_property_id) {
+                        try {
+                            const res = await fetch(`/api/fetch-cloudbeds-reservation?propertyId=${booking.cloudbeds_property_id}&reservationId=${booking.cloudbeds_res_id}`);
+                            const data = await res.json();
+
+                            if (data.success) {
+                                const property = propertiesSaved.find(item => item.propertyId == booking.cloudbeds_property_id)
+
+                                const detail = data.data as CloudbedsReservationDetails;
+
+                                detail.propertyName = property?.propertyName ?? 'Hotel Name';
+
+                                const assignedRoomTypeNames = detail.assigned?.map(a => a.roomTypeName?.replace('(Book Direct and Save – Up to 30% Cheaper Than Online Rates!)', '').trim()) || [];
+                                const unassignedRoomTypeNames = detail.unassigned?.map(u => u.roomTypeName?.replace('(Book Direct and Save – Up to 30% Cheaper Than Online Rates!)', '').trim()) || [];
+                                const allRoomTypeNames = [...assignedRoomTypeNames, ...unassignedRoomTypeNames];
+
+                                detail.roomNames = allRoomTypeNames?.join(', ') ?? 'Room Name';
+
+                                detailsMap[booking.id] = detail;
+                            }
+                        } catch {
+                        }
+                    }
+                })
+            );
+            setCloudbedsDetailsMap(detailsMap);
+            setHasChanged(prevState => !prevState);
+        };
+        if (bookings.length > 0) {
+            fetchAllCloudbedsDetails().then();
+        }
+    }, [bookings]);
+
+    useEffect(() => {
+        if (!rooms) return;
+
+        setCloudbedsDetailsMap(prevMap => {
+            if (!prevMap || Object.keys(prevMap).length === 0) {
+                return prevMap; // prevent running on empty map
+            }
+
+            const updatedMap: Record<string, CloudbedsReservationDetails> = {};
+
+            Object.entries(prevMap).forEach(([bookingId, details]) => {
+                const assignedRoomTypeIds =
+                    details.assigned?.map(a => a.roomTypeID) || [];
+
+                const unassignedRoomTypeIds =
+                    details.unassigned?.map(u => u.roomTypeID) || [];
+
+                const allRoomTypeIds = [
+                    ...assignedRoomTypeIds,
+                    ...unassignedRoomTypeIds,
+                ];
+
+                const matchedRooms = rooms.filter(r =>
+                    allRoomTypeIds.includes(r.roomTypeID)
+                );
+
+                updatedMap[bookingId] = {
+                    ...details,
+                    roomTypes: matchedRooms,
+                };
+            });
+
+            return updatedMap;
+        });
+    }, [rooms, hasChanged]);
+
+    useEffect(() => {
+        fetchBookings().then();
+    }, [fetchBookings]);
+
+    return (
+        <>
+            <title>Soulasia | My Bookings</title>
+            <div className="bg-white">
+                <section className="section-component-p-y bg-white">
+                    <div
+                        className="container mx-auto px-4 flex lp:flex-row flex-col w-full gap-8 lp:gap-[20px] full:gap-y-[30px]">
+                        <div className="lp:sticky lp:top-[calc(var(--nav-h)*2)] lp:flex-[5]">
+                            <h2 className="h2 font-semibold mb-5">Profile</h2>
+                            <div
+                                className="flex flex-col relative justify-center items-center  bg-[#f7f7f7] h-max p-4 tb:p-6 lp:p-10 text-card-foreground  gap-5 rounded-xl border border-[#DEE3ED] overflow-hidden">
+                                <span
+                                    className="flex justify-center items-center  bg-[#101828] w-15 h-15 tb:w-30 tb:h-30 lp:w-40 lp:h-40 rounded-full font-medium text-white text-3xl tb:text-5xl lp:text-7xl"
+                                >
+                                    {(() => {
+                                        return user?.user_metadata?.first_name?.[0];
+                                    })()}
+                                </span>
+                                <div className="flex flex-col justify-center items-center gap-1 lp:gap-2.5">
+                                    <h4 className="font-semibold text-2xl lp:text-[32px]">
+                                        {user?.user_metadata.first_name} {user?.user_metadata.last_name || ''}
+                                    </h4>
+                                    <h3 className="font-semibold text-black/60 mb-2 text-lg full:text-2xl lp:mb-4 leading-tight">
+                                        {user?.email}
+                                    </h3>
+                                </div>
+                                <Image
+                                    src="/icons/edit.svg"
+                                    alt=""
+                                    width={16}
+                                    height={16}
+                                    className="w-5 h-5 tb:w-6 tb:h-6 lp:w-8 lp:h-8  absolute top-6 right-6 lp:top-10 lp:right-10 cursor-pointer"
+                                />
+                            </div>
+                        </div>
+                        <div className="lp:flex-[7]">
+                            <h2 className="h2 font-semibold mb-5">Bookings</h2>
+                            <div className="flex items-center gap-3.5 full:gap-5 mb-5.5">
+                                <div
+                                    className={cn(
+                                        "cursor-pointer px-5 py-2.5 font-lg lp:font-xl font-medium rounded-[10px]",
+                                        status == 'active' ? 'border bg-[#101828] text-white' : 'border border-[#DEE3ED] bg-white text-[#4A4F5B]'
+                                    )}
+                                    onClick={() => setStatus('active')}
+                                >Active
+                                </div>
+                                <div
+                                    className={cn(
+                                        "cursor-pointer px-5 py-2.5 font-lg lp:font-xl font-medium rounded-[10px]",
+                                        status == 'past' ? 'border bg-[#101828] text-white' : 'border border-[#DEE3ED] bg-white text-[#4A4F5B]'
+                                    )}
+                                    onClick={() => setStatus('past')}
+                                >Past
+                                </div>
+                                <div
+                                    className={cn(
+                                        "cursor-pointer px-5 py-2.5 font-lg lp:font-xl font-medium rounded-[10px]",
+                                        status == 'canceled' ? 'border bg-[#101828] text-white' : 'border border-[#DEE3ED] bg-white text-[#4A4F5B]'
+                                    )}
+                                    onClick={() => setStatus('canceled')}
+                                >Canceled
+                                </div>
+                            </div>
+                            {error && (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                                    {error.message}
+                                </div>
+                            )}
+
+                            {!error && bookings.length === 0 && (
+                                <p className="text-gray-600">Your bookings will appear here.</p>
+                            )}
+
+                            {!error && filteredBookings.length  > 0 && (
+                                filteredBookings.map((booking) => {
+                                    const propertyId = booking.cloudbeds_property_id;
+                                    const cb = cloudbedsDetailsMap[booking.id];
+
+                                    const roomTypePhotos: string[] =
+                                        cb?.roomTypes?.flatMap(room =>
+                                            room.roomTypePhotos?.map(photo => photo.url) || []
+                                        ) || ['/rooms/room.svg'];
+
+                                    const expanded = expandedBookingId === booking.id;
+
+                                    return (
+                                        <div
+                                            key={booking.id}
+                                            className="flex flex-col w-full bg-[#f7f7f7] rounded-xl text-card-foreground border overflow-hidden p-5 mb-3.5 gap-5 tb:gap-7.5"
+                                        >
+                                            <div
+                                                className="flex flex-col tb:flex-row justify-between w-full gap-3 tb:gap-7.5">
+                                                <div
+                                                    className="flex items-center h-full gap-5 full:gap-10">
+                                                    <RoomPhoto images={roomTypePhotos} onClickImage={() => {
+                                                        setSelectedRoomImages(roomTypePhotos)
+                                                    }}></RoomPhoto>
+                                                    {/* Grouped Info */}
+                                                    <div className="flex flex-col gap-2.5 tb:gap-5">
+                                                        <div
+                                                            className="flex items-center gap-5 tb:gap-0 text-sm text-[#4A4F5B] font-medium">
+                                                            <div className="flex flex-col gap-1 lp:gap-2.5">
+                                                                <h2 className="text-lg tb:text-xl font-semibold text-[#101828]">
+                                                                    {cb.propertyName}
+                                                                </h2>
+                                                                <div
+                                                                    className="text-sm tb:text-base text-[#4a4f5b] font-normal">
+                                                                    {cb.roomNames}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="hidden tb:flex gap-5 full:gap-10">
+                                                            <div>
+                                                                <div
+                                                                    className="font-normal text-[#4A4F5B] text-xs tb:text-sm">Check-in
+                                                                </div>
+                                                                <div
+                                                                    className="hidden tb:flex font-medium text-base tb:text-lg">{formatDateDay(cb?.startDate)}</div>
+                                                                <div
+                                                                    className="flex tb:hidden font-medium text-base tb:text-lg">{formatDate(cb?.startDate)}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div
+                                                                    className="font-normal text-[#4A4F5B] text-xs tb:text-sm">Check-out
+                                                                </div>
+                                                                <div
+                                                                    className="hidden tb:flex font-medium text-base tb:text-lg">{formatDateDay(cb?.endDate)}</div>
+                                                                <div
+                                                                    className="flex tb:hidden font-medium text-base tb:text-lg">{formatDate(cb?.endDate)}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex tb:hidden gap-5 full:gap-10">
+                                                    <div>
+                                                        <div
+                                                            className="font-normal text-[#4A4F5B] text-xs tb:text-sm">Check-in
+                                                        </div>
+                                                        <div
+                                                            className="hidden tb:flex font-medium text-base tb:text-lg">{formatDateDay(cb?.startDate)}</div>
+                                                        <div
+                                                            className="flex tb:hidden font-medium text-base tb:text-lg">{formatDate(cb?.startDate)}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div
+                                                            className="font-normal text-[#4A4F5B] text-xs tb:text-sm">Check-out
+                                                        </div>
+                                                        <div
+                                                            className="hidden tb:flex font-medium text-base tb:text-lg">{formatDateDay(cb?.endDate)}</div>
+                                                        <div
+                                                            className="flex tb:hidden font-medium text-base tb:text-lg">{formatDate(cb?.endDate)}</div>
+                                                    </div>
+                                                </div>
+                                                {/* Summary Row */}
+                                                <div
+                                                    className="flex flex-row tb:flex-col items-end justify-between gap-4">
+                                                    {/* Removed Adults, Children, Apartments fields */}
+                                                    <div className="tb:text-right">
+                                                        <div
+                                                            className="font-medium text-[#4A4F5B] text-base tb:text-lg">Total
+                                                        </div>
+                                                        <div
+                                                            className="text-[#0E3599] font-bold text-lg tb:text-xl">MYR {cb?.grandTotal !== undefined ? cb.grandTotal.toFixed(2) : (cb?.total !== undefined ? cb.total.toFixed(2) : (booking.total_price ? booking.total_price.toFixed(2) : '-'))}</div>
+                                                        {/* Always show breakdown if available */}
+                                                        {(cb?.subtotal !== undefined || cb?.sst !== undefined || cb?.tax !== undefined || cb?.grandTotal !== undefined) && (
+                                                            <div className="mt-1 text-xs text-gray-600 text-right">
+                                                                <div>Subtotal:
+                                                                    MYR {cb?.subtotal !== undefined ? cb.subtotal : '-'}</div>
+                                                                <div>SST/Tax:
+                                                                    MYR {cb?.sst !== undefined ? cb.sst : (cb?.tax !== undefined ? cb.tax : '-')}</div>
+                                                                <div>Grand Total:
+                                                                    MYR {cb?.grandTotal !== undefined ? cb.grandTotal : (cb?.total !== undefined ? cb.total : '-')}</div>
+                                                                <div className="text-[10px] text-gray-400 mt-1">This
+                                                                    is
+                                                                    the
+                                                                    official total from
+                                                                    Cloudbeds, including all taxes and fees.
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setExpandedBookingId(expanded ? null : booking.id)}
+                                                        className="ml-auto p-2 rounded hover:bg-gray-100 transition">
+                                                        {expanded ? <ChevronUp className="w-5 h-5"/> :
+                                                            <ChevronDown className="w-5 h-5"/>}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Expandable Section */}
+                                            {expanded && propertyId && (
+                                                <div className="grid grid-cols-1 rounded-xl">
+                                                    <PropertyInformationNew propertyId={propertyId}/>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })
+                            )}
+
+                            {selectedRoomImages && (
+                                <div
+                                    className="fixed inset-0 z-50 flex items-center justify-center bg-[#141826] p-5 lp:p-10"
+                                    tabIndex={-1}
+                                    aria-modal="true"
+                                    role="dialog"
+                                >
+                                    <Gallery
+                                        images={selectedRoomImages.map(src => ({src, alt: "Room image"}))}
+                                        onClose={() => {
+                                            setSelectedRoomImages(null);
+                                        }}
+                                    ></Gallery>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
             </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-} 
+        </>
+    );
+}
+
+

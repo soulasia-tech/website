@@ -2,7 +2,7 @@
 import {motion} from "framer-motion";
 
 declare const process: { env: Record<string, string | undefined> };
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
 import { PropertyCard } from '@/components/property-card';
 import { RoomCard } from '@/components/room-card';
@@ -169,7 +169,13 @@ function AllPropertiesMap() {
             anchor="bottom"
             onClick={() => setSelectedIdx(idx)}
           >
-            <div style={{ fontSize: 32, cursor: 'pointer', color: '#3b82f6' }}>📍</div>
+            <Image
+                src="/icons/marker.svg"
+                alt="x"
+                width={40}
+                height={44}
+                className="w-10 h-11 cursor-pointer"
+            />
           </Marker>
         ))}
         {selectedIdx !== null && propertyMarkers[selectedIdx] && (
@@ -335,6 +341,7 @@ export default function AllLocationsPage() {
             </motion.div>
           </div>
         </section>
+
         <div className="min-h-screen py-12">
           <div className="container mx-auto">
             <div className="grid grid-cols-2 gap-8 items-start">

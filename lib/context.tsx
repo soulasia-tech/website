@@ -2,6 +2,8 @@
 "use client";
 
 import {createContext, useContext, useState, ReactNode, useEffect} from "react";
+import {PropertiesMap} from "@/components/PropertiesMap";
+import {usePathname} from "next/navigation";
 
 export interface Property {
     id?: string;
@@ -31,15 +33,33 @@ export interface PropertyRoom {
     rate?: number;
 }
 
+interface PropertyMarker {
+    lat: number;
+    lng: number;
+    name: string;
+    address?: string;
+}
+
+interface MapProperties {
+    propertyMarkers: PropertyMarker[],
+    zoom?: number;
+}
+
 type UIContextType = {
     isActive: boolean;
     setIsActive: (value: boolean) => void;
+
+    isDark: boolean;
+    setIsDark: (value: boolean) => void;
 
     propertiesSaved: Property[];
 
     properties: Property[] | null;
     rooms: PropertyRoom[] | null;
     loading: boolean;
+
+    openMap: (props: MapProperties) => void;
+    closeMap: () => void;
 };
 
 const propertiesSaved: Property[] = [
@@ -55,15 +75,15 @@ const propertiesSaved: Property[] = [
             "placeHint": "700m from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/coworking.svg', label: "Co-working Space (Free)"},
-            {icon: '/icons/water.svg', label: "Cuckoo Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
-            {icon: '/icons/pool.svg', label: "Rooftop Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/coworking.svg', label: "Co-working Space (Free)"},
+            {icon: '/icons/amenities/water.svg', label: "Cuckoo Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Paid)"},
+            {icon: '/icons/amenities/pool.svg', label: "Rooftop Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -78,14 +98,14 @@ const propertiesSaved: Property[] = [
             "placeHint": "600m from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/water.svg', label: "Coway Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Paid)"},
-            {icon: '/icons/parking.svg', label: "Parking (Paid)"},
-            {icon: '/icons/pool.svg', label: "Pool (Paid)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Paid)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Paid)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Paid)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Paid)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Paid)"},
         ]
     },
     {
@@ -100,14 +120,14 @@ const propertiesSaved: Property[] = [
             "placeHint": "1.2 km from Twin Towers"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/water.svg', label: "Coway Water Filter"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"},
-            {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/water.svg', label: "Coway Water Filter"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Free)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
     {
@@ -122,13 +142,13 @@ const propertiesSaved: Property[] = [
             "placeHint": "2.5 km from Pavilion Bukit Bintang"
         },
         amenities: [
-            {icon: '/icons/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
-            {icon: '/icons/coffee.svg', label: "Coffee Shop"},
-            {icon: '/icons/store.svg', label: "Convenience Store"},
-            {icon: '/icons/gym.svg', label: "Fitness & Gym (Free)"},
-            {icon: '/icons/parking.svg', label: "Parking (Free)"},
-            {icon: '/icons/pool.svg', label: "Pool (Free)"},
-            {icon: '/icons/sauna.svg', label: "Sauna (Free)"},
+            {icon: '/icons/amenities/wifi.svg', label: "100 mb/s Wi-Fi Connection"},
+            {icon: '/icons/amenities/coffee.svg', label: "Coffee Shop"},
+            {icon: '/icons/amenities/store.svg', label: "Convenience Store"},
+            {icon: '/icons/amenities/gym.svg', label: "Fitness & Gym (Free)"},
+            {icon: '/icons/amenities/parking.svg', label: "Parking (Free)"},
+            {icon: '/icons/amenities/pool.svg', label: "Pool (Free)"},
+            {icon: '/icons/amenities/sauna.svg', label: "Sauna (Free)"},
         ]
     },
 ];
@@ -138,6 +158,33 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export function UIProvider({children}: { children: ReactNode }) {
     // 🔹 UI state
     const [isActive, setIsActive] = useState(false);
+    const [isDark, setIsDark] = useState(false);
+
+    const pathname = usePathname();
+    const [removePadding, setRemovePadding] = useState(false);
+    useEffect(() => {
+        setRemovePadding(false);
+        console.log(window.innerWidth)
+        if(window.innerWidth >= 768) {
+            setIsActive(true);
+        }
+
+        if (['/', '/partnership', '/all-locations'].includes(pathname)) {
+            setRemovePadding(true);
+        }
+
+        if (['/search'].includes(pathname)) {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
+        }
+
+        if (pathname.startsWith('/auth')) {
+            setRemovePadding(true);
+            setIsActive(false);
+        }
+    }, [pathname]);
 
     // 🔹 Cache state
     const [properties, setProperties] = useState<Property[] | null>(null);
@@ -202,15 +249,35 @@ export function UIProvider({children}: { children: ReactNode }) {
                 setLoading(false);
             }
         };
-        fetchRooms();
+
+        fetchRooms().then();
     }, []);
 
+    const [modalContent, setModalContent] = useState<React.ReactNode>(null);
+
+    const openMap = (props: MapProperties) => {
+        setModalContent(<PropertiesMap propertyMarkers={props.propertyMarkers} fullScreenMode={true} zoom={props.zoom}/>);
+    };
+
+    const closeMap = () => setModalContent(null);
 
     return (
         <UIContext.Provider
-            value={{isActive, setIsActive, propertiesSaved, properties, rooms, loading}}
+            value={{
+                isActive, setIsActive, isDark, setIsDark,
+                propertiesSaved, properties, rooms, loading,
+                openMap, closeMap
+            }}
         >
-            {children}
+            <div
+                className={!removePadding && !isDark && isActive ? 'mt-50 tb:mt-[calc(var(--action-h-1xl)+24px)]' : ''}>
+                {children}
+            </div>
+            {modalContent && (
+                <div className="fixed inset-0 z-60 bg-white flex justify-center items-center p-5 lp:p-10">
+                    {modalContent}
+                </div>
+            )}
         </UIContext.Provider>
     );
 }

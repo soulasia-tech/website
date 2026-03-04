@@ -1,19 +1,19 @@
-import type { Metadata } from "next";
-import { Manrope } from "next/font/google";   // ⬅️ use Manrope
+import type {Metadata} from "next";
+import {Manrope} from "next/font/google";   // ⬅️ use Manrope
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import {Navbar} from "@/components/navbar";
+import {Footer} from "@/components/footer";
 import Script from "next/script";
 import {UIProvider} from "@/lib/context";
 import React, {Suspense} from "react";
 
 // Manrope variable font; includes Cyrillic
 const manrope = Manrope({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-manrope",   // ⬅️ creates CSS var
-  display: "swap",
-  // optionally restrict weights to shrink bundle:
-  // weight: ["400","500","600","700"]
+    subsets: ["latin", "cyrillic"],
+    variable: "--font-manrope",   // ⬅️ creates CSS var
+    display: "swap",
+    // optionally restrict weights to shrink bundle:
+    // weight: ["400","500","600","700"]
 });
 
 const domain = process.env.NEXT_PUBLIC_BASE_URL ?? "https://website-six-omega-16.vercel.app";
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
         images: [`${domain}/og-image.jpg`],
     },
 
-    icons: {icon: [{url: `${domain}/favicon.svg`, type: "image/svg+xml"}]},
+    icons: {icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}]},
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {

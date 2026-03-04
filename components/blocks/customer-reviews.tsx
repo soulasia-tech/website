@@ -18,7 +18,7 @@ export function CustomerReviews() {
         const btn = document.querySelector(
             ".es-carousel-arrow-control-right"
         ) as HTMLElement | null;
-        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        btn?.dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true}));
     };
 
     const scrollPrev = (e?: React.MouseEvent) => {
@@ -26,7 +26,7 @@ export function CustomerReviews() {
         const btn = document.querySelector(
             ".es-carousel-arrow-control-left"
         ) as HTMLElement | null;
-        btn?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+        btn?.dispatchEvent(new MouseEvent("click", {bubbles: true, cancelable: true}));
     };
 
     return (
@@ -42,7 +42,7 @@ export function CustomerReviews() {
                             <div onClick={event => scrollPrev(event)}
                                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                                 <Image
-                                    src="/icons/arrow.svg"
+                                    src="/icons/arrow-dark.svg"
                                     alt="Arrow"
                                     width={16}
                                     height={16}
@@ -52,7 +52,7 @@ export function CustomerReviews() {
                             <div onClick={event => scrollNext(event)}
                                  className="cursor-pointer mb-2 flex items-center bg-[#e5eeff] rounded-md justify-center aspect-[1/1] w-[32px] lp:w-[40px]">
                                 <Image
-                                    src="/icons/arrow.svg"
+                                    src="/icons/arrow-dark.svg"
                                     alt="Arrow"
                                     width={16}
                                     height={16}

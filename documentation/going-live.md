@@ -12,7 +12,7 @@ Congratulations! You're ready to launch your website. Follow these steps to make
 4. Find the variable named `NEXT_PUBLIC_BASE_URL`.
 5. Change its value to your production domain, for example:
    ```
-   NEXT_PUBLIC_BASE_URL=https://new.soulasia.com.my/
+   NEXT_PUBLIC_BASE_URL=https://soulasia.com.my/
    ```
 6. Click **Save**.
 7. Redeploy your project to apply the change.
@@ -22,7 +22,7 @@ Congratulations! You're ready to launch your website. Follow these steps to make
 ## 2. Change the Domain in Vercel
 
 1. In your Vercel project, go to **Settings** > **Domains**.
-2. Click **Add** and enter your production domain (e.g., `new.soulasia.com.my`).
+2. Click **Add** and enter your production domain (e.g., `soulasia.com.my`).
 3. Follow the instructions to verify your domain (you may need to update DNS records with your domain provider).
 4. Once verified, set this domain as the **primary** domain.
 5. Remove any old or test domains if you no longer need them.

@@ -39,7 +39,6 @@ export async function GET(request: Request) {
       propertyID: propertyId,
       includeInactive: 'false'
     });
-    console.log('params', params)
 
     const response = await fetch(`${cloudbedsUrl}?${params}`, {
       headers: {
@@ -47,7 +46,6 @@ export async function GET(request: Request) {
         'Content-Type': 'application/json'
       }
     });
-    console.log('property.api_key', property.api_key)
     const data = await response.json();
 
     if (!response.ok) {
