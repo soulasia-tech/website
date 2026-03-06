@@ -4,24 +4,19 @@ import React, {useState, useEffect, Suspense} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Card} from "@/components/ui/card";
 import {format, parseISO, differenceInDays} from "date-fns";
 import {createClientComponentClient} from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import {User as SupabaseUser} from '@supabase/supabase-js';
 import {PropertyInformation} from '@/components/property-information';
-import {cn} from "@/lib/utils";
 import {
     Select,
     SelectContent,
-    SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select";
 import Image from "next/image";
-import {formatDateDay} from "@/lib/guest-utils";
 
 interface BookingFormData {
     firstName: string;

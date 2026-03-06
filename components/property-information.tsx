@@ -1,9 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import Image from "next/image";
-import {icons} from "lucide-react";
-import Map, {Marker, Popup} from 'react-map-gl';
 import {Swiper, SwiperSlide} from 'swiper/react';
-import {Navigation, Pagination} from 'swiper/modules';
+import {Navigation} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
