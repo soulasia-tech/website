@@ -260,7 +260,7 @@ export function PropertyInformation({propertyId}: PropertyInformationProps) {
                             {photos.map((photo, idx) => (
                                 <SwiperSlide key={idx}>
                                     <div
-                                        className="relative aspect-square rounded-xl shadow bg-white overflow-hidden cursor-pointer group"
+                                        className="relative group overflow-hidden aspect-square rounded-xl shadow bg-white cursor-pointer "
                                         tabIndex={0}
                                         aria-label="View image"
                                     >

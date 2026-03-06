@@ -227,7 +227,7 @@ export function BookingWidgetNew({
                       data-[placeholder]:text-[#4a4f5b] data-[placeholder]:text-xs data-[placeholder]:lp:text-sm
                   "
                         >
-                            <SelectValue placeholder="Enter the direction"></SelectValue>
+                            <SelectValue placeholder="Select City"></SelectValue>
                         </SelectTrigger>
                         <SelectContent className="mt-3 w-full">
                             <SelectGroup>
