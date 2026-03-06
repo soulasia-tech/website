@@ -2,9 +2,15 @@
 
 import {motion} from "framer-motion"
 import Image from "next/image";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {cn} from "@/lib/utils";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Autoplay, Navigation} from "swiper/modules";
+import type {Swiper as SwiperType} from "swiper";
+import "swiper/css"
+import "swiper/css/navigation"
+import {Gallery} from "@/components/Gallery";
 
 // Animation variants
 const fadeIn = {
@@ -27,24 +33,16 @@ const staggerContainer = {
 }
 
 const imagesMap = [
-    "/partnership/3.jpg",
-    "/partnership/4.jpg",
-    "/partnership/5.jpg",
-    "/partnership/6.jpg",
-    "/partnership/9.jpg",
-    "/partnership/10.jpg",
-    "/partnership/11.jpg",
-    "/partnership/12.jpg",
-    "/partnership/13.jpg",
-    "/partnership/14.jpg",
-    "/partnership/15.jpg",
-    "/partnership/16.jpg",
-    "/partnership/18.jpg",
-    "/partnership/19.jpg",
-    "/partnership/20.jpg",
-    "/partnership/21.jpg",
-    "/partnership/23.jpg",
-    "/partnership/24.jpg",
+    "/partnership/g-1.jpg",
+    "/partnership/g-2.jpg",
+    "/partnership/g-3.jpg",
+    "/partnership/g-4.jpg",
+    "/partnership/g-5.jpg",
+    "/partnership/g-6.jpg",
+    "/partnership/g-7.jpg",
+    "/partnership/g-8.jpg",
+    "/partnership/g-9.jpg",
+    "/partnership/g-10.jpg",
 ]
 
 const partnerLink = "https://www.theblueground.com/sp?placeId=ct-eyJ0eXBlIjoiY2l0eSIsImxhdCI6My4xNDk5MjIyLCJsbmciOjEwMS42OTQ0NjE5fQ";
@@ -78,6 +76,14 @@ export default function PartnershipPage() {
         return () => cancelAnimationFrame(animationFrame);
     }, []);
 
+    const [selectedIdx, setSelectedIdx] = useState<number>(0);
+    const [selectedImages, setSelectedImages] = useState<string[] | null>(null);
+
+    const prevRef = useRef<HTMLButtonElement | null>(null);
+    const nextRef = useRef<HTMLButtonElement | null>(null);
+    const [hasPrev, setHasPrev] = useState(false);
+    const [hasNext, setHasNext] = useState(true);
+
     return (
         <>
             <title>Soulasia | For Partnership</title>
@@ -109,39 +115,123 @@ export default function PartnershipPage() {
                             Lumpur
                         </div>
                     </div>
+
                     {/* Gallery */}
+
                     <motion.div
                         initial="hidden"
                         whileInView="visible"
 
                         viewport={{once: true, margin: "-100px"}}
                         variants={fadeIn}
-                        className="relative overflow-hidden w-full"
-                    >
-                        {/* Track */}
-                        <div
-                            ref={trackRef}
-                            className="flex overflow-x-auto scroll-smooth no-scrollbar"
+                        className="relative w-full ">
+                        <button
+                            ref={prevRef}
+                            className={cn("absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-pointer mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px]",
+                                !hasPrev ? "bg-white/20" : "bg-white")}>
+                            <Image
+                                src={`/icons/arrow-${!hasPrev ? 'light' : 'dark'}.svg`}
+                                alt="Prev"
+                                className="transform rotate-180"
+                                width={12}
+                                height={12}
+                            />
+                        </button>
+
+
+                        {/* arrows */}
+                        <button
+                            ref={nextRef}
+                            className={cn("cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 mb-2 flex items-center rounded-sm lp:rounded-md justify-center aspect-[1/1] w-[20px] lp:w-[28px] custom-next",
+                                !hasNext ? "bg-white/20" : "bg-white")}>
+                            <Image
+                                src={`/icons/arrow-${!hasNext ? 'light' : 'dark'}.svg`}
+                                alt="Next"
+                                width={12}
+                                height={12}
+                            />
+                        </button>
+
+                        <Swiper
+                            modules={[Navigation,Autoplay]}
+                            autoplay={{
+                                delay: 2000,
+                                disableOnInteraction: false,
+                            }}
+                            navigation={{
+                                prevEl: prevRef.current,
+                                nextEl: nextRef.current,
+                            }}
+                            onBeforeInit={(swiper: SwiperType) => {
+                                // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                                swiper.params.navigation.prevEl = prevRef.current;
+                                // @ts-expect-error Swiper types do not include dynamic navigation element assignment
+                                swiper.params.navigation.nextEl = nextRef.current;
+                            }}
+                            onSlideChange={(swiper) => {
+                                setHasPrev(!swiper.isBeginning);
+                                setHasNext(!swiper.isEnd);
+                            }}
+                            breakpoints={{
+                                0: {
+                                    slidesPerView: 1.6,
+                                    spaceBetween: 10,
+                                },
+                                768: {
+                                    slidesPerView: 2.2,
+                                    spaceBetween: 20,
+                                },
+                                992: {
+                                    slidesPerView: 2.7,
+                                    spaceBetween: 20,
+                                },
+                                1920: {
+                                    slidesPerView: 3.9,
+                                    spaceBetween: 20,
+                                },
+                            }}
+                            className="w-full rounded-xl pl-10"
                         >
                             {imagesMap.map((src: string, idx: number) => (
-                                <div
-                                    key={idx}
-                                    className="flex-shrink-0 basis-3/4 tb:basis-2/5 lp:basis-2/7 full:basis-2/10 group overflow-hidden px-1 tb:px-2.5  last:pr-0 ">
-                                    <div
-                                        className="relative w-full aspect-[5/4] h-[210px] tb:h-[260px] lp:h-[286px] full:h-[380px]">
-                                        <Image
-                                            src={src}
-                                            alt={`Property image ${idx + 1}`}
-                                            fill
-                                            // sizes="(max-width: 768px) 100vw, 400px"
-                                            className="object-cover rounded-xl"
-                                        />
+                                <SwiperSlide key={idx}>
+                                    <div className="group overflow-hidden">
+                                        <div className="relative w-full aspect-[5/4] h-[150px] tb:h-[230px] lp:h-[326px] full:h-[440px]">
+                                            <Image
+                                                src={src}
+                                                onClick={() => {
+                                                    setSelectedIdx(idx)
+                                                    setSelectedImages(imagesMap)
+                                                }}
+                                                alt={`Property image ${idx + 1}`}
+                                                fill
+                                                quality={60}
+                                                className="object-cover rounded-xl"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                </SwiperSlide>
                             ))}
-                        </div>
+                        </Swiper>
                     </motion.div>
                 </section>
+
+                {/* Modal for image preview */}
+                {selectedImages && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-[#141826] p-5 lp:p-10"
+                        tabIndex={-1}
+                        aria-modal="true"
+                        role="dialog"
+                    >
+                        <Gallery
+                            images={selectedImages.map(img => ({src: img, alt: ''}))}
+                            selectedIndex={selectedIdx}
+                            onClose={() => {
+                                setSelectedImages(null);
+                            }}
+                        ></Gallery>
+                    </div>
+                )}
 
                 {/* Feels Like */}
                 <section className="section-padding-y overflow-hidden bg-[#F9FAFB]">
@@ -526,7 +616,6 @@ export default function PartnershipPage() {
                     </div>
                 </section>
 
-
                 {/* Two Ways to Stay */}
                 <section className="section-padding-y overflow-hidden bg-[#F9FAFB]">
                     <div className="container relative">
@@ -616,7 +705,8 @@ export default function PartnershipPage() {
                                 </motion.div>
                             </div>
                         </div>
-                        <div className="flex flex-col text-[#181018]/60 text-[21px] tb:text-[28px] lp:text-[32px] font-normal">
+                        <div
+                            className="flex flex-col text-[#181018]/60 text-[21px] tb:text-[28px] lp:text-[32px] font-normal">
                             <div>Different <span className="text-[#181018]">duration.</span></div>
                             <div>Different <span className="text-[#181018]">needs.</span></div>
                         </div>
@@ -660,7 +750,8 @@ export default function PartnershipPage() {
                                     variants={fadeIn}
                                     className="flex flex-col max-w-fit items-start transition-transform duration-300 pr-4 w-full"
                                 >
-                                    <div className="flex flex-row lp:flex-col items-center lp:items-start gap-2.5 mb-2.5 lp:mb-5">
+                                    <div
+                                        className="flex flex-row lp:flex-col items-center lp:items-start gap-2.5 mb-2.5 lp:mb-5">
                                         <div
                                             className="flex items-center justify-start aspect-[1/1] w-[24px] tb:w-[32px] lp:w-[40px] ">
                                             <Image
@@ -693,8 +784,10 @@ export default function PartnershipPage() {
                             transition={{duration: 0.4, delay: 0.1 / 10}}
                             viewport={{once: true, amount: 0.2}}
                             className="flex flex-col gap-6 tb:gap-10 full:gap-15 w-full">
-                            <div className=" flex flex-col lp:flex-row gap-2.5 tb:gap-5 w-full justify-between items-start lp:items-end">
-                                <h2 className="lp:w-1/2 h2 text-white font-semibold mr-auto">This partnership brought global
+                            <div
+                                className=" flex flex-col lp:flex-row gap-2.5 tb:gap-5 w-full justify-between items-start lp:items-end">
+                                <h2 className="lp:w-1/2 h2 text-white font-semibold mr-auto">This partnership brought
+                                    global
                                     discipline into a local operation </h2>
                                 <div
                                     className="lp:w-9/24 font-normal/90 text-white text-base tb:text-xl full:text-3xl pr-4">

@@ -11,6 +11,9 @@ import {Gallery} from "@/components/Gallery";
 import {PropertyInformationNew} from "@/components/property-information-new";
 import {cn} from "@/lib/utils";
 import {formatDate, formatDateDay} from "@/lib/guest-utils";
+import {Card} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 
 interface CloudbedsReservationDetails {
     guestName?: string;
@@ -118,6 +121,62 @@ function RoomPhoto({images, selectedIndex, onClickImage}: {
     );
 }
 
+function EmailEditModal({prevEmail, onClose}: { prevEmail?: string; onClose?: () => void;}) {
+    const supabase = createClientComponentClient();
+    const [email, setEmail] = useState(prevEmail ?? "");
+    const [message, setMessage] = useState<string | null>(null);
+
+    async function submit(e: React.FormEvent) {
+        e.preventDefault();
+        setMessage(null);
+
+        const { error } = await supabase.auth.updateUser({ email });
+
+        if (error) setMessage(error.message);
+        else setMessage("Check your inbox to confirm the change.");
+    }
+
+    return (
+        <Card className="relative bg-gray-50 p-10 rounded-2xl shadow-lg w-full max-w-md">
+            <form onSubmit={submit} className="flex flex-col gap-6">
+                <div>
+                    <h3 className="h3 font-semibold mb-4">Change Email Address</h3>
+                    <Input type="email" placeholder="New Email Address"
+                           className="selection:bg-black/40 h-[var(--action-h-1xl)] lp:h-[var(--action-h-2xl)] "
+                           required value={email} onChange={(e) => setEmail(e.target.value)}/>
+                </div>
+                <Button
+                    type="submit"
+                    variant="default"
+                    className={["mt-auto font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full tb:w-auto",
+                        "h-[var(--action-h-1xl)] lp:h-[var(--action-h-2xl)]"].join(' ')}
+
+                    onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                    onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+                >
+                    Send confirmation
+                </Button>
+                {message && <p>{message}</p>}
+            </form>
+            {/* Controls (top-right corner) */}
+            <div className="absolute top-5 right-5 flex shadow-layered rounded-sm flex-col z-10">
+                <button
+                    onClick={onClose}
+                    className="aspect-[1/1] w-[24px] lp:w-[32px] flex items-center rounded-sm justify-center bg-white rounded-lg hover:bg-gray-100"
+                >
+                    <Image
+                        src="/icons/cross.svg"
+                        alt="x"
+                        width={16}
+                        height={16}
+                        className="w-4 h-4"
+                    />
+                </button>
+            </div>
+        </Card>
+    );
+}
+
 export default function MyBookingsPage() {
     const supabase = createClientComponentClient();
     const router = useRouter();
@@ -130,6 +189,7 @@ export default function MyBookingsPage() {
     const [user, setUser] = useState<SupabaseUser | null>(null);
     const [status, setStatus] = useState<string>('active');
     const [hasChanged, setHasChanged] = useState<boolean>(false);
+    const [openEditModal, setOpenEditModal] = useState<boolean>(false);
     const [selectedRoomImages, setSelectedRoomImages] = useState<string[] | null>(null);
 
     const filteredBookings = useMemo(() => {
@@ -292,6 +352,7 @@ export default function MyBookingsPage() {
                                     width={16}
                                     height={16}
                                     className="w-5 h-5 tb:w-6 tb:h-6 lp:w-8 lp:h-8  absolute top-6 right-6 lp:top-10 lp:right-10 cursor-pointer"
+                                    onClick={() => setOpenEditModal(true)}
                                 />
                             </div>
                         </div>
@@ -478,6 +539,19 @@ export default function MyBookingsPage() {
                                 </div>
                             )}
                         </div>
+                        {openEditModal && (
+                            <div
+                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-5 lp:p-10"
+                                tabIndex={-1}
+                                aria-modal="true"
+                                role="dialog"
+                                onClick={() => setOpenEditModal(false)}
+                            >
+                                <div className="flex items-center justify-center w-full" onClick={(e) => e.stopPropagation()}>
+                                    <EmailEditModal prevEmail={user?.email} onClose={() => setOpenEditModal(false)}></EmailEditModal>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>

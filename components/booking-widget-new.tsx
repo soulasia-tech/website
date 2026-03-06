@@ -223,11 +223,11 @@ export function BookingWidgetNew({
                         <SelectTrigger
                             ref={cityRef}
                             hideIcon={true}
-                            className="cursor-pointer w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0
+                            className="cursor-pointer w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
                       data-[placeholder]:text-[#4a4f5b] data-[placeholder]:text-xs data-[placeholder]:lp:text-sm
                   "
                         >
-                            <SelectValue placeholder="Enter the direction"></SelectValue>
+                            <SelectValue placeholder="Select City"></SelectValue>
                         </SelectTrigger>
                         <SelectContent className="mt-3 w-full">
                             <SelectGroup>
