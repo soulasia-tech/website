@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect, Suspense} from 'react';
+import React, {useState, useEffect, Suspense} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -11,7 +11,17 @@ import Link from 'next/link';
 import {User as SupabaseUser} from '@supabase/supabase-js';
 import {PropertyInformation} from '@/components/property-information';
 import {cn} from "@/lib/utils";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
+import Image from "next/image";
+import {formatDateDay} from "@/lib/guest-utils";
 
 interface BookingFormData {
     firstName: string;
@@ -604,13 +614,11 @@ function BookingForm() {
     }
 
     return (
-        <div className="min-h-screen py-12">
+        <div className={"py-8 bg-white relative"}>
             <div className="container mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-3xl font-bold mb-8">Guest Contact Details</h1>
-                    <Button
-                        variant="outline"
-                        className="rounded-full px-5 py-2 font-medium border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center gap-2 shadow-sm"
+                <div className="flex flex-col gap-2">
+                    {/* Back button */}
+                    <button
                         onClick={() => {
                             if (typeof window !== 'undefined') {
                                 const lastSearchUrl = sessionStorage.getItem('lastSearchUrl');
@@ -650,18 +658,28 @@ function BookingForm() {
                                 router.push('/search?city=Kuala Lumpur');
                             }
                         }}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7"/>
-                        </svg>
+                        className="cursor-pointer w-max flex items-center gap-1 font-medium text-[#4a4f5b] border border-[#dee3ed] hover:bg-[#F9FAFB]
+                              rounded-lg tb:rounded-[10px] px-2 py-1 lp:px-3 lp:py-2 text-xs lp:text-sm">
+                        <Image
+                            src="/icons/arrow.svg"
+                            alt="Arrow"
+                            width={16}
+                            height={16}
+                            className="w-3 h-3 lp:w-4 lp:h-4 transform rotate-180"
+                        />
                         Back to Search
-                    </Button>
+                    </button>
+
+                    {/* Title & meta */}
+                    <h2 className="h2 mt-2 mb-4 lp:mb-6 font-semibold text-[#101828] ">
+                        Guest Contact Details
+                    </h2>
                 </div>
                 <div className="grid gap-8 md:grid-cols-3">
                     {/* Booking Form */}
                     <div className="md:col-span-2">
-                        <Card className="p-8 bg-gray-50 rounded-2xl shadow-lg">
+                        <div
+                            className="bg-[#f8f9fb] h-full p-6 lp:p-8 text-card-foreground gap-4 tb:gap-5 rounded-xl border overflow-hidden">
                             {successMessage && (
                                 <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
                                     <p>{successMessage}</p>
@@ -672,173 +690,241 @@ function BookingForm() {
                                     <p>{error}</p>
                                 </div>
                             )}
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                <div className="grid grid-cols-2 gap-6">
+                            <form onSubmit={handleSubmit} className="space-y-4 lp:space-y-6">
+                                <div className="grid grid-cols-2 gap-x-6">
                                     <div>
-                                        <label className="block text-base font-medium mb-2">First Name</label>
-                                        <Input required value={bookingData.firstName}
-                                               onChange={e => setBookingData(prev => ({
-                                                   ...prev,
-                                                   firstName: e.target.value
-                                               }))}/>
+                                        <label className="block text-sm tb:text-base font-medium mb-2">First Name</label>
+                                        <div
+                                            className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 tb:mb-0 w-full",
+                                                "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
+                                        >
+                                            <Input required value={bookingData.firstName}
+                                                   onChange={e => setBookingData(prev => ({
+                                                       ...prev,
+                                                       firstName: e.target.value
+                                                   }))}
+                                                   placeholder="First Name"
+                                                   className="w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+                                                  placeholder:text-gray-400 placeholder:text-xs placeholder:tb:text-sm"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
-                                        <label className="block text-base font-medium mb-2">Last Name</label>
-                                        <Input required value={bookingData.lastName}
-                                               onChange={e => setBookingData(prev => ({
-                                                   ...prev,
-                                                   lastName: e.target.value
-                                               }))}/>
+                                        <label className="block text-sm tb:text-base font-medium mb-2">Last Name</label>
+                                        <div
+                                            className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 tb:mb-0 w-full",
+                                                "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
+                                        >
+                                            <Input required value={bookingData.lastName}
+                                                   onChange={e => setBookingData(prev => ({
+                                                       ...prev,
+                                                       lastName: e.target.value
+                                                   }))}
+                                                   placeholder="Last Name"
+                                                   className="w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+                                                  placeholder:text-gray-400 placeholder:text-xs placeholder:tb:text-sm"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-base font-medium mb-2">Email</label>
-                                    <Input type="email" required value={bookingData.email}
-                                           onChange={e => setBookingData(prev => ({...prev, email: e.target.value}))}/>
+                                    <label className="block text-sm tb:text-base font-medium mb-2">Email</label>
+                                    <div
+                                        className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 tb:mb-0 w-full",
+                                            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
+                                    >
+                                        <Input type="email" required value={bookingData.email}
+                                               onChange={e => setBookingData(prev => ({
+                                                   ...prev,
+                                                   email: e.target.value
+                                               }))}
+                                               placeholder="Email address"
+                                               className="w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+                                                  placeholder:text-gray-400 placeholder:text-xs placeholder:tb:text-sm"
+                                        />
+                                    </div>
                                 </div>
                                 {/* Estimated Arrival Time */}
                                 <div>
-                                    <label className="block text-base font-medium mb-2">Estimated Arrival Time
+                                    <label className="block text-sm tb:text-base font-medium mb-2">Estimated Arrival Time
                                         (optional)</label>
-                                    <Select value={bookingData.estimatedArrivalTime || ''}
+                                    <div
+                                        className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 tb:mb-0 w-full",
+                                            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
+                                    >
+                                        <Select
+                                            value={bookingData.estimatedArrivalTime || ''}
                                             onValueChange={value => setBookingData(prev => ({
                                                 ...prev,
                                                 estimatedArrivalTime: value
-                                            }))}>
-                                        <SelectTrigger
-                                            className={cn("w-full text-left", !bookingData.estimatedArrivalTime && "text-gray-400")}>
-                                            <SelectValue placeholder="Select time (optional)"/>
-                                        </SelectTrigger>
-                                        <SelectContent className="max-h-60 overflow-y-auto">
-                                            {ARRIVAL_TIMES.map(time => (
-                                                <SelectItem key={time} value={time}>{time}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                            }))}
+                                        >
+                                            <SelectTrigger
+                                                className="cursor-pointer w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+                                                  data-[placeholder]:text-gray-400 data-[placeholder]:text-xs data-[placeholder]:tb:text-sm"
+                                            >
+                                                <SelectValue placeholder="Select time (optional)"></SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent className="mt-2 w-full max-h-60 overflow-y-auto">
+                                                {ARRIVAL_TIMES.map(time => (
+                                                    <SelectItem key={time} value={time}>{time}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
                                 {/* Country */}
                                 <div>
-                                    <label className="block text-base font-medium mb-2">Country</label>
-                                    <Select value={bookingData.country || ''}
+                                    <label className="block text-sm tb:text-base font-medium mb-2">Country</label>
+                                    <div
+                                        className={["flex items-center bg-white border border-[#DEE3ED] rounded-lg p-0 mb-2 tb:mb-0 w-full",
+                                            "h-[var(--action-h-lg)] tb:h-[var(--action-h-1xl)]"].join(' ')}
+                                    >
+                                        <Select
+                                            value={bookingData.country || ''}
                                             onValueChange={value => setBookingData(prev => ({
                                                 ...prev,
                                                 country: value
-                                            }))}>
-                                        <SelectTrigger
-                                            className={cn("w-full text-left", !bookingData.country && "text-gray-400")}>
-                                            <SelectValue placeholder="Select country"/>
-                                        </SelectTrigger>
-                                        <SelectContent className="max-h-60 overflow-y-auto">
-                                            {COUNTRIES.map(country => (
-                                                <SelectItem key={country.code}
-                                                            value={country.code}>{country.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                            }))}
+                                        >
+                                            <SelectTrigger
+                                                className="cursor-pointer w-full h-full border-0 px-4 font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0
+                                                  data-[placeholder]:text-gray-400 data-[placeholder]:text-xs data-[placeholder]:tb:text-sm"
+                                            >
+                                                <SelectValue placeholder="Select country"></SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent className="mt-2 w-full max-h-60 overflow-y-auto">
+                                                {COUNTRIES.map(country => (
+                                                    <SelectItem key={country.code}
+                                                                value={country.code}>{country.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                {/* Add account creation section for non-authenticated users */}
-                                {/*
-                {!user && (
-                  <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-                    <div className="flex items-center gap-2 mb-4">
-                      <input type="checkbox" id="createAccount" checked={bookingData.createAccount} onChange={e => setBookingData(prev => ({ ...prev, createAccount: e.target.checked, password: e.target.checked ? prev.password : '' }))} className="h-4 w-4" />
-                      <label htmlFor="createAccount" className="text-base font-medium">Create an account to manage your bookings</label>
-                    </div>
-                    {bookingData.createAccount && (
-                      <div className="space-y-2">
-                        <label className="block text-base font-medium">Password</label>
-                        <Input type="password" value={bookingData.password} onChange={e => setBookingData(prev => ({ ...prev, password: e.target.value }))} required={bookingData.createAccount} placeholder="••••••••" minLength={6} />
-                        <p className="text-xs text-gray-500">Must be at least 6 characters long</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-                */}
-                                <Button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="w-full h-14 bg-[#0E3599] hover:bg-[#0b297a] text-white rounded-full font-bold shadow-xl text-lg flex items-center justify-center mt-4 transition"
-                                    style={{boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)'}}
-                                >
-                                    {submitting ? (
-                                        <div className="flex items-center justify-center">
-                                            <div
-                                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                            Processing...
-                                        </div>
-                                    ) : (
-                                        'Continue to Payment'
+
+                                <div className="flex flex-col gap-2 lp:gap-3">
+                                    <Button
+                                        type="submit"
+                                        disabled={submitting}
+                                        style={{boxShadow: '0 6px 32px 0 rgba(56, 132, 255, 0.18)'}}
+                                        variant="default"
+                                        className={["mt-4 lp:mt-3 font-semibold flex items-center justify-center bg-[#0E3599] rounded-lg px-2 tb:px-6 w-full text-base tb:text-lg lp:text-xl",
+                                            "h-[var(--action-h-1xl)] lp:h-[var(--action-h-2xl)]"].join(' ')}
+
+                                        onMouseOver={e => (e.currentTarget.style.backgroundColor = '#102e7a')}
+                                        onMouseOut={e => (e.currentTarget.style.backgroundColor = '#0E3599')}
+                                    >
+                                        {submitting ? (
+                                            <div className="flex items-center justify-center">
+                                                <div
+                                                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                                Processing...
+                                            </div>
+                                        ) : (
+                                            'Continue to Payment'
+                                        )}
+                                    </Button>
+                                    {!user && (
+                                        <span className="text-sm lp:text-base text-gray-500 text-center">Already have an
+                                            account?{' '}<Link href={`/auth/sign-in?redirect=/booking`}
+                                                               className="text-blue-600 hover:underline">Sign
+                                                in</Link>
+                                        </span>
                                     )}
-                                </Button>
-                                {!user && (
-                                    <p className="text-sm text-gray-500 text-center mt-4">Already have an
-                                        account?{' '}<Link href={`/auth/sign-in?redirect=/booking`}
-                                                           className="text-blue-600 hover:underline">Sign in</Link></p>
-                                )}
+                                </div>
                             </form>
-                        </Card>
+                        </div>
                     </div>
                     {/* Booking Summary */}
                     <div>
-                        <Card className="p-8 bg-gray-50 rounded-2xl shadow-lg sticky top-6">
-                            <h2 className="font-semibold text-2xl mb-6">Booking Summary</h2>
-                            <div className="space-y-2 text-base">
-                                <div className="space-y-1 text-sm">
-                                    <div className="flex justify-between">
-                                        <span>Check-in</span>
-                                        <span
-                                            className="font-medium">{bookingCart?.checkIn ? format(parseISO(bookingCart.checkIn), 'MMM d, yyyy') : '-'}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Check-out</span>
-                                        <span
-                                            className="font-medium">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Number of nights</span>
-                                        <span className="font-medium">{numberOfNights}</span>
-                                    </div>
-                                </div>
+                        <div>
+                            <h2 className="font-semibold text-black text-2xl tb:text-3xl mb-4">Booking
+                                Summary:</h2>
+                            <div
+                                className="bg-[#f8f9fb] h-full p-4 lp:p-6 text-card-foreground gap-4 tb:gap-5 rounded-xl border overflow-hidden">
                                 {bookingCart && bookingCart.cart && bookingCart.cart.length > 0 && (
                                     <>
-                                        <div className="pt-4 mt-4 border-t border-gray-200">
-                                            <span className="font-semibold text-base">Apartments</span>
-                                        </div>
-                                        {bookingCart.cart.map((item: CartItem) => (
+                                        {bookingCart.cart.map(item => (
                                             <div key={item.roomTypeID}
-                                                 className="flex flex-col gap-1 mt-1 border-b border-gray-100 pb-2">
-                                                <div className="flex justify-between text-base">
-                                                    <span>{item.quantity} x {item.roomName}</span>
-                                                    <span>MYR {(item.price * item.quantity).toFixed(2)}</span>
-                                                </div>
-                                                <div className="flex gap-4 text-xs text-gray-600 pl-2">
-                                                    <span>Adults: {item.adults}</span>
-                                                    <span>Children: {item.children}</span>
+                                                 className="flex flex-col gap-2 border-b border-gray-200 pb-4 mb-4">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex flex-col gap-1">
+                                                        <div
+                                                            className="text-lg tb:text-xl full:text-2xl font-semibold text-[#101828]">
+                                                            {item.quantity} x {item.roomName}
+                                                        </div>
+                                                        <div
+                                                            className="text-base tb:text-lg font-semibold text-[#101828]">
+                                                            MYR {item.price.toFixed(2)} per apartment
+                                                        </div>
+                                                        <div
+                                                            className="text-base tb:text-lg font-semibold text-[#101828]">
+                                                            <div
+                                                                className="flex gap-5 font-normal text-[#4a4f5b]">
+                                                                <span>Adults: {item.adults}</span>
+                                                                <span>Children: {item.children}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                         <div
-                                            className="pt-4 mt-4 border-t border-gray-200 flex justify-between items-center">
-                                            <span className="font-semibold text-lg">Total</span>
-                                            <span className="font-bold text-2xl text-gray-900">
-                        {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : `MYR ${bookingCart.cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0).toFixed(2)}`}
-                      </span>
-                                        </div>
-                                        {cloudbedsQuote && (
-                                            <div className="text-xs text-gray-600 mt-2">
-                                                <div>Subtotal: MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
-                                                <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
-                                                <div>Grand Total: MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                                            className="flex flex-col tb:flex-row flex-wrap gap-x-5 tb:justify-normal tb:gap-x-20 lp:gap-x-5 tb:items-center border-b border-gray-200 mb-4 pb-4 pr-2">
+                                            <div
+                                                className="w-full flex items-center justify-between gap-x-4 whitespace-nowrap">
+                                                <div
+                                                    className="font-normal text-[#4A4F5B] text-sm tb:text-base whitespace-nowrap">Check-in
+                                                </div>
+                                                <div
+                                                    className="flex font-medium text-base tb:text-lg whitespace-nowrap">{bookingCart?.checkIn ? format(parseISO(bookingCart.checkIn), 'MMM d, yyyy') : '-'}</div>
                                             </div>
-                                        )}
+                                            <div
+                                                className="w-full flex items-center justify-between gap-x-4 whitespace-nowrap">
+                                                <div
+                                                    className="font-normal text-[#4A4F5B] text-sm tb:text-base whitespace-nowrap">Check-out
+                                                </div>
+                                                <div
+                                                    className="flex font-medium text-base tb:text-lg whitespace-nowrap">{bookingCart?.checkOut ? format(parseISO(bookingCart.checkOut), 'MMM d, yyyy') : '-'}</div>
+                                            </div>
+                                            <div
+                                                className="w-full flex items-center justify-between gap-x-4 whitespace-nowrap">
+                                                <div
+                                                    className="font-normal text-[#4A4F5B] text-sm tb:text-base whitespace-nowrap">Number
+                                                    of nights
+                                                </div>
+                                                <div
+                                                    className="flex font-medium text-base tb:text-lg whitespace-nowrap">{numberOfNights}</div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            className="flex justify-between items-center ">
+                                            <div className="flex flex-col gap-1 justify-between">
+                                                        <span
+                                                            className="text-sm lp:text-lp text-gray-500 font-semibold">Total</span>
+                                                <span className="text-xl lp:text-2xl font-bold text-[#0E3599]">
+                                                            {cloudbedsQuote ? `MYR ${cloudbedsQuote.grandTotal.toFixed(2)}` : bookingCart.cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                                                        </span>
+                                            </div>
+                                            {cloudbedsQuote && (
+                                                <div className="text-xs  full:text-sm text-gray-600">
+                                                    <div>Subtotal:
+                                                        MYR {cloudbedsQuote.subtotal.toFixed(2)}</div>
+                                                    <div>SST/Tax: MYR {cloudbedsQuote.sst.toFixed(2)}</div>
+                                                    <div>Grand Total:
+                                                        MYR {cloudbedsQuote.grandTotal.toFixed(2)}</div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </>
                                 )}
                             </div>
-                        </Card>
+                        </div>
                     </div>
                 </div>
                 {/* Property Information Section */}
-                {propertyId && <div className="mt-12"><PropertyInformation propertyId={propertyId}/></div>}
+                {propertyId && <div className="section-component-p-y"><PropertyInformation propertyId={propertyId}/></div>}
             </div>
         </div>
     );

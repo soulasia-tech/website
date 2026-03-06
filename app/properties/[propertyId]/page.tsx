@@ -236,7 +236,9 @@ export default function PropertiesPage() {
 
             // 2️⃣ Selecting second date
             if (prev.from && !prev.to) {
-                setDatePopoverOpen?.(false);
+                if (setDatePopoverOpen) {
+                    setDatePopoverOpen(false);
+                }
                 if (day < prev.from) {
                     // If clicked before start → reset start
                     return { from: day, to: prev.from };
