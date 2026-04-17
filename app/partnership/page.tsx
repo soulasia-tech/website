@@ -86,7 +86,6 @@ export default function PartnershipPage() {
 
     return (
         <>
-            <title>Soulasia | For Partnership</title>
             <div className="bg-white">
                 {/* Hero Section with Gallery */}
                 <section

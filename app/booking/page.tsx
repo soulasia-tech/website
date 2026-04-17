@@ -928,7 +928,6 @@ function BookingForm() {
 export default function BookingPage() {
     return (
         <>
-            <title>Soulasia | Guest Details</title>
             <Suspense fallback={
                 <div className="min-h-screen py-12">
                     <div className="container mx-auto px-4">

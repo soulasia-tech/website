@@ -38,7 +38,6 @@ export default function Home() {
 
     return (
         <>
-            <title>Soulasia | Soulful Stays, Memorable Days.</title>
             <div className="flex flex-col min-h-screen bg-white pt-0 -mt-nav">
                 <Toaster/>
                 {/* Hero Section (without BookingWidget) */}

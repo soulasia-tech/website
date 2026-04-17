@@ -54,7 +54,6 @@ export default function ForOwnersPage() {
 
     return (
         <>
-            <title>Soulasia | For Property Owners</title>
             {success && (
                 <Alert className="fixed z-100 top-10 shadow-layered  left-1/2 w-max -translate-x-1/2">
                     <AlertDescription>{'Successfully send!'}</AlertDescription>

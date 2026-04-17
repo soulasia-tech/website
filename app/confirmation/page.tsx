@@ -223,7 +223,6 @@ function ConfirmationContent() {
 export default function ConfirmationPage() {
     return (
         <>
-            <title>Soulasia | Booking Confirmation</title>
             <Suspense
                 fallback={
                     <div className="min-h-screen bg-gray-50 py-12">

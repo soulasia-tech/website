@@ -945,7 +945,6 @@ function SearchResults() {
 export default function SearchPage() {
     return (
         <>
-            <title>Soulasia | Search Results</title>
             <Suspense fallback={<div>Loading search results...</div>}>
                 <SearchResults/>
             </Suspense>

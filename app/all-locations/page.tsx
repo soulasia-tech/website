@@ -304,7 +304,6 @@ export default function AllLocationsPage() {
 
   return (
       <>
-        <title>Soulasia | All Locations</title>
         {/* Hero Section */}
 
         <section

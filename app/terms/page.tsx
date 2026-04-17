@@ -5,7 +5,6 @@ import {Card} from "@/components/ui/card";
 export default function TermsPage() {
     return (
         <>
-            <title>Soulasia | Terms and Conditions</title>
             <div className="min-h-screen bg-gray-50 py-12">
                 <div className="container mx-auto px-4">
                     <Card className="max-w-4xl mx-auto p-8">

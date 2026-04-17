@@ -322,7 +322,6 @@ export default function MyBookingsPage() {
 
     return (
         <>
-            <title>Soulasia | My Bookings</title>
             <div className="bg-white">
                 <section className="section-component-p-y bg-white">
                     <div

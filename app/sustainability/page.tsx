@@ -26,7 +26,6 @@ const staggerContainer = {
 export default function SustainabilityPage() {
     return (
         <>
-            <title>Soulasia | Sustainability</title>
             <main className="bg-white">
                 {/* Hero Section */}
                 <section className="section-component-p-y">
