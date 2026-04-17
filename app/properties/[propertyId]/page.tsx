@@ -21,10 +21,10 @@ import {PropertiesMap} from "@/components/PropertiesMap";
 
 // Store static lat/lng for each propertyId
 const propertyLocationMap: Record<string, { lat: number; lng: number, name: string, address?: string }> = {
-    '270917': {lat: 3.163265, lng: 101.710802, name: 'Scarletz Suites KL',}, // Scarletz Suites, KL
-    '19928': {lat: 3.1579, lng: 101.7075, name: 'Vortex KLCC'}, // Vortex KLCC (example coordinates)
-    '318151': {lat: 3.1595, lng: 101.7051, name: '188 Suites KLCC'}, // 188 Suites KLCC By Soulasia
-    '318256': {lat: 3.1376, lng: 101.6998, name: 'Opus Residences'}, // Opus Residences
+    '270917': {lat: 3.163265, lng: 101.710802, name: 'Scarletz Suites KL', address: 'Jalan Ampang, KLCC, 50450 Kuala Lumpur'},
+    '19928': {lat: 3.1579, lng: 101.7075, name: 'Vortex KLCC', address: 'Jalan Sultan Ismail, KLCC, 50250 Kuala Lumpur'},
+    '318151': {lat: 3.1595, lng: 101.7051, name: '188 Suites KLCC', address: '188 Jalan Ampang, 50450 Kuala Lumpur'},
+    '318256': {lat: 3.1376, lng: 101.6998, name: 'Opus Residences', address: 'Jalan Binjai, 50450 Kuala Lumpur'},
 };
 
 // Images for each property
@@ -270,9 +270,41 @@ export default function PropertiesPage() {
         router.push(`/search?${params.toString()}`);
     };
 
+    const jsonLd = mapPosition
+        ? {
+              "@context": "https://schema.org",
+              "@type": "LodgingBusiness",
+              name: property?.propertyName ?? mapPosition.name,
+              description: property?.propertyDesc,
+              url: `${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/properties/${propertyId}`,
+              address: {
+                  "@type": "PostalAddress",
+                  streetAddress: mapPosition.address,
+                  addressLocality: "Kuala Lumpur",
+                  addressCountry: "MY",
+              },
+              geo: {
+                  "@type": "GeoCoordinates",
+                  latitude: mapPosition.lat,
+                  longitude: mapPosition.lng,
+              },
+              amenityFeature: property?.amenities?.map((a) => ({
+                  "@type": "LocationFeatureSpecification",
+                  name: a.label,
+                  value: true,
+              })),
+          }
+        : null;
+
     return (
         <>
             <title>{pageTitle}</title>
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            )}
             <main className={"py-8 bg-white relative"}>
                 <div className="container">
                     {/* Back button */}

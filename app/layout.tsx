@@ -61,6 +61,36 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
                 gtag('config', 'G-MX5NERGM62');
               `}
         </Script>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Organization",
+                    name: "Soulasia",
+                    url: domain,
+                    logo: `${domain}/Brand/logo.svg`,
+                    description: "Premium short-term rental apartments in KLCC, Kuala Lumpur. Fully furnished stays near Bukit Bintang, TRX, and major city landmarks.",
+                    address: {
+                        "@type": "PostalAddress",
+                        streetAddress: "B1-22-2, The Soho Suites @KLCC",
+                        addressLocality: "Kuala Lumpur",
+                        postalCode: "50450",
+                        addressCountry: "MY",
+                    },
+                    contactPoint: {
+                        "@type": "ContactPoint",
+                        contactType: "customer service",
+                        areaServed: "MY",
+                        availableLanguage: "English",
+                    },
+                    sameAs: [
+                        "https://www.instagram.com/soulasia.com.my",
+                        "https://www.linkedin.com/company/soulasia-my/",
+                    ],
+                }),
+            }}
+        />
         <UIProvider>
             <Suspense fallback={<div></div>}>
                 <Navbar/>
