@@ -6,31 +6,27 @@ import { saveBookingInDB } from '@/lib/booking';
 export async function POST(request: Request) {
   try {
     console.log('[billplz-callback] Callback received');
-    let bill_id, x_signature;
+    let params: Record<string, string> = {};
+    let x_signature: string | undefined;
     const contentType = request.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
       const body = await request.json();
-      bill_id = body.bill_id || body.id;
-      x_signature = body.x_signature;
-    } else if (contentType.includes('application/x-www-form-urlencoded')) {
-      const formData = await request.formData();
-      bill_id = formData.get('id'); // Billplz uses 'id' for bill_id
-      x_signature = formData.get('x_signature');
+      params = Object.fromEntries(Object.entries(body).map(([k, v]) => [k, String(v)]));
     } else {
-      // fallback: try formData
       const formData = await request.formData();
-      bill_id = formData.get('id');
-      x_signature = formData.get('x_signature');
+      formData.forEach((value, key) => { params[key] = String(value); });
     }
+    x_signature = params.x_signature;
+    const bill_id = params.id || params.bill_id;
 
     if (!bill_id || !x_signature) {
       console.error('[billplz-callback] Missing required fields', { bill_id, x_signature });
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Verify payment with Billplz
+    // Verify payment with Billplz (includes x_signature check)
     console.log('[billplz-callback] Verifying payment with Billplz', { bill_id });
-    const payment = await verifyPayment({ bill_id, x_signature });
+    const payment = await verifyPayment({ params, x_signature });
     console.log('[billplz-callback] Billplz payment verification result:', payment);
     if (!payment.paid || payment.state !== 'paid') {
       // Update booking session: payment failed

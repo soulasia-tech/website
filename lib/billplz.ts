@@ -1,4 +1,4 @@
-// Mock Billplz API abstraction
+import { createHmac, timingSafeEqual } from 'crypto';
 
 interface CreateBillParams {
     amount: number;
@@ -11,8 +11,29 @@ interface CreateBillParams {
 }
 
 interface VerifyPaymentParams {
-    bill_id: string;
+    params: Record<string, string>;
     x_signature: string;
+}
+
+// Returns true if signature is valid.
+// If BILLPLZ_X_SIGNATURE_KEY is not configured, logs a warning and returns true
+// (warn-only mode) so existing payments keep working while you set up the key.
+// Once the key is present, an invalid signature returns false and blocks the callback.
+export function verifyXSignature(params: Record<string, string>, receivedSignature: string): boolean {
+    const xSignatureKey = process.env.BILLPLZ_X_SIGNATURE_KEY;
+    if (!xSignatureKey) {
+        console.warn('[billplz] BILLPLZ_X_SIGNATURE_KEY is not set — skipping signature verification. Set this env var to enable webhook security.');
+        return true;
+    }
+    const source = Object.keys(params)
+        .filter(k => k !== 'x_signature')
+        .sort()
+        .map(k => `${k}|${params[k]}`)
+        .join('|');
+    const computed = createHmac('sha256', xSignatureKey).update(source).digest('hex');
+    const a = Buffer.from(computed);
+    const b = Buffer.from(receivedSignature);
+    return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export async function createBill({amount, name, email, callback_url, redirect_url, reference_1, reference_2}: CreateBillParams) {
@@ -51,12 +72,15 @@ export async function createBill({amount, name, email, callback_url, redirect_ur
     return data;
 }
 
-export async function verifyPayment({bill_id, x_signature: _x_signature}: VerifyPaymentParams) {
+export async function verifyPayment({params, x_signature}: VerifyPaymentParams) {
     const apiKey = process.env.BILLPLZ_API_KEY;
     if (!apiKey) {
         throw new Error('Missing BILLPLZ_API_KEY');
     }
-    void _x_signature; // In production, verify the signature as per Billplz docs
+    if (!verifyXSignature(params, x_signature)) {
+        throw new Error('Invalid x_signature — possible forged callback');
+    }
+    const bill_id = params.id || params.bill_id;
     console.log('[verifyPayment] Fetching Billplz bill:', bill_id);
     const res = await fetch(`https://www.billplz.com/api/v3/bills/${bill_id}`, {
         headers: {
