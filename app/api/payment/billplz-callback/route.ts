@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { verifyPayment } from '@/lib/billplz';
 import { createReservation, addPaymentToReservation } from '@/lib/cloudbeds';
 import { saveBookingInDB } from '@/lib/booking';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(request: Request) {
   try {
@@ -82,6 +88,19 @@ export async function POST(request: Request) {
     if (bookingPayload.cloudbedsResId) {
       console.log('[billplz-callback] Idempotency: Reservation already exists for this booking token:', bookingPayload.cloudbedsResId);
       return NextResponse.json({ success: true, message: 'Reservation already exists for this booking token', reservationId: bookingPayload.cloudbedsResId });
+    }
+
+    // Atomic claim: set reservation_status = 'processing' only if not already processing/succeeded.
+    // Prevents duplicate Cloudbeds reservations when Billplz fires the webhook more than once.
+    const { data: claimed } = await supabase
+      .from('booking_sessions')
+      .update({ reservation_status: 'processing' })
+      .eq('token', bookingToken)
+      .or('reservation_status.is.null,reservation_status.eq.failed')
+      .select('token');
+    if (!claimed || claimed.length === 0) {
+      console.log('[billplz-callback] Reservation already processing or completed, skipping duplicate webhook', { bookingToken });
+      return NextResponse.json({ success: true, message: 'Reservation already being processed or completed' });
     }
 
     // Build rooms array from cart (each roomID gets its own entry)
