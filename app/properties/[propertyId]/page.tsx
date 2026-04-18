@@ -54,6 +54,44 @@ export async function generateMetadata(
     };
 }
 
-export default function PropertyPage() {
-    return <PropertyPageClient />;
+export default async function PropertyPage(
+    {params}: {params: Promise<{propertyId: string}>}
+) {
+    const {propertyId} = await params;
+    const meta = propertyMeta[propertyId];
+
+    const breadcrumb = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+            {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: domain,
+            },
+            {
+                "@type": "ListItem",
+                position: 2,
+                name: "All Locations",
+                item: `${domain}/all-locations`,
+            },
+            {
+                "@type": "ListItem",
+                position: 3,
+                name: meta?.name ?? "Property",
+                item: `${domain}/properties/${propertyId}`,
+            },
+        ],
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{__html: JSON.stringify(breadcrumb)}}
+            />
+            <PropertyPageClient />
+        </>
+    );
 }
