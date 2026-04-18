@@ -62,7 +62,10 @@ export const metadata: Metadata = {
         description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
         images: [`${domain}/og-image.jpg`],
     },
-    icons: {icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}]},
+    icons: {
+        icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}],
+        apple: [{url: `/Brand/apple-touch-icon.png`, sizes: "180x180", type: "image/png"}],
+    },
 };
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
