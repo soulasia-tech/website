@@ -22,6 +22,25 @@ export const metadata: Metadata = {
     title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
     description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
     metadataBase: new URL(domain),
+    alternates: {
+        canonical: domain,
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-snippet": -1,
+            "max-image-preview": "large",
+            "max-video-preview": -1,
+        },
+    },
+    formatDetection: {
+        telephone: false,
+        date: false,
+        address: false,
+    },
     openGraph: {
         title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
         description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
@@ -37,14 +56,12 @@ export const metadata: Metadata = {
         locale: "en_US",
         type: "website",
     },
-
     twitter: {
         card: "summary_large_image",
         title: "Short Term Apartments in KLCC Kuala Lumpur | Soulasia",
         description: "Stay in fully furnished short term rental apartments in KLCC. Near Bukit Bintang, TRX and major city landmarks with flexible stays and easy check-in.",
         images: [`${domain}/og-image.jpg`],
     },
-
     icons: {icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}]},
 };
 
@@ -78,6 +95,11 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
                         postalCode: "50450",
                         addressCountry: "MY",
                     },
+                    areaServed: {
+                        "@type": "City",
+                        name: "Kuala Lumpur",
+                    },
+                    serviceType: "Short-term Rental",
                     contactPoint: {
                         "@type": "ContactPoint",
                         contactType: "customer service",
