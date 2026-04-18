@@ -52,9 +52,9 @@ async function sendEmail(body: { name: string; phone: string; message?: string }
     await transporter.sendMail({
       from: `Soulasia Contacts`,
       replyTo: 'no-reply@gmail.com',
-      to: "aziz_khakimov@yahoo.com",
+      to: process.env.CONTACT_EMAIL_RECIPIENT,
       subject: "New Contact",
-      html: `New Contact from Soulasia For-Owners <br/><br/>Name: ${body.name}<br/>Phone: ${body.phone}`,
+      text: `New Contact from Soulasia For-Owners\n\nName: ${body.name}\nPhone: ${body.phone}`,
     });
 
     return NextResponse.json({ success: true });
