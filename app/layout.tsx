@@ -63,7 +63,10 @@ export const metadata: Metadata = {
         images: [`${domain}/og-image.jpg`],
     },
     icons: {
-        icon: [{url: `/Brand/favicon.svg`, type: "image/svg+xml"}],
+        icon: [
+            {url: `/Brand/favicon.svg`, type: "image/svg+xml"},
+            {url: `/Brand/apple-touch-icon.png`, type: "image/png"},
+        ],
         apple: [{url: `/Brand/apple-touch-icon.png`, sizes: "180x180", type: "image/png"}],
     },
 };
