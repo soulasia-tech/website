@@ -1,17 +1,17 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextConfig from "eslint-config-next/core-web-vitals";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+const tsPlugin = nextConfig.find((c) => c.name === "next/typescript")?.plugins?.["@typescript-eslint"];
 
 const eslintConfig = [
   { ignores: [".next/**", "node_modules/**"] },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextConfig,
+  {
+    plugins: tsPlugin ? { "@typescript-eslint": tsPlugin } : {},
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "react/no-unescaped-entities": "warn",
+    },
+  },
 ];
 
 export default eslintConfig;
