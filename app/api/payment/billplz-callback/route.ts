@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { verifyPayment } from '@/lib/billplz';
 import { createReservation, addPaymentToReservation } from '@/lib/cloudbeds';
 import { saveBookingInDB } from '@/lib/booking';
+import { getBookingSession, upsertBookingSession } from '@/lib/booking-session';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     if (!payment.paid || payment.state !== 'paid') {
       // Update booking session: payment failed
       if (payment.reference_1) {
-        await supabase.from('booking_sessions').upsert({
+        await upsertBookingSession({
           token: payment.reference_1,
           booking_data: {},
           payment_status: 'failed',
@@ -58,18 +59,14 @@ export async function POST(request: Request) {
 
     // Fetch booking data from session store
     console.log('[billplz-callback] Fetching booking session', { bookingToken });
-    const { data: sessionRow } = await supabase
-      .from('booking_sessions')
-      .select('booking_data, payment_status, reservation_status, error_message')
-      .eq('token', bookingToken)
-      .single();
+    const { data: sessionRow } = await getBookingSession(bookingToken);
     const sessionData = sessionRow
       ? { success: true, bookingData: sessionRow.booking_data }
       : { success: false, bookingData: null };
     console.log('[billplz-callback] Booking session data:', sessionData);
     if (!sessionData.success || !sessionData.bookingData) {
       // Update booking session: reservation failed (no booking data)
-      await supabase.from('booking_sessions').upsert({
+      await upsertBookingSession({
         token: bookingToken,
         booking_data: {},
         payment_status: 'succeeded',
@@ -130,7 +127,7 @@ export async function POST(request: Request) {
     );
     if (!rooms.length) {
       // Update booking session: reservation failed (no rooms)
-      await supabase.from('booking_sessions').upsert({
+      await upsertBookingSession({
         token: bookingToken,
         booking_data: bookingPayload,
         payment_status: 'succeeded',
@@ -162,7 +159,7 @@ export async function POST(request: Request) {
     console.log('[billplz-callback] Cloudbeds reservation created:', reservation);
     if (!reservation || reservation.success === false || !reservation.reservationID) {
       // Update booking session: reservation failed (Cloudbeds error)
-      await supabase.from('booking_sessions').upsert({
+      await upsertBookingSession({
         token: bookingToken,
         booking_data: bookingPayload,
         payment_status: 'succeeded',
@@ -197,7 +194,7 @@ export async function POST(request: Request) {
     }
 
     // Update booking session: all succeeded, and store cloudbedsResId for idempotency
-    await supabase.from('booking_sessions').upsert({
+    await upsertBookingSession({
       token: bookingToken,
       booking_data: { ...bookingPayload, cloudbedsResId: reservation.reservationID },
       payment_status: 'succeeded',
@@ -209,9 +206,9 @@ export async function POST(request: Request) {
   } catch (error) {
     // Try to update booking session with error
     try {
-      const bookingToken = (typeof error === 'object' && error && 'bookingToken' in error) ? error.bookingToken : undefined;
+      const bookingToken = (typeof error === 'object' && error && 'bookingToken' in error) ? error.bookingToken as string : undefined;
       if (bookingToken) {
-        await supabase.from('booking_sessions').upsert({
+        await upsertBookingSession({
           token: bookingToken,
           booking_data: {},
           payment_status: 'failed',

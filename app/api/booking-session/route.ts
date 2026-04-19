@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getBookingSession, upsertBookingSession } from '@/lib/booking-session';
 
 export async function POST(request: Request) {
   try {
@@ -12,13 +7,11 @@ export async function POST(request: Request) {
     if (!token || !bookingData) {
       return NextResponse.json({ success: false, error: 'Missing token or bookingData' }, { status: 400 });
     }
-    const upsertObj: Record<string, unknown> = { token, booking_data: bookingData };
+    const upsertObj: Parameters<typeof upsertBookingSession>[0] = { token, booking_data: bookingData };
     if (payment_status !== undefined) upsertObj.payment_status = payment_status;
     if (reservation_status !== undefined) upsertObj.reservation_status = reservation_status;
     if (error_message !== undefined) upsertObj.error_message = error_message;
-    const { error } = await supabase
-      .from('booking_sessions')
-      .upsert(upsertObj);
+    const { error } = await upsertBookingSession(upsertObj);
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
@@ -34,11 +27,7 @@ export async function GET(request: Request) {
   if (!token) {
     return NextResponse.json({ success: false, error: 'Missing token' }, { status: 400 });
   }
-  const { data, error } = await supabase
-    .from('booking_sessions')
-    .select('booking_data, payment_status, reservation_status, error_message')
-    .eq('token', token)
-    .single();
+  const { data, error } = await getBookingSession(token);
   if (error || !data) {
     return NextResponse.json({ success: false, error: 'Booking session not found or expired' }, { status: 404 });
   }
@@ -49,4 +38,4 @@ export async function GET(request: Request) {
     reservation_status: data.reservation_status,
     error_message: data.error_message,
   });
-} 
+}
