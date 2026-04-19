@@ -10,6 +10,9 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-unused-vars": "warn",
       "react/no-unescaped-entities": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/immutability": "warn",
     },
   },
 ];
