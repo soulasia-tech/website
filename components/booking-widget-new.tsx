@@ -125,6 +125,7 @@ export function BookingWidgetNew({
         if (citySelectOpen && !searchParams.city && cities.length > 0) {
             setSearchParams(prev => ({...prev, city: cities[0]}));
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [citySelectOpen, cities]);
 
     if (hide) return null;

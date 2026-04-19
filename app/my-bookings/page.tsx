@@ -278,6 +278,7 @@ export default function MyBookingsPage() {
         if (bookings.length > 0) {
             fetchAllCloudbedsDetails().then();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookings]);
 
     useEffect(() => {

@@ -13,7 +13,6 @@ export async function POST(request: Request) {
   try {
     console.log('[billplz-callback] Callback received');
     let params: Record<string, string> = {};
-    let x_signature: string | undefined;
     const contentType = request.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
       const body = await request.json();
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
       const formData = await request.formData();
       formData.forEach((value, key) => { params[key] = String(value); });
     }
-    x_signature = params.x_signature;
+    const x_signature = params.x_signature;
     const bill_id = params.id || params.bill_id;
 
     if (!bill_id || !x_signature) {

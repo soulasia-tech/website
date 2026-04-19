@@ -65,7 +65,7 @@ export function Navbar({className}: NavbarProps) {
 
         observer.observe(dark);
         return () => observer.disconnect();
-    }, [pathname]);
+    }, [pathname, setIsDark]);
 
 
     useEffect(() => {
@@ -81,7 +81,7 @@ export function Navbar({className}: NavbarProps) {
 
         observer.observe(search);
         return () => observer.disconnect();
-    }, [pathname]);
+    }, [pathname, setIsActive]);
 
     useEffect(() => {
         setButtonText(isActive ? 'Close' : 'Search')
