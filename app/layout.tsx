@@ -7,6 +7,7 @@ import Script from "next/script";
 import {UIProvider} from "@/lib/context";
 import React, {Suspense} from "react";
 import {SpeedInsights} from "@vercel/speed-insights/next";
+import {Analytics} from "@vercel/analytics/next";
 
 // Manrope variable font; includes Cyrillic
 const manrope = Manrope({
@@ -128,6 +129,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <Footer/>
         </UIProvider>
         <SpeedInsights/>
+        <Analytics/>
         </body>
         </html>
     );
