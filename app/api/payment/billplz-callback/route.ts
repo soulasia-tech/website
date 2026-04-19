@@ -36,16 +36,12 @@ export async function POST(request: Request) {
     if (!payment.paid || payment.state !== 'paid') {
       // Update booking session: payment failed
       if (payment.reference_1) {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token: payment.reference_1,
-            bookingData: {}, // no update
-            payment_status: 'failed',
-            reservation_status: 'failed',
-            error_message: 'Payment not completed',
-          }),
+        await supabase.from('booking_sessions').upsert({
+          token: payment.reference_1,
+          booking_data: {},
+          payment_status: 'failed',
+          reservation_status: 'failed',
+          error_message: 'Payment not completed',
         });
       }
       console.error('[billplz-callback] Payment not completed', payment);
@@ -62,21 +58,23 @@ export async function POST(request: Request) {
 
     // Fetch booking data from session store
     console.log('[billplz-callback] Fetching booking session', { bookingToken });
-    const sessionRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session?token=${bookingToken}`);
-    const sessionData = await sessionRes.json();
+    const { data: sessionRow } = await supabase
+      .from('booking_sessions')
+      .select('booking_data, payment_status, reservation_status, error_message')
+      .eq('token', bookingToken)
+      .single();
+    const sessionData = sessionRow
+      ? { success: true, bookingData: sessionRow.booking_data }
+      : { success: false, bookingData: null };
     console.log('[billplz-callback] Booking session data:', sessionData);
     if (!sessionData.success || !sessionData.bookingData) {
       // Update booking session: reservation failed (no booking data)
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: bookingToken,
-          bookingData: {},
-          payment_status: 'succeeded',
-          reservation_status: 'failed',
-          error_message: 'Booking data not found for this token',
-        }),
+      await supabase.from('booking_sessions').upsert({
+        token: bookingToken,
+        booking_data: {},
+        payment_status: 'succeeded',
+        reservation_status: 'failed',
+        error_message: 'Booking data not found for this token',
       });
       console.error('[billplz-callback] Booking data not found for this token', { bookingToken });
       return NextResponse.json({ success: false, error: 'Booking data not found for this token' }, { status: 404 });
@@ -132,16 +130,12 @@ export async function POST(request: Request) {
     );
     if (!rooms.length) {
       // Update booking session: reservation failed (no rooms)
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: bookingToken,
-          bookingData: bookingPayload,
-          payment_status: 'succeeded',
-          reservation_status: 'failed',
-          error_message: 'No rooms found in booking cart. Cannot create reservation.',
-        }),
+      await supabase.from('booking_sessions').upsert({
+        token: bookingToken,
+        booking_data: bookingPayload,
+        payment_status: 'succeeded',
+        reservation_status: 'failed',
+        error_message: 'No rooms found in booking cart. Cannot create reservation.',
       });
       console.error('[billplz-callback] No rooms found in booking cart. Cannot create reservation.', { bookingToken, bookingCart: bookingPayload.bookingCart });
       return NextResponse.json({ success: false, error: 'No rooms found in booking cart. Cannot create reservation.' }, { status: 400 });
@@ -168,16 +162,12 @@ export async function POST(request: Request) {
     console.log('[billplz-callback] Cloudbeds reservation created:', reservation);
     if (!reservation || reservation.success === false || !reservation.reservationID) {
       // Update booking session: reservation failed (Cloudbeds error)
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token: bookingToken,
-          bookingData: bookingPayload,
-          payment_status: 'succeeded',
-          reservation_status: 'failed',
-          error_message: 'Failed to create reservation in Cloudbeds',
-        }),
+      await supabase.from('booking_sessions').upsert({
+        token: bookingToken,
+        booking_data: bookingPayload,
+        payment_status: 'succeeded',
+        reservation_status: 'failed',
+        error_message: 'Failed to create reservation in Cloudbeds',
       });
       console.error('[billplz-callback] Failed to create reservation in Cloudbeds:', reservation);
       return NextResponse.json({ success: false, error: 'Failed to create reservation in Cloudbeds', details: reservation }, { status: 500 });
@@ -207,16 +197,12 @@ export async function POST(request: Request) {
     }
 
     // Update booking session: all succeeded, and store cloudbedsResId for idempotency
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token: bookingToken,
-        bookingData: { ...bookingPayload, cloudbedsResId: reservation.reservationID },
-        payment_status: 'succeeded',
-        reservation_status: 'succeeded',
-        error_message: null,
-      }),
+    await supabase.from('booking_sessions').upsert({
+      token: bookingToken,
+      booking_data: { ...bookingPayload, cloudbedsResId: reservation.reservationID },
+      payment_status: 'succeeded',
+      reservation_status: 'succeeded',
+      error_message: null,
     });
 
     return NextResponse.json({ success: true, payment, reservation, booking });
@@ -225,16 +211,12 @@ export async function POST(request: Request) {
     try {
       const bookingToken = (typeof error === 'object' && error && 'bookingToken' in error) ? error.bookingToken : undefined;
       if (bookingToken) {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/booking-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token: bookingToken,
-            bookingData: {},
-            payment_status: 'failed',
-            reservation_status: 'failed',
-            error_message: error instanceof Error ? error.message : String(error),
-          }),
+        await supabase.from('booking_sessions').upsert({
+          token: bookingToken,
+          booking_data: {},
+          payment_status: 'failed',
+          reservation_status: 'failed',
+          error_message: error instanceof Error ? error.message : String(error),
         });
       }
     } catch {}
