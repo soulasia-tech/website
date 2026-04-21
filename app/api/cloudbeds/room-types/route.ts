@@ -46,7 +46,15 @@ export async function GET(request: Request) {
         'Content-Type': 'application/json'
       }
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
+
+    if (!data) {
+      console.error('Cloudbeds non-JSON response, status:', response.status);
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid response from Cloudbeds'
+      }, { status: 502 });
+    }
 
     if (!response.ok) {
       console.error('Cloudbeds API error:', data);
