@@ -84,18 +84,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, message: 'Reservation already exists for this booking token', reservationId: bookingPayload.cloudbedsResId });
     }
 
-    // Atomic claim: set reservation_status = 'processing' only if not already processing/succeeded.
-    // Prevents duplicate Cloudbeds reservations when Billplz fires the webhook more than once.
-    const { data: claimed } = await supabase
-      .from('booking_sessions')
-      .update({ reservation_status: 'processing' })
-      .eq('token', bookingToken)
-      .or('reservation_status.is.null,reservation_status.eq.failed')
-      .select('token');
-    if (!claimed || claimed.length === 0) {
+    // Duplicate webhook guard: skip if already processing or succeeded.
+    // Uses the session data already fetched above — avoids the broken .or() filter on PATCH.
+    const currentStatus = sessionRow?.reservation_status;
+    if (currentStatus === 'processing' || currentStatus === 'succeeded') {
       console.log('[billplz-callback] Reservation already processing or completed, skipping duplicate webhook', { bookingToken });
       return NextResponse.json({ success: true, message: 'Reservation already being processed or completed' });
     }
+    await supabase
+      .from('booking_sessions')
+      .update({ reservation_status: 'processing' })
+      .eq('token', bookingToken);
 
     // Build rooms array from cart (each roomID gets its own entry)
     const rooms = bookingPayload.bookingCart.cart.flatMap((item: { roomIDs?: string[]; roomTypeID: string; rateId?: string; ratePlanName?: string; quantity?: number; roomName?: string }) =>
